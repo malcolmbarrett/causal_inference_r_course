@@ -158,8 +158,8 @@ halfmoon::plot_mirror_distributions(
   nhefs_complete_uc |>
     mutate(weighted = wts),
   .fitted,
-  .group = qsmk,
-  .wts = weighted
+  .exposure = qsmk,
+  .weights = weighted
 ) +
   theme_minimal(base_size = 12) +
   theme(
