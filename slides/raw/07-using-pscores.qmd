@@ -54,15 +54,11 @@ Direct Adjustment
 #| include: false
 library(tidyverse)
 library(broom)
-library(causaldata)
+library(causalworkshop)
 propensity_model <- glm(
-  qsmk ~ sex + 
-    race + age + I(age^2) + education + 
-    smokeintensity + I(smokeintensity^2) + 
-    smokeyrs + I(smokeyrs^2) + exercise + active + 
-    wt71 + I(wt71^2), 
-  family = binomial(), 
-  data = nhefs_complete
+  net ~ income + health + temperature,
+  family = binomial(),
+  data = net_data
 )
 ```
 
@@ -166,15 +162,11 @@ ggplot(aes(x = x, y = y, color = color)) +
 
 ```{r}
 #| output-location: fragment
-#| code-line-numbers: "|2|3-7|"
+#| code-line-numbers: "|2|3-4|"
 library(MatchIt)
 m <- matchit(
-  qsmk ~ sex + 
-    race + age + I(age^2) + education + 
-    smokeintensity + I(smokeintensity^2) + 
-    smokeyrs + I(smokeyrs^2) + exercise + 
-    active + wt71 + I(wt71^2), 
-  data = nhefs_complete
+  net_num ~ income + health + temperature,
+  data = net_data
 )
 m
 ```
@@ -239,14 +231,10 @@ ggplot(aes(x = x, y = y, color = color)) +
 
 ```{r}
 #| output-location: fragment
-#| code-line-numbers: "|8"
+#| code-line-numbers: "|4"
 m <- matchit(
-  qsmk ~ sex + 
-    race + age + I(age^2) + education + 
-    smokeintensity + I(smokeintensity^2) + 
-    smokeyrs + I(smokeyrs^2) + exercise + 
-    active + wt71 + I(wt71^2), 
-  data = nhefs_complete,
+  net_num ~ income + health + temperature,
+  data = net_data,
   estimand = "ATC"
 )
 m
@@ -301,18 +289,14 @@ ggplot(aes(x = x, y = y, color = color)) +
 ## Matching in R (ATM)
 
 ```{r}
-#| code-line-numbers: "|8-9"
+#| code-line-numbers: "|4-5"
 #| output-location: slide
 m <- matchit(
-  qsmk ~ sex + 
-    race + age + I(age^2) + education + 
-    smokeintensity + I(smokeintensity^2) + 
-    smokeyrs + I(smokeyrs^2) + exercise + 
-    active + wt71 + I(wt71^2), 
-  data = nhefs_complete,
-  link = "linear.logit", 
+  net_num ~ income + health + temperature,
+  data = net_data,
+  link = "linear.logit",
   caliper = 0.1
-) 
+)
 m
 ```
 
@@ -355,14 +339,14 @@ Direct Adjustment
 #| include: false
 library(propensity)
 df <- propensity_model |>
-  augment(type.predict = "response", data = nhefs_complete) |>
+  augment(type.predict = "response", data = net_data) |>
   mutate(
-    w_ate = wt_ate(.fitted, qsmk),
-    w_att = wt_att(.fitted, qsmk),
-    w_atc = wt_atu(.fitted, qsmk),
-    w_atm = wt_atm(.fitted, qsmk),
-    w_ato = wt_ato(.fitted, qsmk),
-    qsmk = factor(qsmk)
+    w_ate = wt_ate(.fitted, net),
+    w_att = wt_att(.fitted, net),
+    w_atc = wt_atu(.fitted, net),
+    w_atm = wt_atm(.fitted, net),
+    w_ato = wt_ato(.fitted, net),
+    net = factor(net)
   )
 ```
 
@@ -372,7 +356,7 @@ df <- propensity_model |>
 #| warning: false
 library(halfmoon)
 ggplot(df, aes(.fitted)) + 
-  geom_mirror_histogram(bins = 50, aes(group = qsmk)) + 
+  geom_mirror_histogram(bins = 50, aes(group = net)) + 
   geom_hline(yintercept = 0, lwd = 0.5) +
   ylab("count") + 
   xlab("propensity score") +
@@ -398,8 +382,8 @@ $$\Large w_{ATE} = \frac{Z_i}{p_i} + \frac{1-Z_i}{1 - p_i}$$
 #| message: false
 #| warning: false
 ggplot(df, aes(.fitted)) + 
-  geom_mirror_histogram(bins = 50, aes(group = qsmk)) + 
-  geom_mirror_histogram(bins = 50, aes(fill = qsmk, weight = w_ate), alpha = 0.5) + 
+  geom_mirror_histogram(bins = 50, aes(group = net)) + 
+  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_ate), alpha = 0.5) + 
   geom_hline(yintercept = 0, lwd = 0.5) +
   ylab("count") + 
   xlab("propensity score") +
@@ -435,8 +419,8 @@ Average Treatment Effect Among the Controls (ATC) $$\Large w_{ATC} = \frac{(1-p_
 #| message: false
 #| warning: false
 ggplot(df, aes(.fitted)) + 
-  geom_mirror_histogram(bins = 50, aes(group = qsmk)) + 
-  geom_mirror_histogram(bins = 50, aes(fill = qsmk, weight = w_att), alpha = 0.5) + 
+  geom_mirror_histogram(bins = 50, aes(group = net)) + 
+  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_att), alpha = 0.5) + 
   geom_hline(yintercept = 0, lwd = 0.5) +
   ylab("count") + 
   xlab("propensity score") +
@@ -452,8 +436,8 @@ ggplot(df, aes(.fitted)) +
 #| message: false
 #| warning: false
 ggplot(df, aes(.fitted)) + 
-  geom_mirror_histogram(bins = 50, aes(group = qsmk)) + 
-  geom_mirror_histogram(bins = 50, aes(fill = qsmk, weight = w_atc), alpha = 0.5) + 
+  geom_mirror_histogram(bins = 50, aes(group = net)) + 
+  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_atc), alpha = 0.5) + 
   geom_hline(yintercept = 0, lwd = 0.5) +
   ylab("count") + 
   xlab("propensity score") +
@@ -495,8 +479,8 @@ Average Treatment Effect Among the Overlap Population $$\Large w_{ATO} = (1-p_i)
 #| message: false
 #| warning: false
 ggplot(df, aes(.fitted)) + 
-  geom_mirror_histogram(bins = 50, aes(group = qsmk)) + 
-  geom_mirror_histogram(bins = 50, aes(fill = qsmk, weight = w_atm), alpha = 0.5) + 
+  geom_mirror_histogram(bins = 50, aes(group = net)) + 
+  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_atm), alpha = 0.5) + 
   geom_hline(yintercept = 0, lwd = 0.5) +
   ylab("count") + 
   xlab("propensity score") +
@@ -512,8 +496,8 @@ ggplot(df, aes(.fitted)) +
 #| message: false
 #| warning: false
 ggplot(df, aes(.fitted)) + 
-  geom_mirror_histogram(bins = 50, aes(group = qsmk)) + 
-  geom_mirror_histogram(bins = 50, aes(fill = qsmk, weight = w_ato), alpha = 0.5) + 
+  geom_mirror_histogram(bins = 50, aes(group = net)) + 
+  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_ato), alpha = 0.5) + 
   geom_hline(yintercept = 0, lwd = 0.5) +
   ylab("count") + 
   xlab("propensity score") +
@@ -532,8 +516,8 @@ Average Treatment Effect (ATE) $w_{ATE} = \frac{Z_i}{p_i} + \frac{1-Z_i}{1 - p_i
 #| code-line-numbers: "|4"
 library(propensity)
 df <- propensity_model |>
-  augment(type.predict = "response", data = nhefs_complete) |>
-  mutate(w_ate = wt_ate(.fitted, qsmk)) 
+  augment(type.predict = "response", data = net_data) |>
+  mutate(w_ate = wt_ate(.fitted, net))
 ```
 
 ## *Your Turn 2*
