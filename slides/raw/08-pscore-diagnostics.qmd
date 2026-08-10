@@ -57,40 +57,31 @@ smds <- tidy_smd(
 library(halfmoon)
 library(tidyverse)
 library(broom)
-library(causaldata)
+library(causalworkshop)
 library(propensity)
 
 propensity_model <- glm(
-  qsmk ~ sex + 
-    race + age + I(age^2) + education + 
-    smokeintensity + I(smokeintensity^2) + 
-    smokeyrs + I(smokeyrs^2) + exercise + active + 
-    wt71 + I(wt71^2), 
-  family = binomial(), 
-  data = nhefs_complete
+  net ~ income + health + temperature,
+  family = binomial(),
+  data = net_data
 )
 
-nhefs_complete_wts <- propensity_model |>
-  augment(type.predict = "response", data = nhefs_complete) |>
-  mutate(w_ate = wt_ate(.fitted, qsmk))
+net_data_wts <- propensity_model |>
+  augment(type.predict = "response", data = net_data) |>
+  mutate(w_ate = wt_ate(.fitted, net))
 ```
 
 
 ```{r}
 #| output-location: slide
 #| eval: true
-vars <- c(
-  "sex", "race", "age", "education",
-  "smokeintensity", "smokeyrs", 
-  "exercise", "active", "wt71"
-)
+vars <- c("income", "health", "temperature")
 
 smds <- tidy_smd(
-  nhefs_complete_wts,
+  net_data_wts,
   .vars = all_of(vars),
-  .group = qsmk,
-  .wts = w_ate,
-  make_dummy_vars = TRUE
+  .group = net,
+  .wts = w_ate
 )
 
 smds
@@ -153,12 +144,12 @@ For continuous variables, it can be helpful to look at the _whole_ distribution 
 #| message: false
 #| warning: false
 #| eval: true
-ggplot(nhefs_complete_wts, aes(x = wt71, color = factor(qsmk))) +
+ggplot(net_data_wts, aes(x = income, color = factor(net))) +
   geom_ecdf() +
-  scale_color_manual("Quit smoking", values = c("#5154B8", "#5DB854"),
-                     labels = c("Yes", "No")) + 
-  xlab("Weight in Kg in 1971") + 
-  ylab("Proportion <= x") 
+  scale_color_manual("Net use", values = c("#5154B8", "#5DB854"),
+                     labels = c("No", "Yes")) +
+  xlab("Income") +
+  ylab("Proportion <= x")
 ```
 
 ## Unweighted ECDF
@@ -167,15 +158,15 @@ ggplot(nhefs_complete_wts, aes(x = wt71, color = factor(qsmk))) +
 #| code-line-numbers: "|1|2"
 #| eval: true
 #| output-location: slide
-ggplot(nhefs_complete_wts, aes(x = wt71, color = factor(qsmk))) + 
+ggplot(net_data_wts, aes(x = income, color = factor(net))) +
   geom_ecdf() +
   scale_color_manual(
-    "Quit smoking", 
+    "Net use",
     values = c("#5154B8", "#5DB854"),
-    labels = c("Yes", "No")
-  ) + 
-  xlab("Weight in Kg in 1971") + 
-  ylab("Proportion <= x") 
+    labels = c("No", "Yes")
+  ) +
+  xlab("Income") +
+  ylab("Proportion <= x")
 ```
 
 
@@ -185,15 +176,15 @@ ggplot(nhefs_complete_wts, aes(x = wt71, color = factor(qsmk))) +
 #| eval: true
 #| code-line-numbers: "|2"
 #| output-location: slide
-ggplot(nhefs_complete_wts, aes(x = wt71, color = factor(qsmk))) +
+ggplot(net_data_wts, aes(x = income, color = factor(net))) +
   geom_ecdf(aes(weights = w_ate)) +
   scale_color_manual(
-    "Quit smoking", 
+    "Net use",
     values = c("#5154B8", "#5DB854"),
-    labels = c("Yes", "No")
-  ) + 
-  xlab("Weight in Kg in 1971") + 
-  ylab("Proportion <= x (Weighted)") 
+    labels = c("No", "Yes")
+  ) +
+  xlab("Income") +
+  ylab("Proportion <= x (Weighted)")
 ```
 
 ## *Your turn 2*
@@ -247,12 +238,12 @@ library(gtsummary)
 
 svy_des <- svydesign(
   ids = ~ 1,
-  data = nhefs_complete_wts |> select(wt71, race, age, sex, smokeintensity, smokeyrs, exercise, active, w_ate, qsmk),
+  data = net_data_wts |> select(income, health, temperature, w_ate, net),
   weights = ~ w_ate
 )
 theme_gtsummary_compact()
 
-tbl_svysummary(svy_des, by = qsmk, include = -w_ate) |>
+tbl_svysummary(svy_des, by = net, include = c(income, health, temperature)) |>
   add_difference(everything() ~ "smd") |>
   modify_column_hide(ci)
 ```
