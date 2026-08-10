@@ -245,7 +245,7 @@ dag_base +
 
 # Two Causal Questions {background-color="#23373B"}
 
-## **Does mosquito bed net use reduce malaria risk?**
+## **Does bed net use reduce malaria risk?**
 
 ```{r}
 #| echo: false
