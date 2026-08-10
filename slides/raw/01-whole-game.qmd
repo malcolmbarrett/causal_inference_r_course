@@ -375,7 +375,6 @@ ggplot(net_data_wts, aes(.fitted)) +
 
 ```{r}
 #| echo: false
-#| fig-height: 5.5
 
 plot_df <- tidy_smd(
   net_data_wts,
@@ -387,7 +386,6 @@ plot_df <- tidy_smd(
 
 ```{r}
 #| echo: false
-#| fig-height: 5.5
 
 ggplot(
   data = plot_df |> filter(method == "observed"),
@@ -403,7 +401,6 @@ ggplot(
 
 ```{r}
 #| echo: false
-#| fig-height: 5.5
 
 ggplot(
   data = plot_df,
