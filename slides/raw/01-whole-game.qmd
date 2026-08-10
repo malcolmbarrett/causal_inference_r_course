@@ -591,6 +591,7 @@ tipping_points |>
 
 ```{r}
 #| echo: false
+#| fig-asp: 0.9
 
 tipping_points |>
   ggplot(aes(confounder_outcome_effect, exposure_confounder_effect)) +
@@ -599,7 +600,7 @@ tipping_points |>
   theme_minimal(base_size = 20) +
   labs(
     x = "Confounder-Outcome Effect",
-    y = "Scaled mean differences in\n confounder between exposure groups"
+    y = "Scaled mean difference in\nconfounder between\nexposure groups"
   )
 ```
 

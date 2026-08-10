@@ -6,7 +6,7 @@ format: html
 ```{r}
 #| label: setup
 
-options(tipr.verbose = FALSE)
+options(tipr.verbose = FALSE, propensity.quiet = TRUE)
 library(tidyverse)
 library(broom)
 library(rsample)
@@ -43,9 +43,13 @@ includes ten variables:
 `id`
 :   an ID variable
 
-`net` and `net_num`
-:   a binary variable indicating if the participant used a net (1) or didn't use
-    a net (0)
+`net`
+:   a logical variable that is TRUE if the participant used a net and FALSE if
+    they didn't
+
+`net_num`
+:   the same variable coded numerically, 1 if the participant used a net and 0
+    if they didn't
 
 `malaria_risk`
 :   a risk of malaria scale ranging from 0-100
@@ -420,11 +424,7 @@ fit_ipw <- function(.split, ...) {
   # calculate inverse probability weights
   .df <- propensity_model |>
     augment(type.predict = "response", data = .df) |>
-    mutate(wts = wt_ate(
-      .fitted,
-      net,
-      exposure_type = "binary"
-    ))
+    mutate(wts = wt_ate(.fitted, net))
 
   # fit correctly bootstrapped ipw model
   lm(malaria_risk ~ net, data = .df, weights = wts) |>
@@ -518,7 +518,7 @@ tipping_points |>
   theme_minimal(base_size = 20) +
   labs(
     x = "Confounder-Outcome Effect",
-    y = "Scaled mean differences in\n confounder between exposure groups"
+    y = "Scaled mean difference in\nconfounder between\nexposure groups"
   )
 ```
 
@@ -657,11 +657,7 @@ fit_ipw_full <- function(.split, ...) {
   # calculate inverse probability weights
   .df <- propensity_model |>
     augment(type.predict = "response", data = .df) |>
-    mutate(wts = wt_ate(
-      .fitted,
-      net,
-      exposure_type = "binary"
-    ))
+    mutate(wts = wt_ate(.fitted, net))
 
   # fit correctly bootstrapped ipw model
   lm(malaria_risk ~ net, data = .df, weights = wts) |>
