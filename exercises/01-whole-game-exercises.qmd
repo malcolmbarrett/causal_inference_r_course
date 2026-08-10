@@ -1,0 +1,703 @@
+---
+title: "Causal Modeling in R: Whole Game"
+format: html
+---
+
+```{r}
+#| label: setup
+
+options(tipr.verbose = FALSE)
+library(tidyverse)
+library(broom)
+library(rsample)
+library(ggdag)
+library(ggokabeito)
+library(causalworkshop)
+library(propensity)
+library(halfmoon)
+library(estimatr)
+library(tipr)
+
+set.seed(1234)
+```
+
+## Causal Modeling: Whole Game
+
+In this guided exercise, we'll attempt to answer a causal question: does
+mosquito bed net use reduce the risk of malaria? Bed nets prevent malaria by
+putting a barrier between sleeping people and the mosquitoes that carry the
+parasite, and several randomized trials in the 1990s established that they work.
+There are still good reasons to ask the question with observational data: a
+trial may be too slow, too expensive, or, now that we know nets are effective,
+unethical to run.
+
+To answer this question, we'll draw our assumptions with a causal diagram (a
+directed acyclic graph, or DAG), which will guide our model. Then we'll use
+inverse probability weighting, one of many causal modeling techniques, to
+estimate the causal effect we're interested in. Finally, we'll ask how much
+unmeasured confounding it would take to change our conclusion.
+
+We'll use simulated data, `net_data`, from the {causalworkshop} package, which
+includes ten variables:
+
+`id`
+:   an ID variable
+
+`net` and `net_num`
+:   a binary variable indicating if the participant used a net (1) or didn't use
+    a net (0)
+
+`malaria_risk`
+:   a risk of malaria scale ranging from 0-100
+
+`income`
+:   weekly income, measured in dollars
+
+`health`
+:   a health score scale ranging from 0-100
+
+`household`
+:   number of people living in the household
+
+`eligible`
+:   a binary variable indicating if the household is eligible for the free net
+    program
+
+`temperature`
+:   the average temperature at night, in Celsius
+
+`insecticide_resistance`
+:   insecticide resistance of local mosquitoes, measured on a scale of 0-100,
+    with higher values indicating higher resistance
+
+Our thanks to Andrew Heiss for providing these data!
+
+```{r}
+library(causalworkshop)
+net_data
+```
+
+Let's look at the distribution of malaria risk between the two groups.
+
+```{r}
+net_data |>
+  ggplot(aes(malaria_risk, fill = net)) +
+  geom_density(color = NA, alpha = 0.8) +
+  scale_fill_okabe_ito(order = c(1, 5)) +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  labs(
+    x = "malaria risk (0-100)",
+    fill = "used a net"
+  )
+```
+
+The density of those who used nets sits to the left of those who did not, so net
+use looks protective. Let's look at the numeric summaries.
+
+```{r}
+net_data |>
+  group_by(net) |>
+  summarize(
+    mean_malaria_risk = mean(malaria_risk),
+    sd = sd(malaria_risk),
+    .groups = "drop"
+  )
+```
+
+Households that used a net had a mean malaria risk of 27.5, compared with 43.9
+among households that did not, a difference of about 16 points. But is there
+something else that could explain these results? Many factors are associated
+with both net use and malaria risk; could one of those factors explain away what
+we're seeing here?
+
+To answer that, we need to specify a causal diagram based on domain knowledge.
+For most circumstances, there is no data-driven approach that consistently
+identifies confounders. Only our causal assumptions can help us identify them.
+Causal diagrams are a visual expression of those assumptions linked to rigorous
+mathematics that let us work out what we need to account for in our model.
+
+In R, we can visualize and analyze our DAGs with the {ggdag} package. {ggdag}
+uses {ggplot2} and {ggraph} to visualize diagrams and {dagitty} to analyze them.
+The `dagify()` function takes formulas, much like `lm()` and friends, to express
+assumptions. Here we say that malaria risk is caused by net use, income, health,
+nighttime temperatures, and insecticide resistance; that net use is caused by
+income, health, temperature, eligibility for the free net program, and household
+size; that eligibility is determined by income and household size; and that
+health is caused by income. We also identify the exposure and the outcome, lay
+the nodes out by hand, and add labels so the diagram is easier to read.
+
+```{r}
+mosquito_dag <- dagify(
+  malaria_risk ~ net + income + health + temperature + resistance,
+  net ~ income + health + temperature + eligible + household,
+  eligible ~ income + household,
+  health ~ income,
+  exposure = "net",
+  outcome = "malaria_risk",
+  coords = list(
+    x = c(
+      malaria_risk = 7,
+      net = 3,
+      income = 4,
+      health = 5,
+      temperature = 6,
+      resistance = 8.5,
+      eligible = 2,
+      household = 1
+    ),
+    y = c(
+      malaria_risk = 2,
+      net = 2,
+      income = 3,
+      health = 1,
+      temperature = 3,
+      resistance = 2,
+      eligible = 3,
+      household = 2
+    )
+  ),
+  labels = c(
+    malaria_risk = "Risk of malaria",
+    net = "Mosquito net",
+    income = "Income",
+    health = "Health",
+    temperature = "Nighttime temperatures",
+    resistance = "Insecticide resistance",
+    eligible = "Eligible for program",
+    household = "Number in the household"
+  )
+) |>
+  tidy_dagitty()
+
+mosquito_dag
+```
+
+Let's visualize our assumptions.
+
+```{r}
+mosquito_dag |>
+  node_status() |>
+  ggplot(
+    aes(x, y, xend = xend, yend = yend, color = status)
+  ) +
+  geom_dag_edges() +
+  geom_dag_point() +
+  geom_dag_label_repel(
+    aes(x, y, label = label),
+    box.padding = 3.5,
+    inherit.aes = FALSE,
+    max.overlaps = Inf,
+    seed = 10,
+    label.size = NA,
+    label.padding = 0.1,
+    size = 14 / 3
+  ) +
+  theme_dag(base_size = 14) +
+  theme(legend.position = "none") +
+  labs(caption = "Thanks to Andrew Heiss for the data!") +
+  coord_cartesian(clip = "off") +
+  scale_color_okabe_ito(na.value = "grey90")
+```
+
+If this DAG is right, the association we saw above is a mixture of eight open
+paths: the causal path from net use to malaria risk and seven confounding paths.
+What do we need to control for to block those seven? In many DAGs there will be
+several sets of variables, called adjustment sets, that do the job.
+`ggdag_adjustment_set()` visualizes them. Here there is only one: income,
+health, and temperature.
+
+```{r}
+mosquito_dag |>
+  ggdag_adjustment_set(text = FALSE, use_labels = "label", shadow = TRUE) +
+  theme_dag() +
+  scale_color_okabe_ito(order = c(1, 5)) +
+  scale_fill_okabe_ito(order = c(1, 5))
+```
+
+Let's fit a model with these variables. Because the data are simulated, we know
+we don't need splines or interactions here; in practice, you often do.
+
+```{r}
+lm(
+  malaria_risk ~ net + income + health + temperature,
+  data = net_data
+) |>
+  tidy(conf.int = TRUE) |>
+  filter(term == "netTRUE")
+```
+
+Adjusting for the variables in our adjustment set gives an estimate of about
+-12.0 (95% CI -12.6, -11.4), a good deal smaller than the unadjusted difference
+of 16 points. However, we are trying to answer a specific causal question: how
+much would malaria risk change if a person used a net compared with if that same
+person did not? Let's use an inverse probability weighting model to estimate
+that effect at the population level (what if *everyone* used a net versus what
+if *no one* did).
+
+For a simple IPW model, we have two modeling steps. First, we fit a propensity
+score model, which predicts the probability of the exposure (here, that a
+household used a net). We use this model to calculate inverse probability
+weights, the inverse of the probability of the exposure you actually received.
+Then, in the second step, we use those weights in the outcome model, which
+estimates the effect of the exposure on the outcome.
+
+For the propensity score model, we'll use logistic regression, since net use is
+a binary variable. The outcome is net use, and the variables in the model are
+those in our adjustment set. Then we'll use `augment()` from {broom}, which
+calls `predict()` on the inside, to calculate our weights with
+`propensity::wt_ate()` and save them back into our data set.
+
+```{r}
+propensity_model <- glm(
+  net ~ income + health + temperature,
+  family = binomial(),
+  data = net_data
+)
+
+net_data_wts <- propensity_model |>
+  # predict whether a household used a net
+  augment(data = net_data, type.predict = "response") |>
+  # calculate inverse probability
+  mutate(wts = wt_ate(.fitted, net))
+
+net_data_wts |>
+  select(net, .fitted, wts)
+```
+
+Let's look at the distribution of the weights.
+
+```{r}
+ggplot(net_data_wts, aes(wts)) +
+  geom_histogram(color = "white", fill = "#E69F00", bins = 50) +
+  theme_minimal(base_size = 20) +
+  xlab("Weights")
+```
+
+The weights are skewed, but the largest is under 9, so there are no outrageous
+values. If we saw extreme weights, we might try trimming or stabilizing them, or
+consider a different estimand.
+
+The main goal here is to *break* the non-causal associations between net use and
+malaria risk, the other paths that might distort our results. In other words, if
+we succeed, there should be no differences in the confounders between our two
+groups. This is where randomized trials shine; you can often assume that there
+are no baseline differences among potential confounders between treatment
+groups.
+
+Standardized mean differences (SMDs) are a simple measurement of differences
+that work across variable types. In general, the closer to 0 we are, the better
+job we have done eliminating the non-causal relationships we drew in our DAG.
+Note that low SMDs for everything we adjust for does *not* mean that there is
+nothing else confounding our study. Unmeasured confounders or misspecified DAGs
+can still distort our effects, even if our SMDs look great.
+
+We'll use the {halfmoon} package to calculate the SMDs, then visualize them.
+
+```{r}
+plot_df <- tidy_smd(
+  net_data_wts,
+  c(income, health, temperature),
+  .group = net,
+  .wts = wts
+)
+
+ggplot(
+  plot_df,
+  aes(x = abs(smd), y = variable, group = method, color = method)
+) +
+  geom_love()
+```
+
+A standard guideline is that balanced confounders should have an SMD of less
+than 0.1 on the absolute scale. Income and health are well above that line
+before weighting; after weighting, all three confounders sit close to 0.
+
+We can also use halfmoon's `geom_mirror_histogram()` to visualize the impact the
+weights are having on our population.
+
+```{r}
+ggplot(net_data_wts, aes(.fitted)) +
+  geom_mirror_histogram(
+    aes(group = net),
+    bins = 50
+  ) +
+  geom_mirror_histogram(
+    aes(fill = net, weight = wts),
+    bins = 50,
+    alpha = 0.5
+  ) +
+  scale_y_continuous(labels = abs) +
+  labs(x = "propensity score") +
+  theme_minimal(base_size = 20)
+```
+
+Both groups are being *upweighted* so that their distributions of propensity
+scores are much more similar.
+
+We could do more here to analyze our assumptions, but let's move on to our
+second step: fitting the outcome model weighted by our inverse probabilities.
+Some researchers call these marginal structural models, in part because the
+model is marginal; we only need to include our outcome (`malaria_risk`) and
+exposure (`net`). The other variables aren't in the model; they are accounted
+for by the weights.
+
+```{r}
+ipw_model <- lm(
+  malaria_risk ~ net,
+  data = net_data_wts,
+  weights = wts # inverse probability weights
+)
+
+ipw_estimate <- ipw_model |>
+  tidy(conf.int = TRUE) |>
+  filter(term == "netTRUE")
+
+ipw_estimate
+```
+
+This estimate, -12.5, is close to what we saw from the multivariable regression.
+For simple causal questions this is often the case: adjusting for confounders
+directly in the regression model sometimes estimates the same effect as IPW and
+other causal techniques. Causal techniques are special, though, because they use
+counterfactual modeling, which lets us handle circumstances such as selection
+bias and time-dependent confounding.
+
+But we have another problem to address. While we're using `lm()` to estimate our
+IPW model, it doesn't properly account for the fact that we estimated the
+weights. That means our standard error is too small, which artificially narrows
+confidence intervals and artificially shrinks p-values. There are many ways to
+address this, including robust estimators. We'll focus on the bootstrap via the
+{rsample} package, but here's one way to do it with robust standard errors:
+
+```{r}
+# also see robustbase, survey, gee, and others
+ipw_model_robust <- lm_robust(
+  malaria_risk ~ net,
+  data = net_data_wts,
+  weights = wts
+)
+
+ipw_estimate_robust <- ipw_model_robust |>
+  tidy(conf.int = TRUE) |>
+  filter(term == "netTRUE")
+
+as_tibble(ipw_estimate_robust)
+```
+
+Now let's try the bootstrap. First, we need to wrap our model in a function so
+we can call it many times on our bootstrapped data. A function like this might
+be your instinct; however, it's not quite right.
+
+```{r}
+# fit ipw model for a single bootstrap sample
+fit_ipw_not_quite_rightly <- function(.split, ...) {
+  # get bootstrapped data frame
+  .df <- as.data.frame(.split)
+
+  # fit ipw model
+  lm(malaria_risk ~ net, data = .df, weights = wts) |>
+    tidy()
+}
+```
+
+The problem is that we need to account for the *entire* modeling process, so we
+need to include the first step of our analysis, fitting the inverse probability
+weights.
+
+```{r}
+fit_ipw <- function(.split, ...) {
+  # get bootstrapped data frame
+  .df <- as.data.frame(.split)
+
+  # fit propensity score model
+  propensity_model <- glm(
+    net ~ income + health + temperature,
+    family = binomial(),
+    data = .df
+  )
+
+  # calculate inverse probability weights
+  .df <- propensity_model |>
+    augment(type.predict = "response", data = .df) |>
+    mutate(wts = wt_ate(
+      .fitted,
+      net,
+      exposure_type = "binary"
+    ))
+
+  # fit correctly bootstrapped ipw model
+  lm(malaria_risk ~ net, data = .df, weights = wts) |>
+    tidy()
+}
+```
+
+{rsample} makes the rest easy for us: `bootstraps()` resamples our data 1000
+times, then we can use `purrr::map()` to apply our function to each resampled
+set (`splits`). {rsample}'s `int_*()` functions help us get confidence intervals
+for our estimate.
+
+```{r}
+# fit ipw model to bootstrapped samples
+ipw_results <- bootstraps(net_data, times = 1000, apparent = TRUE) |>
+  mutate(results = map(splits, fit_ipw))
+
+# get t-statistic-based CIs
+boot_estimate <- int_t(ipw_results, results) |>
+  filter(term == "netTRUE")
+
+boot_estimate
+```
+
+Let's compare the three sets of confidence intervals.
+
+```{r}
+bind_rows(
+  ipw_estimate |>
+    select(estimate, conf.low, conf.high) |>
+    mutate(type = "ols"),
+  ipw_estimate_robust |>
+    select(estimate, conf.low, conf.high) |>
+    mutate(type = "robust"),
+  boot_estimate |>
+    select(estimate = .estimate, conf.low = .lower, conf.high = .upper) |>
+    mutate(type = "bootstrap")
+) |>
+  #  calculate CI width to sort by it
+  mutate(width = conf.high - conf.low) |>
+  arrange(width) |>
+  #  fix the order of the model types for the plot
+  mutate(type = fct_inorder(type)) |>
+  ggplot(aes(x = type, y = estimate, ymin = conf.low, ymax = conf.high)) +
+  geom_pointrange(color = "#0172B1", size = 1, fatten = 3) +
+  coord_flip() +
+  theme_minimal(base_size = 20) +
+  theme(axis.title.y = element_blank())
+```
+
+So we have an estimate for our causal effect. The average treatment effect of
+net use on malaria risk, comparing a world where everyone used a net with one
+where no one did, is -12.5 (95% CI -13.4, -11.6).
+
+# Sensitivity analysis
+
+Getting the right answer to a causal question depends on getting our assumptions
+more or less right. But what if we're more on the less side?
+
+Spoiler alert: the answer we just calculated is wrong.
+
+When conducting a causal analysis, it's a good idea to use sensitivity analyses
+to test your assumptions. There are many potential sources of bias in a study
+and many sensitivity analyses to go with them; here we'll focus on the
+assumption of no unmeasured confounding.
+
+Let's start broad. When we have little information about an unmeasured
+confounder, we can use a tipping point analysis to ask how much confounding it
+would take to tip our estimate to the null. The {tipr} package is a toolkit for
+these analyses. `tip_coef()` takes an estimate, here the upper bound of our
+confidence interval, which is closer to 0, and either the scaled difference in
+means of the confounder between exposure groups or the effect of the confounder
+on the outcome. We'll ask for five scenarios, where the scaled mean difference
+in the confounder between exposure groups is 1, 2, 3, 4, or 5.
+
+```{r}
+tipping_points <- tip_coef(
+  boot_estimate$.upper,
+  exposure_confounder_effect = 1:5
+)
+
+tipping_points |>
+  select(exposure_confounder_effect, confounder_outcome_effect)
+```
+
+```{r}
+tipping_points |>
+  ggplot(aes(confounder_outcome_effect, exposure_confounder_effect)) +
+  geom_line(color = "#009E73", linewidth = 1.1) +
+  geom_point(fill = "#009E73", color = "white", size = 2.5, shape = 21) +
+  theme_minimal(base_size = 20) +
+  labs(
+    x = "Confounder-Outcome Effect",
+    y = "Scaled mean differences in\n confounder between exposure groups"
+  )
+```
+
+If we had an unmeasured confounder whose standardized mean difference between
+exposure groups was 1, it would need to reduce malaria risk by about 11.6 to tip
+our upper confidence bound to 0. That is strong relative to the other effects in
+this analysis. If instead the relationship between net use and the unmeasured
+confounder were very strong, with a scaled mean difference of 5, the
+confounder-malaria relationship would only need to be -2.3. Which of these
+scenarios is plausible given our domain knowledge?
+
+Now let's consider a much more specific sensitivity analysis. Some ethnic groups
+have a genetic resistance to malaria. Let's say that in our simulated data, an
+unnamed group in the unnamed country shares this resistance, and that for
+historical reasons net use in this group is also very high. We don't have this
+variable in `net_data`, but let's say we know from the literature that:
+
+1. People with this genetic resistance have, on average, a malaria risk lower by
+   about 10.
+2. About 26% of people who use nets in our study have this genetic resistance.
+3. About 5% of people who don't use nets have this genetic resistance.
+
+With this much information, we can use {tipr} to adjust the estimates we
+calculated for the unmeasured confounder. `adjust_coef_with_binary()` calculates
+the adjusted estimates.
+
+```{r}
+adjusted_estimates <- boot_estimate |>
+  select(.estimate, .lower, .upper) |>
+  unlist() |>
+  adjust_coef_with_binary(
+    exposed_confounder_prev = 0.26,
+    unexposed_confounder_prev = 0.05,
+    confounder_outcome_effect = -10
+  )
+
+adjusted_estimates
+```
+
+The adjusted estimate for a situation where genetic resistance to malaria is a
+confounder is -10.4 (95% CI -11.3, -9.5).
+
+In fact, these data were simulated with just such a confounder. The true DAG
+that generated the data is the one we drew plus one more variable, genetic
+resistance to malaria, which reduces malaria risk and increases net use. It is
+thus a confounder and part of the minimal adjustment set. By leaving it out, we
+calculated the wrong effect.
+
+```{r}
+mosquito_dag_full <- dagify(
+  malaria_risk ~ net + income + health + temperature +
+    insecticide_resistance + genetic_resistance,
+  net ~ income + health + temperature + eligible +
+    household + genetic_resistance,
+  eligible ~ income + household,
+  health ~ income,
+  exposure = "net",
+  outcome = "malaria_risk",
+  coords = list(
+    x = c(
+      malaria_risk = 7,
+      net = 3,
+      income = 4,
+      health = 5,
+      temperature = 6,
+      insecticide_resistance = 8.5,
+      eligible = 2,
+      household = 1,
+      genetic_resistance = 8.5
+    ),
+    y = c(
+      malaria_risk = 2,
+      net = 2,
+      income = 3,
+      health = 1,
+      temperature = 3,
+      insecticide_resistance = 2,
+      eligible = 3,
+      household = 2,
+      genetic_resistance = 1
+    )
+  ),
+  labels = c(
+    malaria_risk = "Risk of malaria",
+    net = "Mosquito net",
+    income = "Income",
+    health = "Health",
+    temperature = "Nighttime temperatures",
+    insecticide_resistance = "Insecticide resistance",
+    eligible = "Eligible for program",
+    household = "Number in the household",
+    genetic_resistance = "Malaria resistance"
+  )
+) |>
+  tidy_dagitty()
+
+mosquito_dag_full |>
+  node_status() |>
+  ggplot(
+    aes(x, y, xend = xend, yend = yend, color = status)
+  ) +
+  geom_dag_edges() +
+  geom_dag_point() +
+  geom_dag_label_repel(
+    aes(x, y, label = label),
+    box.padding = 3.5,
+    inherit.aes = FALSE,
+    max.overlaps = Inf,
+    seed = 10,
+    label.size = NA,
+    label.padding = 0.1,
+    size = 14 / 3
+  ) +
+  theme_dag(base_size = 14) +
+  theme(legend.position = "none") +
+  coord_cartesian(clip = "off") +
+  scale_color_okabe_ito(na.value = "grey90")
+```
+
+The unmeasured confounder is available in `net_data_full` as
+`genetic_resistance`. Let's add it to the propensity score model and recalculate
+the IPW estimate.
+
+```{r}
+fit_ipw_full <- function(.split, ...) {
+  # get bootstrapped data frame
+  .df <- as.data.frame(.split)
+
+  # add genetic resistance to the propensity score model
+  propensity_model <- glm(
+    net ~ income + health + temperature + genetic_resistance,
+    family = binomial(),
+    data = .df
+  )
+
+  # calculate inverse probability weights
+  .df <- propensity_model |>
+    augment(type.predict = "response", data = .df) |>
+    mutate(wts = wt_ate(
+      .fitted,
+      net,
+      exposure_type = "binary"
+    ))
+
+  # fit correctly bootstrapped ipw model
+  lm(malaria_risk ~ net, data = .df, weights = wts) |>
+    tidy()
+}
+
+ipw_results_full <- bootstraps(net_data_full, times = 1000, apparent = TRUE) |>
+  mutate(results = map(splits, fit_ipw_full))
+
+boot_estimate_full <- int_t(ipw_results_full, results) |>
+  filter(term == "netTRUE")
+
+boot_estimate_full
+```
+
+With the confounder measured, the estimate is -10.3 (95% CI -11.1, -9.3).
+Because these data are simulated, we know the true effect of net use on malaria
+risk is about -10, so our corrected estimate is close.
+
+What do you think? Is this estimate reliable? Did we do a good job addressing
+the assumptions we need to make for a causal effect, particularly that there is
+no confounding? How might you criticize this analysis, and what would you do
+differently? In practice we can never check our answer against the truth, so we
+need to keep probing our assumptions until we are confident they are robust.
+
+# Take aways
+
+- The broad strokes of a causal analysis are: 1) specify your causal question 2)
+  make your assumptions clear 3) model and diagnose those assumptions 4) use the
+  right estimator for the question you're asking and 5) ask how sensitive your
+  answer is to the assumptions you can't check. As scientists, we should be able
+  to critique each of these steps, and that's a good thing.
+- To create marginal structural models, first fit a propensity score model for
+  the weights with the exposure as the outcome. Then use the inverse of the
+  predicted probabilities as weights in a model with just the outcome and
+  exposure.
+- No amount of modeling fixes an unmeasured confounder. Sensitivity analyses
+  tell you how much unmeasured confounding it would take to change your
+  conclusion.
