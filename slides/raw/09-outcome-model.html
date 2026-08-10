@@ -6,8 +6,8 @@
 <script src="09-outcome-model_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="09-outcome-model_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="09-outcome-model_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="09-outcome-model_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<link href="09-outcome-model_files/libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
 
   <meta name="author" content="Malcolm Barrett">
   <title>Fitting the outcome model</title>
@@ -17,6 +17,9 @@
   <link rel="stylesheet" href="09-outcome-model_files/libs/revealjs/dist/reset.css">
   <link rel="stylesheet" href="09-outcome-model_files/libs/revealjs/dist/reveal.css">
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -95,7 +98,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="09-outcome-model_files/libs/revealjs/dist/theme/quarto-aac8c9227b08918aec88d28519f1f1ca.css">
+  <link rel="stylesheet" href="09-outcome-model_files/libs/revealjs/dist/theme/quarto-f3805f66672ef64978618ca456565276.css">
   <link href="09-outcome-model_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="09-outcome-model_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="09-outcome-model_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -212,10 +215,10 @@ Malcolm Barrett
 <section id="outcome-model" class="slide level2 large">
 <h2>Outcome Model</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">library</span>(broom)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">library</span>(broom)</span>
 <span id="cb1-2"><a href=""></a></span>
 <span id="cb1-3"><a href=""></a><span class="fu">lm</span>(outcome <span class="sc">~</span> exposure, <span class="at">data =</span> df, <span class="at">weights =</span> wts) <span class="sc">|&gt;</span></span>
-<span id="cb1-4"><a href=""></a>  <span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href=""></a>  <span class="fu">tidy</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="fragment">
 <p>✅ This will get us the point estimate</p>
@@ -231,45 +234,41 @@ Malcolm Barrett
 <h2>1. Create a function to run your analysis once on a sample of your data</h2>
 <div class="small">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb2" data-code-line-numbers="|1-2|5-13|16-18|21-22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a>fit_ipw <span class="ot">&lt;-</span> <span class="cf">function</span>(.split, ...) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" data-code-line-numbers="|1-2|5-9|12-14|17-18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a>fit_ipw <span class="ot">&lt;-</span> <span class="cf">function</span>(.split, ...) {</span>
 <span id="cb2-2"><a href=""></a>  .df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(.split)</span>
-<span id="cb2-3"><a href=""></a>  </span>
+<span id="cb2-3"><a href=""></a></span>
 <span id="cb2-4"><a href=""></a>  <span class="co"># fit propensity score model</span></span>
 <span id="cb2-5"><a href=""></a>  propensity_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb2-6"><a href=""></a>    qsmk <span class="sc">~</span> sex <span class="sc">+</span> </span>
-<span id="cb2-7"><a href=""></a>      race <span class="sc">+</span> age <span class="sc">+</span> <span class="fu">I</span>(age<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> education <span class="sc">+</span> </span>
-<span id="cb2-8"><a href=""></a>      smokeintensity <span class="sc">+</span> <span class="fu">I</span>(smokeintensity<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> </span>
-<span id="cb2-9"><a href=""></a>      smokeyrs <span class="sc">+</span> <span class="fu">I</span>(smokeyrs<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> exercise <span class="sc">+</span> active <span class="sc">+</span> </span>
-<span id="cb2-10"><a href=""></a>      wt71 <span class="sc">+</span> <span class="fu">I</span>(wt71<span class="sc">^</span><span class="dv">2</span>), </span>
-<span id="cb2-11"><a href=""></a>    <span class="at">family =</span> <span class="fu">binomial</span>(), </span>
-<span id="cb2-12"><a href=""></a>    <span class="at">data =</span> .df</span>
-<span id="cb2-13"><a href=""></a>  )</span>
-<span id="cb2-14"><a href=""></a>  </span>
-<span id="cb2-15"><a href=""></a>  <span class="co"># calculate inverse probability weights</span></span>
-<span id="cb2-16"><a href=""></a>  .df <span class="ot">&lt;-</span> propensity_model <span class="sc">|&gt;</span></span>
-<span id="cb2-17"><a href=""></a>    <span class="fu">augment</span>(<span class="at">type.predict =</span> <span class="st">"response"</span>, <span class="at">data =</span> .df) <span class="sc">|&gt;</span></span>
-<span id="cb2-18"><a href=""></a>    <span class="fu">mutate</span>(<span class="at">wts =</span> <span class="fu">wt_ate</span>(.fitted, qsmk, <span class="at">exposure_type =</span> <span class="st">"binary"</span>))</span>
-<span id="cb2-19"><a href=""></a>  </span>
-<span id="cb2-20"><a href=""></a>  <span class="co"># fit correctly bootstrapped ipw model</span></span>
-<span id="cb2-21"><a href=""></a>  <span class="fu">lm</span>(wt82_71 <span class="sc">~</span> qsmk, <span class="at">data =</span> .df, <span class="at">weights =</span> wts) <span class="sc">|&gt;</span></span>
-<span id="cb2-22"><a href=""></a>    <span class="fu">tidy</span>()</span>
-<span id="cb2-23"><a href=""></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-6"><a href=""></a>    net <span class="sc">~</span> income <span class="sc">+</span> health <span class="sc">+</span> temperature,</span>
+<span id="cb2-7"><a href=""></a>    <span class="at">family =</span> <span class="fu">binomial</span>(),</span>
+<span id="cb2-8"><a href=""></a>    <span class="at">data =</span> .df</span>
+<span id="cb2-9"><a href=""></a>  )</span>
+<span id="cb2-10"><a href=""></a></span>
+<span id="cb2-11"><a href=""></a>  <span class="co"># calculate inverse probability weights</span></span>
+<span id="cb2-12"><a href=""></a>  .df <span class="ot">&lt;-</span> propensity_model <span class="sc">|&gt;</span></span>
+<span id="cb2-13"><a href=""></a>    <span class="fu">augment</span>(<span class="at">type.predict =</span> <span class="st">"response"</span>, <span class="at">data =</span> .df) <span class="sc">|&gt;</span></span>
+<span id="cb2-14"><a href=""></a>    <span class="fu">mutate</span>(<span class="at">wts =</span> <span class="fu">wt_ate</span>(.fitted, net, <span class="at">exposure_type =</span> <span class="st">"binary"</span>))</span>
+<span id="cb2-15"><a href=""></a></span>
+<span id="cb2-16"><a href=""></a>  <span class="co"># fit correctly bootstrapped ipw model</span></span>
+<span id="cb2-17"><a href=""></a>  <span class="fu">lm</span>(malaria_risk <span class="sc">~</span> net, <span class="at">data =</span> .df, <span class="at">weights =</span> wts) <span class="sc">|&gt;</span></span>
+<span id="cb2-18"><a href=""></a>    <span class="fu">tidy</span>()</span>
+<span id="cb2-19"><a href=""></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </section>
 <section id="use-rsample-to-bootstrap-our-causal-effect" class="slide level2">
 <h2>2. Use {rsample} to bootstrap our causal effect</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb3" data-code-line-numbers="|4-8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">library</span>(rsample)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" data-code-line-numbers="|4-8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">library</span>(rsample)</span>
 <span id="cb3-2"><a href=""></a></span>
 <span id="cb3-3"><a href=""></a><span class="co"># fit ipw model to bootstrapped samples</span></span>
-<span id="cb3-4"><a href=""></a>bootstrapped_nhefs <span class="ot">&lt;-</span> <span class="fu">bootstraps</span>(</span>
-<span id="cb3-5"><a href=""></a>  nhefs_complete_uc, </span>
-<span id="cb3-6"><a href=""></a>  <span class="at">times =</span> <span class="dv">1000</span>, </span>
+<span id="cb3-4"><a href=""></a>bootstrapped_net_data <span class="ot">&lt;-</span> <span class="fu">bootstraps</span>(</span>
+<span id="cb3-5"><a href=""></a>  net_data,</span>
+<span id="cb3-6"><a href=""></a>  <span class="at">times =</span> <span class="dv">1000</span>,</span>
 <span id="cb3-7"><a href=""></a>  <span class="at">apparent =</span> <span class="cn">TRUE</span></span>
 <span id="cb3-8"><a href=""></a>)</span>
 <span id="cb3-9"><a href=""></a></span>
-<span id="cb3-10"><a href=""></a>bootstrapped_nhefs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-10"><a href=""></a>bootstrapped_net_data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
@@ -279,38 +278,38 @@ Malcolm Barrett
 # A tibble: 1,001 × 2
    splits             id           
    &lt;list&gt;             &lt;chr&gt;        
- 1 &lt;split [1566/592]&gt; Bootstrap0001
- 2 &lt;split [1566/571]&gt; Bootstrap0002
- 3 &lt;split [1566/583]&gt; Bootstrap0003
- 4 &lt;split [1566/579]&gt; Bootstrap0004
- 5 &lt;split [1566/592]&gt; Bootstrap0005
- 6 &lt;split [1566/577]&gt; Bootstrap0006
- 7 &lt;split [1566/578]&gt; Bootstrap0007
- 8 &lt;split [1566/579]&gt; Bootstrap0008
- 9 &lt;split [1566/578]&gt; Bootstrap0009
-10 &lt;split [1566/581]&gt; Bootstrap0010
+ 1 &lt;split [1752/640]&gt; Bootstrap0001
+ 2 &lt;split [1752/638]&gt; Bootstrap0002
+ 3 &lt;split [1752/638]&gt; Bootstrap0003
+ 4 &lt;split [1752/635]&gt; Bootstrap0004
+ 5 &lt;split [1752/639]&gt; Bootstrap0005
+ 6 &lt;split [1752/616]&gt; Bootstrap0006
+ 7 &lt;split [1752/651]&gt; Bootstrap0007
+ 8 &lt;split [1752/639]&gt; Bootstrap0008
+ 9 &lt;split [1752/628]&gt; Bootstrap0009
+10 &lt;split [1752/650]&gt; Bootstrap0010
 # ℹ 991 more rows</code></pre>
 </div>
 </div></section><section id="use-rsample-to-bootstrap-our-causal-effect-1" class="slide level2">
 <h2>2. Use {rsample} to bootstrap our causal effect</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="fu">fit_ipw</span>(bootstrapped_nhefs<span class="sc">$</span>splits[[<span class="dv">1</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="fu">fit_ipw</span>(bootstrapped_net_data<span class="sc">$</span>splits[[<span class="dv">1</span>]])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 5
   term        estimate std.error statistic  p.value
   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-1 (Intercept)     1.69     0.286      5.90 4.37e- 9
-2 qsmk            4.22     0.404     10.4  9.81e-25</code></pre>
+1 (Intercept)     43.4     0.470      92.3 0       
+2 netTRUE        -12.3     0.663     -18.5 7.88e-70</code></pre>
 </div>
 </div>
 </section>
 <section id="use-rsample-to-bootstrap-our-causal-effect-2" class="slide level2">
 <h2>2. Use {rsample} to bootstrap our causal effect</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb7" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a>ipw_results <span class="ot">&lt;-</span> bootstrapped_nhefs <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a>ipw_results <span class="ot">&lt;-</span> bootstrapped_net_data <span class="sc">|&gt;</span></span>
 <span id="cb7-2"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">boot_fits =</span> <span class="fu">map</span>(splits, fit_ipw)) </span>
 <span id="cb7-3"><a href=""></a></span>
-<span id="cb7-4"><a href=""></a>ipw_results</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-4"><a href=""></a>ipw_results</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
@@ -320,16 +319,16 @@ Malcolm Barrett
 # A tibble: 1,001 × 3
    splits             id            boot_fits       
    &lt;list&gt;             &lt;chr&gt;         &lt;list&gt;          
- 1 &lt;split [1566/592]&gt; Bootstrap0001 &lt;tibble [2 × 5]&gt;
- 2 &lt;split [1566/571]&gt; Bootstrap0002 &lt;tibble [2 × 5]&gt;
- 3 &lt;split [1566/583]&gt; Bootstrap0003 &lt;tibble [2 × 5]&gt;
- 4 &lt;split [1566/579]&gt; Bootstrap0004 &lt;tibble [2 × 5]&gt;
- 5 &lt;split [1566/592]&gt; Bootstrap0005 &lt;tibble [2 × 5]&gt;
- 6 &lt;split [1566/577]&gt; Bootstrap0006 &lt;tibble [2 × 5]&gt;
- 7 &lt;split [1566/578]&gt; Bootstrap0007 &lt;tibble [2 × 5]&gt;
- 8 &lt;split [1566/579]&gt; Bootstrap0008 &lt;tibble [2 × 5]&gt;
- 9 &lt;split [1566/578]&gt; Bootstrap0009 &lt;tibble [2 × 5]&gt;
-10 &lt;split [1566/581]&gt; Bootstrap0010 &lt;tibble [2 × 5]&gt;
+ 1 &lt;split [1752/640]&gt; Bootstrap0001 &lt;tibble [2 × 5]&gt;
+ 2 &lt;split [1752/638]&gt; Bootstrap0002 &lt;tibble [2 × 5]&gt;
+ 3 &lt;split [1752/638]&gt; Bootstrap0003 &lt;tibble [2 × 5]&gt;
+ 4 &lt;split [1752/635]&gt; Bootstrap0004 &lt;tibble [2 × 5]&gt;
+ 5 &lt;split [1752/639]&gt; Bootstrap0005 &lt;tibble [2 × 5]&gt;
+ 6 &lt;split [1752/616]&gt; Bootstrap0006 &lt;tibble [2 × 5]&gt;
+ 7 &lt;split [1752/651]&gt; Bootstrap0007 &lt;tibble [2 × 5]&gt;
+ 8 &lt;split [1752/639]&gt; Bootstrap0008 &lt;tibble [2 × 5]&gt;
+ 9 &lt;split [1752/628]&gt; Bootstrap0009 &lt;tibble [2 × 5]&gt;
+10 &lt;split [1752/650]&gt; Bootstrap0010 &lt;tibble [2 × 5]&gt;
 # ℹ 991 more rows</code></pre>
 </div>
 </div></section><section id="use-rsample-to-bootstrap-our-causal-effect-3" class="slide level2">
@@ -339,24 +338,24 @@ Malcolm Barrett
 <section id="pull-out-the-causal-effect" class="slide level2">
 <h2>3. Pull out the causal effect</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb9" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href=""></a><span class="co"># get t-statistic-based CIs</span></span>
-<span id="cb9-2"><a href=""></a>boot_estimate <span class="ot">&lt;-</span> <span class="fu">int_t</span>(ipw_results, boot_fits) <span class="sc">|&gt;</span> </span>
-<span id="cb9-3"><a href=""></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"qsmk"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href=""></a><span class="co"># get t-statistic-based CIs</span></span>
+<span id="cb9-2"><a href=""></a>boot_estimate <span class="ot">&lt;-</span> <span class="fu">int_t</span>(ipw_results, boot_fits) <span class="sc">|&gt;</span></span>
+<span id="cb9-3"><a href=""></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"netTRUE"</span>)</span>
 <span id="cb9-4"><a href=""></a></span>
-<span id="cb9-5"><a href=""></a>boot_estimate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-5"><a href=""></a>boot_estimate</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell fragment" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 6
-  term  .lower .estimate .upper .alpha .method  
-  &lt;chr&gt;  &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;    
-1 qsmk    2.49      3.46   4.38   0.05 student-t</code></pre>
+  term    .lower .estimate .upper .alpha .method  
+  &lt;chr&gt;    &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;    
+1 netTRUE  -13.4     -12.5  -11.6   0.05 student-t</code></pre>
 </div>
 </div>
 </section>
 <section id="your-turn" class="slide level2">
 <h2><em>Your Turn</em></h2>
-<p></p><div class="countdown" id="timer_f83f80ca" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">08</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
+<p></p><div class="countdown" id="timer_fa01760c" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">08</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
 <h3 id="create-a-function-called-ipw_fit-that-fits-the-propensity-score-model-and-the-weighted-outcome-model-for-the-effect-between-park_extra_magic_morning-and-wait_minutes_posted_avg">Create a function called <code>ipw_fit</code> that fits the propensity score model and the weighted outcome model for the effect between <code>park_extra_magic_morning</code> and <code>wait_minutes_posted_avg</code></h3>
 <h3 id="using-the-bootstraps-and-int_t-functions-to-estimate-the-final-effect.">Using the <code>bootstraps()</code> and <code>int_t()</code> functions to estimate the final effect.</h3>
 
@@ -550,7 +549,7 @@ Malcolm Barrett
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -662,13 +661,14 @@ Malcolm Barrett
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy
