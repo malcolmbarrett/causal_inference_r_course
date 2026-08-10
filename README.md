@@ -9,7 +9,7 @@
 - [00
   Intro](https://causal-inference-r-workshop.netlify.app/00-intro.html)
 - [01 Whole
-  Game](https://causal-inference-r-workshop.netlify.app/nhefs-whole-game.html)
+  Game](https://causal-inference-r-workshop.netlify.app/01-whole-game.html)
 - [02 When Standard Methods
   Succeed](https://causal-inference-r-workshop.netlify.app/02-when-standard-methods-succeed.html)
 - [03 Causal Inference with `group_by` and
@@ -30,8 +30,6 @@
   G-Computation](https://causal-inference-r-workshop.netlify.app/10-continuous-g-comp.html)
 - [11 Tipping Point Sensitivity
   Analyses](https://causal-inference-r-workshop.netlify.app/11-tipr.html)
-- [12 Whole Game (Your
-  Turn)](https://causal-inference-r-workshop.netlify.app/12-whole_game-2.html)
 - [13 Bonus: Selection
   Bias](https://causal-inference-r-workshop.netlify.app/13-bonus-selection-bias.html)
 - [14 Bonus: Continous Exposures with Propensity
