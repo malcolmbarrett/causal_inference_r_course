@@ -9,7 +9,7 @@
 - [00
   Intro](https://causal-inference-r-workshop.netlify.app/00-intro.html)
 - [01 Whole
-  Game](https://causal-inference-r-workshop.netlify.app/01-causal_modeling_whole_game.html)
+  Game](https://causal-inference-r-workshop.netlify.app/nhefs-whole-game.html)
 - [02 When Standard Methods
   Succeed](https://causal-inference-r-workshop.netlify.app/02-when-standard-methods-succeed.html)
 - [03 Causal Inference with `group_by` and

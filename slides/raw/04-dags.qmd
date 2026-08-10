@@ -452,7 +452,7 @@ dag_flows |>
 #| output-location: slide
 #| fig.width: 8
 # `smk_wt_dag` defined in
-# `exercises/01-whole-game-exercises.qmd`
+# `exercises/nhefs-whole-game-exercises.qmd`
 ggdag_adjustment_set(smk_wt_dag)
 ```
 
