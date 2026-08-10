@@ -19,47 +19,48 @@ library(tidyverse)
 library(ggdag)
 
 set.seed(1234)
-coords <- time_ordered_coords(
-  list(
-    c("active", "age", "education", "exercise", "race", "sex", "smokeintensity", 
-"smokeyrs", "wt71"),
-    "qsmk",
-    "wt82_71"
-  )
-)
 
-smk_wt_dag <- dagify(
-  # specify causes of quitting smoking and weight gain:
-  qsmk ~ sex + race + age + education + 
-    smokeintensity + smokeyrs + exercise + active + wt71,
-  wt82_71 ~ qsmk + sex + race + age + education + 
-    smokeintensity + smokeyrs + exercise + active + wt71,
+mosquito_dag <- dagify(
+  malaria_risk ~ net + income + health + temperature + resistance,
+  net ~ income + health + temperature + eligible + household,
+  eligible ~ income + household,
+  health ~ income,
   # specify causal question:
-  exposure = "qsmk", 
-  outcome = "wt82_71",
-  coords = coords,
+  exposure = "net",
+  outcome = "malaria_risk",
+  # lay the nodes out by hand:
+  coords = list(
+    x = c(
+      malaria_risk = 7,
+      net = 3,
+      income = 4,
+      health = 5,
+      temperature = 6,
+      resistance = 8.5,
+      eligible = 2,
+      household = 1
+    ),
+    y = c(
+      malaria_risk = 2,
+      net = 2,
+      income = 3,
+      health = 1,
+      temperature = 3,
+      resistance = 2,
+      eligible = 3,
+      household = 2
+    )
+  ),
   # set up labels:
-  # here, I'll use the same variable names as the data set, but I'll label them
-  # with clearer names
   labels = c(
-    # causal question
-    "qsmk" = "quit\nsmoking",
-    "wt82_71" = "change in\nweight",
-    
-    # demographics
-    "age" = "age",
-    "sex" = "sex",
-    "race" = "race",
-    "education" = "education",
-    
-    # health
-    "wt71" = "baseline\nweight",
-    "active" = "daily\nactivity\nlevel",
-    "exercise" = "exercise",
-    
-    # smoking history
-    "smokeintensity" = "smoking\nintensity",
-    "smokeyrs" = "yrs of\nsmoking"
+    malaria_risk = "Risk of malaria",
+    net = "Mosquito net",
+    income = "Income",
+    health = "Health",
+    temperature = "Nighttime temperatures",
+    resistance = "Insecticide resistance",
+    eligible = "Eligible for program",
+    household = "Number in the household"
   )
 )
 
@@ -169,7 +170,7 @@ dagify(
 
 `r countdown::countdown(minutes = 5)`
 
-## *Your Turn 1* (`02-dags-exercises.qmd`)
+## *Your Turn 1* (`04-dags-exercises.qmd`)
 
 ```{r}
 coffee_cancer_dag <- dagify(
@@ -217,15 +218,15 @@ Identify "backdoor" paths
 
 ```{r}
 #| eval: false
-ggdag_paths(smk_wt_dag)
+ggdag_paths(mosquito_dag)
 ```
 
 ---
 
 ```{r}
 #| echo: false
-#| fig.width: 9
-smk_wt_dag |>
+#| fig.width: 15
+mosquito_dag |>
   dag_paths(paths_only = FALSE) |>
   ggplot(aes(x = x, y = y, xend = xend, yend = yend, col = path, alpha = path)) +
   geom_dag_edges_link(
@@ -237,7 +238,7 @@ smk_wt_dag |>
     )
   ) +
   geom_dag_point(size = 4) + 
-  facet_wrap(~forcats::fct_inorder(as.factor(set), ordered = TRUE)) +
+  facet_wrap(~forcats::fct_inorder(as.factor(set), ordered = TRUE), nrow = 2) +
   scale_alpha_manual(
     drop = FALSE, 
     values = c("open path" = 1), 
@@ -255,7 +256,8 @@ smk_wt_dag |>
   expand_plot(
     expand_x = expansion(c(0.25, 0.25)),
     expand_y = expansion(c(0.1, 0.1))
-  ) + 
+  ) +
+  theme_dag() +
   theme(legend.position = "none")
 ```
 
@@ -451,9 +453,9 @@ dag_flows |>
 ```{r}
 #| output-location: slide
 #| fig.width: 8
-# `smk_wt_dag` defined in
-# `exercises/nhefs-whole-game-exercises.qmd`
-ggdag_adjustment_set(smk_wt_dag)
+# `mosquito_dag` defined in
+# `exercises/01-whole-game-exercises.qmd`
+ggdag_adjustment_set(mosquito_dag)
 ```
 
 
@@ -461,7 +463,7 @@ ggdag_adjustment_set(smk_wt_dag)
 
 ```{r}
 library(dagitty)
-adjustmentSets(smk_wt_dag)
+adjustmentSets(mosquito_dag)
 ```
 
 ## *Your Turn 3* {.small}

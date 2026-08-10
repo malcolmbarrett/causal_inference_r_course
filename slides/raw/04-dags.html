@@ -6,8 +6,8 @@
 <script src="04-dags_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="04-dags_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="04-dags_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="04-dags_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<link href="04-dags_files/libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
 
   <meta name="author" content="Malcolm Barrett">
   <title>Causal Diagrams in R</title>
@@ -17,6 +17,9 @@
   <link rel="stylesheet" href="04-dags_files/libs/revealjs/dist/reset.css">
   <link rel="stylesheet" href="04-dags_files/libs/revealjs/dist/reveal.css">
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -95,7 +98,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="04-dags_files/libs/revealjs/dist/theme/quarto-aac8c9227b08918aec88d28519f1f1ca.css">
+  <link rel="stylesheet" href="04-dags_files/libs/revealjs/dist/theme/quarto-f3805f66672ef64978618ca456565276.css">
   <link href="04-dags_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="04-dags_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="04-dags_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -281,21 +284,21 @@ Malcolm Barrett
 <h2>Step 1: Specify your DAG</h2>
 <div class="fragment">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb1" data-code-line-numbers="|2|3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">library</span>(ggdag)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" data-code-line-numbers="|2|3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">library</span>(ggdag)</span>
 <span id="cb1-2"><a href=""></a><span class="fu">dagify</span>(</span>
 <span id="cb1-3"><a href=""></a>  cancer <span class="sc">~</span> smoking, </span>
 <span id="cb1-4"><a href=""></a>  coffee <span class="sc">~</span> smoking</span>
-<span id="cb1-5"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-5"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </section>
 <section id="step-1-specify-your-dag-1" class="slide level2">
 <h2>Step 1: Specify your DAG</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="fu">dagify</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="fu">dagify</span>(</span>
 <span id="cb2-2"><a href=""></a>  cancer <span class="sc">~</span> smoking, </span>
 <span id="cb2-3"><a href=""></a>  coffee <span class="sc">~</span> smoking </span>
-<span id="cb2-4"><a href=""></a>) <span class="sc">|&gt;</span> <span class="fu">ggdag</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-4"><a href=""></a>) <span class="sc">|&gt;</span> <span class="fu">ggdag</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
@@ -310,10 +313,10 @@ Malcolm Barrett
 </div></section><section id="step-1-specify-your-dag-2" class="slide level2">
 <h2>Step 1: Specify your DAG</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">dagify</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">dagify</span>(</span>
 <span id="cb3-2"><a href=""></a>  cancer <span class="sc">~</span> smoking <span class="sc">+</span> coffee, </span>
 <span id="cb3-3"><a href=""></a>  coffee <span class="sc">~</span> smoking </span>
-<span id="cb3-4"><a href=""></a>) <span class="sc">|&gt;</span> <span class="fu">ggdag</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-4"><a href=""></a>) <span class="sc">|&gt;</span> <span class="fu">ggdag</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
@@ -331,12 +334,12 @@ Malcolm Barrett
 <h3 id="were-going-to-assume-that-coffee-does-not-cause-cancer-so-theres-no-formula-for-that.-but-we-still-need-to-declare-our-causal-question.-specify-coffee-as-the-exposure-and-cancer-as-the-outcome-both-in-quotations-marks.">We’re going to assume that coffee does not cause cancer, so there’s no formula for that. But we still need to declare our causal question. Specify “coffee” as the exposure and “cancer” as the outcome (both in quotations marks).</h3>
 <h3 id="plot-the-dag-using-ggdag">Plot the DAG using <code>ggdag()</code></h3>
 <h3 id="finish-early-try-the-stretch-goals">Finish early? Try the <em>stretch goals</em></h3>
-<p></p><div class="countdown" id="timer_8c78ce75" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
+<p></p><div class="countdown" id="timer_60726ed4" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
 </section>
-<section id="your-turn-1-02-dags-exercises.qmd" class="slide level2">
-<h2><em>Your Turn 1</em> (<code>02-dags-exercises.qmd</code>)</h2>
+<section id="your-turn-1-04-dags-exercises.qmd-1" class="slide level2">
+<h2><em>Your Turn 1</em> (<code>04-dags-exercises.qmd</code>)</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a>coffee_cancer_dag <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a>coffee_cancer_dag <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
 <span id="cb4-2"><a href=""></a>  cancer <span class="sc">~</span> smoking,</span>
 <span id="cb4-3"><a href=""></a>  smoking <span class="sc">~</span> addictive,</span>
 <span id="cb4-4"><a href=""></a>  coffee <span class="sc">~</span> addictive,</span>
@@ -348,13 +351,13 @@ Malcolm Barrett
 <span id="cb4-10"><a href=""></a>    <span class="st">"smoking"</span> <span class="ot">=</span> <span class="st">"Smoking"</span>, </span>
 <span id="cb4-11"><a href=""></a>    <span class="st">"addictive"</span> <span class="ot">=</span> <span class="st">"Addictive </span><span class="sc">\n</span><span class="st">Behavior"</span></span>
 <span id="cb4-12"><a href=""></a>  )</span>
-<span id="cb4-13"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-13"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section class="slide level2">
 
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="fu">ggdag</span>(coffee_cancer_dag)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="fu">ggdag</span>(coffee_cancer_dag)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 </div>
 <img data-src="04-dags_files/figure-revealjs/unnamed-chunk-9-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
@@ -375,7 +378,7 @@ Malcolm Barrett
 <p>Identify “backdoor” paths</p>
 <div class="fragment">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a><span class="fu">ggdag_paths</span>(smk_wt_dag)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a><span class="fu">ggdag_paths</span>(mosquito_dag)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </section>
@@ -388,14 +391,14 @@ Malcolm Barrett
 <h3 id="call-tidy_dagitty-on-coffee_cancer_dag-to-create-a-tidy-dag-then-pass-the-results-to-dag_paths.-whats-different-about-these-data">Call <code>tidy_dagitty()</code> on <code>coffee_cancer_dag</code> to create a tidy DAG, then pass the results to <code>dag_paths()</code>. What’s different about these data?</h3>
 <h3 id="plot-the-open-paths-with-ggdag_paths.-just-give-it-coffee_cancer_dag-rather-than-using-dag_paths-the-quick-plot-function-will-do-that-for-you.-remember-since-we-assume-there-is-no-causal-path-from-coffee-to-lung-cancer-any-open-paths-must-be-confounding-pathways.">Plot the open paths with <code>ggdag_paths()</code>. (Just give it <code>coffee_cancer_dag</code> rather than using <code>dag_paths()</code>; the quick plot function will do that for you.) Remember, since we assume there is <em>no</em> causal path from coffee to lung cancer, any open paths must be confounding pathways.</h3>
 <h3 id="finish-early-try-the-stretch-goals-1">Finish early? Try the <em>stretch goals</em></h3>
-<p></p><div class="countdown" id="timer_ef77294e" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">04</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
+<p></p><div class="countdown" id="timer_3016ecab" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">04</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
 </section>
 <section id="your-turn-2-1" class="slide level2">
 <h2><em>Your Turn 2</em></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a>coffee_cancer_dag <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a>coffee_cancer_dag <span class="sc">|&gt;</span></span>
 <span id="cb7-2"><a href=""></a>  <span class="fu">tidy_dagitty</span>() <span class="sc">|&gt;</span></span>
-<span id="cb7-3"><a href=""></a>  <span class="fu">dag_paths</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-3"><a href=""></a>  <span class="fu">dag_paths</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># DAG:
 # A `dagitty` DAG with: 4 nodes and 3 edges
@@ -405,15 +408,14 @@ Malcolm Barrett
 #
 # Data:
 # A tibble: 5 × 11
-  set   name           x     y direction to       xend  yend
-  &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt;     &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt;
-1 1     addictive -1.59  -2.26 -&gt;        coffee -2.72  -1.83
-2 1     addictive -1.59  -2.26 -&gt;        smoki… -0.334 -2.73
-3 1     cancer     0.801 -3.16 &lt;NA&gt;      &lt;NA&gt;   NA     NA   
-4 1     coffee    -2.72  -1.83 &lt;NA&gt;      &lt;NA&gt;   NA     NA   
-5 1     smoking   -0.334 -2.73 -&gt;        cancer  0.801 -3.16
-# ℹ 3 more variables: label &lt;chr&gt;, path &lt;chr&gt;,
-#   path_type &lt;chr&gt;
+  set   name       x     y direction to     xend  yend label
+  &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt;     &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;
+1 1     addic…   0       2 -&gt;        coff…  -0.5     1 "Add…
+2 1     addic…   0       2 -&gt;        smok…   0.5     1 "Add…
+3 1     cancer   0.5     0 &lt;NA&gt;      &lt;NA&gt;   NA      NA "Lun…
+4 1     coffee  -0.5     1 &lt;NA&gt;      &lt;NA&gt;   NA      NA "Cof…
+5 1     smoki…   0.5     1 -&gt;        canc…   0.5     0 "Smo…
+# ℹ 2 more variables: path &lt;chr&gt;, path_type &lt;chr&gt;
 #
 # ℹ Use `pull_dag() (`?pull_dag`)` to retrieve the DAG object and `pull_dag_data() (`?pull_dag_data`)` for the data frame</code></pre>
 </div>
@@ -422,8 +424,8 @@ Malcolm Barrett
 <section class="slide level2">
 
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href=""></a>coffee_cancer_dag <span class="sc">|&gt;</span></span>
-<span id="cb9-2"><a href=""></a>  <span class="fu">ggdag_paths</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href=""></a>coffee_cancer_dag <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href=""></a>  <span class="fu">ggdag_paths</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 </div>
 <img data-src="04-dags_files/figure-revealjs/unnamed-chunk-13-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
@@ -466,7 +468,9 @@ Malcolm Barrett
 <section id="identifying-adjustment-sets" class="slide level2">
 <h2>Identifying adjustment sets</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href=""></a><span class="fu">ggdag_adjustment_set</span>(smk_wt_dag)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href=""></a><span class="co"># `mosquito_dag` defined in</span></span>
+<span id="cb10-2"><a href=""></a><span class="co"># `exercises/01-whole-game-exercises.qmd`</span></span>
+<span id="cb10-3"><a href=""></a><span class="fu">ggdag_adjustment_set</span>(mosquito_dag)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
@@ -481,11 +485,10 @@ Malcolm Barrett
 </div></section><section id="identifying-adjustment-sets-1" class="slide level2">
 <h2>Identifying adjustment sets</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href=""></a><span class="fu">library</span>(dagitty)</span>
-<span id="cb11-2"><a href=""></a><span class="fu">adjustmentSets</span>(smk_wt_dag)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href=""></a><span class="fu">library</span>(dagitty)</span>
+<span id="cb11-2"><a href=""></a><span class="fu">adjustmentSets</span>(mosquito_dag)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>{ active, age, education, exercise, race, sex, smokeintensity,
-  smokeyrs, wt71 }</code></pre>
+<pre><code>{ health, income, temperature }</code></pre>
 </div>
 </div>
 </section>
@@ -495,16 +498,16 @@ Malcolm Barrett
 <h3 id="use-ggdag_adjustment_set-to-visualize-the-adjustment-sets.-add-the-arguments-use_labels-label-and-text-false.">Use <code>ggdag_adjustment_set()</code> to visualize the adjustment sets. Add the arguments <code>use_labels = "label"</code> and <code>text = FALSE</code>.</h3>
 <h3 id="write-an-r-formula-for-each-adjustment-set-as-you-might-if-you-were-fitting-a-model-in-lm-or-glm">Write an R formula for each adjustment set, as you might if you were fitting a model in <code>lm()</code> or <code>glm()</code></h3>
 <h3 id="finish-early-try-the-stretch-goals-2">Finish early? Try the <em>stretch goals</em></h3>
-<p></p><div class="countdown" id="timer_75a3611c" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">04</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
+<p></p><div class="countdown" id="timer_fbf83aa9" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">04</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
 </section>
 <section id="your-turn-3-1" class="slide level2">
 <h2><em>Your Turn 3</em></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a><span class="fu">ggdag_adjustment_set</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a><span class="fu">ggdag_adjustment_set</span>(</span>
 <span id="cb13-2"><a href=""></a>  coffee_cancer_dag, </span>
 <span id="cb13-3"><a href=""></a>  <span class="at">use_labels =</span> <span class="st">"label"</span>, </span>
 <span id="cb13-4"><a href=""></a>  <span class="at">text =</span> <span class="cn">FALSE</span></span>
-<span id="cb13-5"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-5"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
@@ -519,36 +522,36 @@ Malcolm Barrett
 </div></section><section id="your-turn-3-2" class="slide level2">
 <h2><em>Your Turn 3</em></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a>cancer <span class="sc">~</span> coffee <span class="sc">+</span> addictive</span>
-<span id="cb14-2"><a href=""></a>cancer <span class="sc">~</span> coffee <span class="sc">+</span> smoking</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a>cancer <span class="sc">~</span> coffee <span class="sc">+</span> addictive</span>
+<span id="cb14-2"><a href=""></a>cancer <span class="sc">~</span> coffee <span class="sc">+</span> smoking</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="lets-prove-it" class="slide level2">
 <h2>Let’s prove it!</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
 <span id="cb15-2"><a href=""></a>dag_data <span class="ot">&lt;-</span> coffee_cancer_dag <span class="sc">|&gt;</span> </span>
-<span id="cb15-3"><a href=""></a>  <span class="fu">simulate_data</span>(<span class="sc">-</span>.<span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-3"><a href=""></a>  <span class="fu">simulate_data</span>(<span class="sc">-</span>.<span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="lets-prove-it-1" class="slide level2">
 <h2>Let’s prove it!</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href=""></a>dag_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href=""></a>dag_data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 500 × 4
    addictive  cancer coffee smoking
        &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
- 1    0.0708  2.87   -0.565 -1.79  
- 2    0.626   1.63    0.434 -1.35  
- 3    1.98    1.43   -0.182 -1.62  
- 4   -0.198  -0.223   0.133  0.960 
- 5    1.66    0.0696  0.437  0.0954
- 6    1.37    0.765  -2.18  -1.41  
- 7    0.791   0.0460 -0.745 -0.876 
- 8    0.531   0.813  -1.44  -0.432 
- 9   -0.861   0.708   0.415  0.220 
-10   -1.40    0.801   0.439  0.472 
+ 1    1.05   -0.484  -1.29  -1.70  
+ 2   -0.215   0.879   1.05   0.431 
+ 3   -0.0176 -1.62    0.989  0.911 
+ 4    1.95    2.01   -1.70  -1.64  
+ 5    0.0543 -1.07   -0.981  1.19  
+ 6    0.189  -0.825   1.24  -0.0749
+ 7   -0.390   1.58    0.114 -0.809 
+ 8    1.10    0.207  -0.389  0.0440
+ 9    0.957   0.0216 -0.278 -0.392 
+10    0.805   0.878  -0.674 -0.437 
 # ℹ 490 more rows</code></pre>
 </div>
 </div>
@@ -568,12 +571,12 @@ Malcolm Barrett
 <section id="your-turn-4" class="slide level2">
 <h2><em>Your Turn 4</em></h2>
 <p>Recreate the DAG we’ve been working with using <code>time_ordered_coords()</code>, then visualize the DAG. You don’t need to use any arguments for this function, so <code>coords = time_ordered_coords()</code> will do.</p>
-<p></p><div class="countdown" id="timer_1b524864" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">02</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
+<p></p><div class="countdown" id="timer_898b4c72" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">02</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
 </section>
 <section id="your-turn-4-1" class="slide level2">
 <h2><em>Your Turn 4</em></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb18" data-code-line-numbers="|7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href=""></a>coffee_cancer_dag_to <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18" data-code-line-numbers="|7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href=""></a>coffee_cancer_dag_to <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
 <span id="cb18-2"><a href=""></a>  cancer <span class="sc">~</span> smoking,</span>
 <span id="cb18-3"><a href=""></a>  smoking <span class="sc">~</span> addictive,</span>
 <span id="cb18-4"><a href=""></a>  coffee <span class="sc">~</span> addictive,</span>
@@ -588,7 +591,7 @@ Malcolm Barrett
 <span id="cb18-13"><a href=""></a>  )</span>
 <span id="cb18-14"><a href=""></a>)</span>
 <span id="cb18-15"><a href=""></a></span>
-<span id="cb18-16"><a href=""></a><span class="fu">ggdag</span>(coffee_cancer_dag_to, <span class="at">use_labels =</span> <span class="st">"label"</span>, <span class="at">text =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-16"><a href=""></a><span class="fu">ggdag</span>(coffee_cancer_dag_to, <span class="at">use_labels =</span> <span class="st">"label"</span>, <span class="at">text =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
@@ -826,7 +829,7 @@ Malcolm Barrett
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -938,13 +941,14 @@ Malcolm Barrett
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy
