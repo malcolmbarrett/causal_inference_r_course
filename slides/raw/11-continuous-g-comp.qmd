@@ -249,7 +249,7 @@ The standard error comes from the **delta method**, which approximates the varia
 
 ```{r}
 #| eval: false
-#| code-line-numbers: "|5,11"
+#| code-line-numbers: "|5,12"
 # ATT: average over the treated
 avg_comparisons(
   greek_model,
