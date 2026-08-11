@@ -79,6 +79,33 @@ cancer ~ ______
 cancer ~ ______
 ```
 
+Stretch goal: Sometimes we are conditioning on a variable whether we like it or not. Imagine these data come from a lung cancer screening program: no one enters the data unless they were screened, and screening is also how lung cancer gets diagnosed. Coffee drinkers visit the clinic more often, and smokers are more likely to be referred for screening. `screened` is both a collider and a mediator, and by studying the people who were screened, we are inherently stratifying on it.
+
+You can tell {ggdag} that a variable is already conditioned on with `adjust_for()`. Fill in the blank below and look at the adjustment sets. {ggdag} warns you that it failed to close all the backdoor paths: we can't estimate the total effect of coffee on lung cancer here, because part of the effect is missing. Sometimes, you can still estimate effects in this situation by changing the estimand you wish to estimate. Add `effect = "direct"` to `ggdag_adjustment_set()` (`dagitty::adjustmentSets()` takes the same argument). What can we estimate now?
+
+```{r}
+coffee_cancer_dag_screened <- dagify(
+  cancer ~ smoking + screened,
+  screened ~ coffee + smoking,
+  smoking ~ addictive,
+  coffee ~ addictive,
+  exposure = "coffee",
+  outcome = "cancer",
+  coords = time_ordered_coords(),
+  labels = c(
+    "coffee" = "Coffee",
+    "cancer" = "Lung Cancer",
+    "smoking" = "Smoking",
+    "addictive" = "Addictive \nBehavior",
+    "screened" = "Screened"
+  )
+)
+
+coffee_cancer_dag_screened |>
+  ______("screened") |>
+  ggdag_adjustment_set(use_labels = TRUE, use_text = FALSE)
+```
+
 ## Your Turn 4
 
 Time-ordering your DAGs is incredibly useful, because it makes it cleaner, easier to read, and easier to understand what to control for --- and *not* control for.
