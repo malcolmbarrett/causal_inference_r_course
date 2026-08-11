@@ -637,7 +637,7 @@ df |>
 
 . . .
 
-Stabilizing uses the proportion exposed in the numerator: the spread of the weights shrinks and their mean is 1
+Stabilizing puts the marginal probability of the observed exposure in the numerator: the proportion exposed for exposed units, the proportion unexposed for unexposed units
 
 ## Trimming and truncation
 
