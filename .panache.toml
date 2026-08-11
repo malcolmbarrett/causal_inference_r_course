@@ -1,3 +1,9 @@
+[formatters]
+r = "air"
+
+[linters]
+r = "jarl"
+
 [lint.rules]
 missing-chunk-labels = false
 undefined-references = false
