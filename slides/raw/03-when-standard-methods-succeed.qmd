@@ -12,10 +12,64 @@ format: kakashi-revealjs
 ```{r}
 #| label: setup
 #| include: false
+#| message: false
 options(
-  tibble.max_extra_cols = 6, 
+  tibble.max_extra_cols = 6,
   tibble.width = 60
 )
+library(tidyverse)
+library(broom)
+library(ggdag)
+library(propensity)
+
+plot_estimates <- function(data) {
+  unadjusted <- lm(y ~ treatment, data = data) |>
+    tidy(conf.int = TRUE) |>
+    filter(term == "treatment") |>
+    mutate(model = "unadjusted")
+
+  adjusted <- lm(y ~ treatment + weight + age, data = data) |>
+    tidy(conf.int = TRUE) |>
+    filter(term == "treatment") |>
+    mutate(model = "direct\nadjustment")
+
+  propensity_model <- glm(
+    treatment ~ weight + age,
+    family = binomial(),
+    data = data
+  )
+  data_wts <- propensity_model |>
+    augment(data = data, type.predict = "response") |>
+    mutate(wts = wt_ate(.fitted, treatment, exposure_type = "binary"))
+  outcome_model <- lm(y ~ treatment, data = data_wts, weights = wts)
+  weighted <- ipw(propensity_model, outcome_model) |>
+    tidy(conf.int = TRUE) |>
+    mutate(model = "inverse\nprobability\nweighting")
+
+  bind_rows(unadjusted, adjusted, weighted) |>
+    select(model, estimate, std.error, starts_with("conf")) |>
+    mutate(model = fct_inorder(model)) |>
+    pivot_longer(c(estimate, std.error), names_to = "statistic") |>
+    mutate(
+      statistic = recode_values(
+        statistic,
+        "estimate" ~ "estimate (95% CI)",
+        "std.error" ~ "standard error"
+      )
+    ) |>
+    ggplot(aes(value, fct_rev(model))) +
+    geom_point(size = 3, color = "#0172B1") +
+    geom_errorbar(
+      data = \(d) filter(d, statistic == "estimate (95% CI)"),
+      aes(xmin = conf.low, xmax = conf.high),
+      width = 0,
+      linewidth = 1,
+      color = "#0172B1"
+    ) +
+    facet_wrap(~statistic, scales = "free_x") +
+    theme_minimal(base_size = 20) +
+    theme(axis.title = element_blank())
+}
 ```
 
 ## {background-color="#23373B" .center}
@@ -46,12 +100,15 @@ options(
 ### randomized controlled trials
 ### A/B testing
 
-## Even in these cases, using the methods you will learn here can help! {background-color="#23373B"} 
+## Even in these cases, using the methods you will learn here can help! {background-color="#23373B" .small}
 
 1. Adjusting for baseline covariates can make an estimate *more efficient*
-1. Propensity score weighting is *more efficient* than direct adjustment
+1. Propensity score weighting *always improves precision* over no adjustment and is *equivalent to direct adjustment*
 1. Sometimes we are *more comfortable with the functional form of the propensity score* (predicting exposure) than the outcome model
 
+::: {.small}
+Williamson et al., *Statistics in Medicine*, 2014
+:::
 
 ## Example
 
@@ -63,10 +120,6 @@ options(
 
 ```{r}
 #| echo: false
-#| message: false
-#| warning: false
-library(tidyverse)
-library(gtsummary)
 set.seed(10)
 n <- 100
 d <- tibble(
@@ -75,91 +128,57 @@ d <- tibble(
   treatment = rbinom(n, 1, 0.5),
   y = treatment + 0.2 * age + 0.2 * weight + rnorm(n)
 )
-library(ggdag)
 
-x <- data.frame(
-  name = c("y", "trt", "age", "wt"), 
+node_times <- data.frame(
+  name = c("y", "trt", "age", "wt"),
   time = c(3, 2, 1, 1)
 )
 dagify(
   y ~ trt + age + wt,
-  coords = time_ordered_coords(x)
-) |> 
+  coords = time_ordered_coords(node_times)
+) |>
   ggdag() +
   theme_dag()
 ```
 
 * **True average treatment effect**: 1
 
-
-## {.tiny}
-
-:::: {.columns}
-
-::: {.column width="33%" .fragment}
-### Unadjusted model
+## Three ways to estimate the effect {.small}
 
 ```{r}
 #| eval: false
-lm(y ~ treatment, data = data)
+unadjusted <- lm(y ~ treatment, data = d)
+
+adjusted <- lm(y ~ treatment + weight + age, data = d)
+
+propensity_model <- glm(
+  treatment ~ weight + age,
+  family = binomial(),
+  data = d
+)
+d_wts <- propensity_model |>
+  augment(data = d, type.predict = "response") |>
+  mutate(wts = wt_ate(.fitted, treatment, exposure_type = "binary"))
+outcome_model <- lm(y ~ treatment, data = d_wts, weights = wts)
+weighted <- ipw(propensity_model, outcome_model)
 ```
+
+::: {.small}
+`ipw()` uses a sandwich estimator that also accounts for the uncertainty in the propensity score model
+:::
+
+## {.center}
 
 ```{r}
 #| echo: false
-#| message: false
-#| warning: false
-lm(y ~ treatment, d) |>
-  tbl_regression() |>
-  modify_column_unhide(column = std.error)
+plot_estimates(d)
 ```
 
-:::
+## Conditional vs. marginal effects
 
-::: {.column width="33%" .fragment}
-### Adjusted model
-
-```{r}
-#| eval: false
-lm(y ~ treatment + weight + age, data = data)
-```
-
-```{r}
-#| echo: false
-lm(y ~ treatment + weight + age, data = d) |>
-  tbl_regression() |>
-  modify_column_unhide(column = std.error)
-```
-:::
-
-::: {.column width="33%" .fragment}
-### Propensity score adjusted model
-
-```{r}
-#| echo: false
-d |>
-  mutate(
-    p = glm(treatment ~ weight + age, data = d) |> predict(type = "response"),
-    ate = treatment / p + (1 - treatment) / (1 - p)
-  ) |>
-  as.data.frame() -> d
-library(PSW)
-df <- as.data.frame(d)
-x <- psw(df, 
-         "treatment ~ weight + age", 
-         weight = "ATE", wt = TRUE,
-         out.var = "y")
-tibble(
-  Characteristic = "treatment",
-  Beta = round(x$est.wt, 1),
-  SE = round(x$std.wt, 3),
-  `95% CI` = glue::glue("{round(x$est.wt - 1.96 * x$std.wt, 1)}, {round(x$est.wt + 1.96 * x$std.wt, 1)}"),
-  `p-value` = "<0.001"
-) |>
-  knitr::kable()
-```
-
-:::
-::::
+* The outcome model gives a **conditional** effect: *holding the other variables constant*
+* Weighting gives a **marginal** effect: *averaged over the population*
+* With a continuous outcome, a linear effect, and no interactions, the two are identical
 
 ## Example
 
@@ -167,24 +186,10 @@ tibble(
 * Treatment is **randomly** assigned 
 * There are **two baseline covariates**: `age` and `weight`
 
-## {.tiny}
-
-:::: {.columns}
-
-::: {.column width="33%" .fragment}
-### Unadjusted model
-
-```{r}
-#| eval: false
-lm(y ~ treatment, data = data)
-```
+## {.center}
 
 ```{r}
 #| echo: false
-#| message: false
-#| warning: false
-library(tidyverse)
-library(gtsummary)
 set.seed(10)
 n <- 10000
 d <- tibble(
@@ -193,72 +198,20 @@ d <- tibble(
   treatment = rbinom(n, 1, 0.5),
   y = treatment + 0.2 * age + 0.2 * weight + rnorm(n)
 )
-lm(y ~ treatment, d) |>
-  tbl_regression() |>
-  modify_column_unhide(column = std.error)
+plot_estimates(d)
 ```
-:::
-
-
-::: {.column width="33%" .fragment}
-### Adjusted model
-
-```{r}
-#| eval: false
-lm(y ~ treatment + weight + age, data = data)
-```
-
-```{r}
-#| echo: false
-lm(y ~ treatment + weight + age, data = d) |>
-  tbl_regression() |>
-  modify_column_unhide(column = std.error)
-```
-:::
-
-::: {.column width="33%" .fragment}
-### Propensity score adjusted model
-
-```{r}
-#| echo: false
-d |>
-  mutate(
-    p = glm(treatment ~ weight + age, data = d) |> predict(type = "response"),
-    ate = treatment / p + (1 - treatment) / (1 - p)
-  ) |>
-  as.data.frame() -> d
-library(PSW)
-df <- as.data.frame(d)
-x <- psw(df, 
-         "treatment ~ weight + age", 
-         weight = "ATE", wt = TRUE,
-         out.var = "y")
-tibble(
-  Characteristic = "treatment",
-  Beta = round(x$est.wt, 1),
-  SE = round(x$std.wt, 3),
-  `95% CI` = glue::glue("{round(x$est.wt - 1.96 * x$std.wt, 1)}, {round(x$est.wt + 1.96 * x$std.wt, 1)}"),
-  `p-value` = "<0.001"
-) |>
-  knitr::kable()
-```
-
-:::
-::::
 
 ## Example
 
-* **simulated** data (10,000 observations)  
+* **simulated** data (10,000 observations)
 * Treatment is **not** randomly assigned 
-* There are **two baseline confounders**: `age` and `weight`
-* The treatment effect is **homogeneous**
+* **Two baseline confounders**: `age` and `weight`
+* The effect is **homogeneous**, so marginal and conditional effects agree
 
 ## Example
 
 ```{r}
 #| echo: false
-#| message: false
-#| warning: false
 set.seed(10)
 n <- 10000
 d <- tibble(
@@ -268,90 +221,94 @@ d <- tibble(
   y = treatment + 0.2 * age + 0.2 * weight + rnorm(n)
 )
 
-x <- data.frame(
-  name = c("y", "trt", "age", "wt"), 
+node_times <- data.frame(
+  name = c("y", "trt", "age", "wt"),
   time = c(3, 2, 1, 1)
 )
 dagify(
   y ~ trt + age + wt,
   trt ~ age + wt,
-  coords = time_ordered_coords(x)
-) |> 
-  ggdag() + 
+  coords = time_ordered_coords(node_times)
+) |>
+  ggdag() +
   theme_dag()
 ```
 
 * **True average treatment effect**: 1
 
-## {.tiny}
-
-:::: {.columns}
-
-::: {.column width="33%" .fragment}
-### Unadjusted model
-
-```{r}
-#| eval: false
-lm(y ~ treatment, data = data)
-```
+## {.center}
 
 ```{r}
 #| echo: false
-#| message: false
-#| warning: false
-lm(y ~ treatment, d) |>
-  tbl_regression() |>
-  modify_column_unhide(column = std.error)
+plot_estimates(d)
 ```
-:::
 
+## Example
 
-::: {.column width="33%" .fragment}
-### Adjusted model
+* **simulated** data (10,000 observations)
+* The exposure is **daily updates**, the outcome is **satisfaction**
+* There is **one baseline confounder**: `num_users`
+* **True average treatment effect**: 0
 
-```{r}
-#| eval: false
-lm(y ~ treatment + weight + age, data = data)
-```
+## Example
 
 ```{r}
 #| echo: false
-lm(y ~ treatment + weight + age, data = d) |>
-  tbl_regression() |>
-  modify_column_unhide(column = std.error)
-```
-:::
-
-::: {.column width="33%" .fragment}
-### Propensity score adjusted model
-
-```{r}
-#| echo: false
-d |>
-  mutate(
-    p = glm(treatment ~ weight + age, data = d) |> predict(type = "response"),
-    ate = treatment / p + (1 - treatment) / (1 - p)
-  ) |>
-  as.data.frame() -> d
-library(PSW)
-df <- as.data.frame(d)
-x <- psw(df, 
-         "treatment ~ weight + age", 
-         weight = "ATE", wt = TRUE,
-         out.var = "y")
-tibble(
-  Characteristic = "treatment",
-  Beta = round(x$est.wt, 1),
-  SE = round(x$std.wt, 3),
-  `95% CI` = glue::glue("{round(x$est.wt - 1.96 * x$std.wt, 1)}, {round(x$est.wt + 1.96 * x$std.wt, 1)}"),
-  `p-value` = "<0.001"
+set.seed(11)
+n <- 10000
+d <- tibble(
+  num_users = runif(n, 1, 500),
+  update_frequency = rbinom(n, 1, plogis(num_users / 100)),
+  satisfaction = 70 - 0.001 * (num_users - 300)^2 - 0.001 * (num_users - 300)^3
 ) |>
-  knitr::kable()
+  mutate(
+    satisfaction = as.numeric(scale(satisfaction)),
+    update_frequency = factor(
+      update_frequency,
+      labels = c("weekly", "daily")
+    )
+  )
+
+ggplot(d, aes(x = num_users, y = satisfaction)) +
+  geom_line(linewidth = 1, color = "#0172B1") +
+  theme_minimal(base_size = 20)
 ```
 
-:::
-::::
+* The relationship is **non-linear**
+
+## The wrong functional form
+
+```{r}
+lm(satisfaction ~ update_frequency + num_users, data = d) |>
+  tidy(conf.int = TRUE) |>
+  filter(term == "update_frequencydaily") |>
+  select(estimate, starts_with("conf"))
+```
+
+* The estimate is far from the truth, which is not even contained in the confidence interval
+
+## A flexible functional form
+
+```{r}
+lm(
+  satisfaction ~ update_frequency + splines::ns(num_users, 3),
+  data = d
+) |>
+  tidy(conf.int = TRUE) |>
+  filter(term == "update_frequencydaily") |>
+  select(estimate, starts_with("conf"))
+```
+
+* We often do not know the data-generating mechanism, but we can still fit **flexible parametric models**
+
+## {background-color="#23373B" .center}
+
+### the model needs the right *variables* and the right *functional form*
+
+We need the correct functional form for both the exposure and the confounders
 
 ## {background-color="#23373B" .center}
 
 ### *time-varying* confounding
+
+Linear regression cannot estimate these types of effects without bias, so we'll need methods like inverse probability weighting or g-computation to calculate it correctly
