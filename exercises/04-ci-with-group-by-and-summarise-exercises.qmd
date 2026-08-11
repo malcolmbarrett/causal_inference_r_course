@@ -23,7 +23,7 @@ sim <- tibble(
   ),
   exposure = rbinom(n, 1, p_exposure),
   outcome = confounder + rnorm(n)
-)
+) |> select(-p_exposure)
 ```
 
 1. Group the dataset by `confounder` and `exposure`
@@ -32,15 +32,15 @@ sim <- tibble(
 ```{r}
 sim |>
   group_by(______, ______) |>
-  summarise(avg_y = mean(______)) |>
+  summarise(avg_y = mean(______), .groups = "drop") |>
   # pivot the data so we can get the difference
   # between the exposure groups
   pivot_wider(
     names_from = exposure,
-    values_from = avg_y,  
+    values_from = avg_y,
     names_prefix = "x_"
   ) |>
-  summarise(estimate = x_1 - x_0) |>
+  reframe(estimate = x_1 - x_0) |>
   summarise(estimate = mean(estimate)) # note, we would need to weight this if the confounder groups were not equal sized
 ```
 
@@ -61,8 +61,8 @@ sim2 <- tibble(
     confounder_1 == 0 & confounder_2 == 0 ~ 0.1,
   ),
   exposure = rbinom(n, 1, p_exposure),
-  outcome = confounder_1 + confounder_2 + rnorm(n) 
-)
+  outcome = confounder_1 + confounder_2 + rnorm(n)
+) |> select(-p_exposure)
 ```
 
 1. Group the dataset by the confounders and exposure
@@ -71,14 +71,14 @@ sim2 <- tibble(
 ```{r}
 sim2 |>
   group_by(_____, _____, _____) |>
-  summarise(avg_y = mean(_____)) |>
+  summarise(avg_y = mean(_____), .groups = "drop") |>
   pivot_wider(
     names_from = exposure,
-    values_from = avg_y,  
+    values_from = avg_y,
     names_prefix = "x_"
   ) |>
-  summarise(estimate = x_1 - x_0, .groups = "drop") |>
-  summarise(estimate = mean(estimate))  
+  reframe(estimate = x_1 - x_0) |>
+  summarise(estimate = mean(estimate))
 ```
 
 ## Your Turn 3
@@ -91,8 +91,8 @@ sim3 <- tibble(
   confounder = rnorm(n), 
   p_exposure = exp(confounder) / (1 + exp(confounder)),
   exposure = rbinom(n, 1, p_exposure),
-  outcome = confounder + rnorm(n) 
-)
+  outcome = confounder + rnorm(n)
+) |> select(-p_exposure)
 ```
 
 1. Use `ntile()` from dplyr to calculate a binned version of `confounder` called `confounder_q`. We'll create a variable with 5 bins.
@@ -103,18 +103,37 @@ sim3 <- tibble(
 sim3 |>
   mutate(confounder_q = _____(_____, 5)) |>
   group_by(_____, _____) |>
-  summarise(avg_y = mean(_____)) |>
+  summarise(avg_y = mean(_____), .groups = "drop") |>
   pivot_wider(
     names_from = exposure,
-    values_from = avg_y,  
+    values_from = avg_y,
     names_prefix = "x_"
   ) |>
-  summarise(estimate = x_1 - x_0)  |>
-  summarise(estimate = mean(estimate))  
+  reframe(estimate = x_1 - x_0) |>
+  summarise(estimate = mean(estimate))
+```
+
+## Stretch goal
+
+1. Run Your Turn 3 again with many more bins, say 500
+2. The estimate is `NA`. Why?
+
+```{r}
+sim3 |>
+  mutate(confounder_q = ntile(confounder, _____)) |>
+  group_by(confounder_q, exposure) |>
+  summarise(avg_y = mean(outcome), .groups = "drop") |>
+  pivot_wider(
+    names_from = exposure,
+    values_from = avg_y,
+    names_prefix = "x_"
+  ) |>
+  reframe(estimate = x_1 - x_0) |>
+  summarise(estimate = mean(estimate))
 ```
 
 # Take aways
 
-* Sometimes correlation *is* causation!
-* In simple cases, grouping by confounding variables can get us the right answer without a statistical model
+* In simple cases, grouping by confounding variables can get us the right answer without a statistical model. This approach is called stratification, and it is non-parametric: we aren't using a statistical model to restrict the form of the variables
+* With many confounders, especially continuous ones, we quickly run into the curse of dimensionality: too few observations within combinations of confounder levels
 * Propensity scores generalize the idea of summarizing exposure effects to any number of confounders. Although we'll use models for this process, the foundations are the same.
