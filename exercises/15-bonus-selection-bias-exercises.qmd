@@ -12,7 +12,7 @@ library(causaldata)
 library(rsample)
 ```
 
-In this example, we'll consider loss to follow-up in the NHEFS study. We'll use the binary exposure we used earlier in the workshop: does quitting smoking (`smk`) increase weight (`wt82_71`)? This time, however, we'll adjust for loss to followup (people who dropped out of the study between observation periods) using inverse probability of censoring weights.
+In this example, we'll consider loss to follow-up in the NHEFS study. We'll use the binary exposure we used earlier in the workshop: does quitting smoking (`qsmk`) increase weight (`wt82_71`)? This time, however, we'll adjust for loss to followup (people who dropped out of the study between observation periods) using inverse probability of censoring weights.
 
 # Your Turn 1
 
@@ -21,7 +21,7 @@ In this example, we'll consider loss to follow-up in the NHEFS study. We'll use 
 ```{r}
 nhefs_censored <- nhefs |>
   drop_na(
-    qsmk, sex, race, age, school, smokeintensity, smokeyrs, exercise,
+    qsmk, sex, race, age, education, smokeintensity, smokeyrs, exercise,
     active, wt71
   )
 
@@ -47,21 +47,21 @@ cens_model <- ___(
 # Your Turn 2
 
 1. Use the logistic model you just fit to create inverse probability of censoring weights
-2. Calculate the weights using `.fitted`
+2. Calculate the weights with `wt_cens()`. It takes the propensity score first, `.fitted`, and the censoring indicator second, `censored`
 3. Join `cens` to `nhefs_censored` so that you have the weights in your dataset
 4. Fit a linear regression model of `wt82_71` weighted by `cens_wts`. We'll use this model as the basis for our G-computation
 
 ```{r}
 cens <- _______ |>
   augment(type.predict = "response", data = nhefs_censored) |>
-  mutate(cens_wts = wt_ate(censored, ______)) |>
+  mutate(cens_wts = wt_cens(______, ______)) |>
   select(id, cens_wts)
 
 #  join all the weights data from above
 nhefs_censored_wts <- _______ |>
   left_join(_____, by = "id")
 
-cens_model <- lm(
+outcome_model <- lm(
   ______ ~ qsmk + I(qsmk * smokeintensity) + smokeintensity +
     I(smokeintensity^2) + sex + race + age + I(age^2) + education + smokeyrs +
     I(smokeyrs^2) + exercise + active + wt71 + I(wt71^2),
@@ -72,8 +72,8 @@ cens_model <- lm(
 
 # Your Turn 3
 
-1. Create the cloned data sets, called `kept_smoking` and `no`, where one dataset has `quit_smoking` set to 1 (quit smoking) and the other has it set to 0 (kept smoking).
-2. Use the outcome model, `cens_model`, to make predictions for `kept_smoking` and `quit_smoking` 
+1. Create the cloned data sets, called `kept_smoking` and `quit_smoking`, where one dataset has `qsmk` set to 1 (quit smoking) and the other has it set to 0 (kept smoking).
+2. Use the outcome model, `outcome_model`, to make predictions for `kept_smoking` and `quit_smoking`
 3. Calculate the differences between the mean values of `kept_smoking` and `quit_smoking`
 
 ```{r}

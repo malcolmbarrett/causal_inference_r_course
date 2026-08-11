@@ -1,22 +1,25 @@
 <!DOCTYPE html>
 <html lang="en"><head>
-<script src="13-bonus-selection-bias_files/libs/clipboard/clipboard.min.js"></script>
-<script src="13-bonus-selection-bias_files/libs/quarto-html/tabby.min.js"></script>
-<script src="13-bonus-selection-bias_files/libs/quarto-html/popper.min.js"></script>
-<script src="13-bonus-selection-bias_files/libs/quarto-html/tippy.umd.min.js"></script>
-<link href="13-bonus-selection-bias_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="13-bonus-selection-bias_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="13-bonus-selection-bias_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<script src="15-bonus-selection-bias_files/libs/clipboard/clipboard.min.js"></script>
+<script src="15-bonus-selection-bias_files/libs/quarto-html/tabby.min.js"></script>
+<script src="15-bonus-selection-bias_files/libs/quarto-html/popper.min.js"></script>
+<script src="15-bonus-selection-bias_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="15-bonus-selection-bias_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="15-bonus-selection-bias_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="15-bonus-selection-bias_files/libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
 
   <meta name="author" content="Malcolm Barrett">
   <title>Bonus: Colliders, selection bias, and loss to follow-up</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
-  <link rel="stylesheet" href="13-bonus-selection-bias_files/libs/revealjs/dist/reset.css">
-  <link rel="stylesheet" href="13-bonus-selection-bias_files/libs/revealjs/dist/reveal.css">
+  <link rel="stylesheet" href="15-bonus-selection-bias_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="15-bonus-selection-bias_files/libs/revealjs/dist/reveal.css">
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -95,11 +98,11 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="13-bonus-selection-bias_files/libs/revealjs/dist/theme/quarto-aac8c9227b08918aec88d28519f1f1ca.css">
-  <link href="13-bonus-selection-bias_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
-  <link href="13-bonus-selection-bias_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
-  <link href="13-bonus-selection-bias_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
-  <link href="13-bonus-selection-bias_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <link rel="stylesheet" href="15-bonus-selection-bias_files/libs/revealjs/dist/theme/quarto-f3805f66672ef64978618ca456565276.css">
+  <link href="15-bonus-selection-bias_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="15-bonus-selection-bias_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="15-bonus-selection-bias_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="15-bonus-selection-bias_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
       margin: 0;
@@ -187,8 +190,8 @@
       margin-right: 0; 
     }
   </style>
-  <link href="13-bonus-selection-bias_files/libs/countdown-0.4.0/countdown.css" rel="stylesheet">
-  <script src="13-bonus-selection-bias_files/libs/countdown-0.4.0/countdown.js"></script>
+  <link href="15-bonus-selection-bias_files/libs/countdown-0.6.0/countdown.css" rel="stylesheet">
+  <script src="15-bonus-selection-bias_files/libs/countdown-0.6.0/countdown.js"></script>
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -212,27 +215,27 @@ Malcolm Barrett
 <section id="confounders-and-chains" class="slide level2">
 <h2>Confounders and chains</h2>
 
-<img data-src="13-bonus-selection-bias_files/figure-revealjs/unnamed-chunk-1-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="15-bonus-selection-bias_files/figure-revealjs/unnamed-chunk-1-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="colliders" class="slide level2">
 <h2>Colliders</h2>
 
-<img data-src="13-bonus-selection-bias_files/figure-revealjs/unnamed-chunk-2-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="15-bonus-selection-bias_files/figure-revealjs/unnamed-chunk-2-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="colliders-1" class="slide level2">
 <h2>Colliders</h2>
 
-<img data-src="13-bonus-selection-bias_files/figure-revealjs/unnamed-chunk-3-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="15-bonus-selection-bias_files/figure-revealjs/unnamed-chunk-3-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="lets-prove-it" class="slide level2">
 <h2>Let’s prove it!</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
 <span id="cb1-2"><a href=""></a>collider_data <span class="ot">&lt;-</span> <span class="fu">collider_triangle</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb1-3"><a href=""></a>  <span class="fu">simulate_data</span>(<span class="sc">-</span>.<span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href=""></a>  <span class="fu">simulate_data</span>(<span class="sc">-</span>.<span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="lets-prove-it-1" class="slide level2">
 <h2>Let’s prove it!</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a>collider_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a>collider_data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 500 × 3
         m       x       y
@@ -254,11 +257,37 @@ Malcolm Barrett
 <section id="lets-prove-it-2" class="slide level2">
 <h2>Let’s prove it!</h2>
 
-<img data-src="13-bonus-selection-bias_files/figure-revealjs/unnamed-chunk-6-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="15-bonus-selection-bias_files/figure-revealjs/unnamed-chunk-6-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="loss-to-follow-up" class="slide level2">
 <h2>Loss to follow-up</h2>
 
-<img data-src="13-bonus-selection-bias_files/figure-revealjs/unnamed-chunk-7-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="15-bonus-selection-bias_files/figure-revealjs/unnamed-chunk-7-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<section id="censoring-as-missingness" class="slide level2">
+<h2>Censoring as missingness</h2>
+
+<img data-src="15-bonus-selection-bias_files/figure-revealjs/unnamed-chunk-8-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<section id="when-censoring-doesnt-bias" class="slide level2">
+<h2>When censoring doesn’t bias</h2>
+
+<img data-src="15-bonus-selection-bias_files/figure-revealjs/unnamed-chunk-9-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<section id="what-can-we-recover" class="slide level2 small">
+<h2>What can we recover?</h2>
+<ul>
+<li>We are always conditioning on the data we actually have</li>
+<li>When that opens no backdoor path, complete-case analysis still recovers the causal effect, with less precision</li>
+<li>We may still be unable to estimate other statistics, like the mean of the outcome</li>
+<li>When it does open a backdoor path, sometimes we can close it and sometimes we can’t</li>
+<li>Not all censoring needs weights</li>
+</ul>
+</section>
+<section id="change-the-estimand" class="slide level2 small">
+<h2>Change the estimand</h2>
+<ul>
+<li>Sometimes the variable you select on is both a collider and a mediator</li>
+<li>Conditioning on it induces relationships between other variables, and it blocks the indirect effect</li>
+<li>We can’t calculate the total effect, but we can still calculate the direct effect by adjusting for the selection variable</li>
+</ul>
+</section>
 <section id="adjusting-for-selection-bias" class="slide level2" data-background-color="#23373B">
 <h2>Adjusting for selection bias</h2>
 <ol type="1">
@@ -273,8 +302,8 @@ Malcolm Barrett
 </section>
 <section id="your-turn" class="slide level2">
 <h2><em>Your Turn</em></h2>
-<h3 id="work-through-your-turns-1-3-in-13-bonus-selection-bias.qmd">Work through Your Turns 1-3 in <code>13-bonus-selection-bias.qmd</code></h3>
-<p></p><div class="countdown" id="timer_e03c4469" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">10</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
+<h3 id="work-through-your-turns-1-3-in-15-bonus-selection-bias-exercises.qmd">Work through Your Turns 1-3 in <code>15-bonus-selection-bias-exercises.qmd</code></h3>
+<p><countdown-timer class="countdown" id="timer_07fe9d37" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 
 </section>
     </div>
@@ -285,19 +314,19 @@ Malcolm Barrett
 </div></div>
 
   <script>window.backupDefine = window.define; window.define = undefined;</script>
-  <script src="13-bonus-selection-bias_files/libs/revealjs/dist/reveal.js"></script>
+  <script src="15-bonus-selection-bias_files/libs/revealjs/dist/reveal.js"></script>
   <!-- reveal.js plugins -->
-  <script src="13-bonus-selection-bias_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
-  <script src="13-bonus-selection-bias_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
-  <script src="13-bonus-selection-bias_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
-  <script src="13-bonus-selection-bias_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
-  <script src="13-bonus-selection-bias_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  <script src="15-bonus-selection-bias_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="15-bonus-selection-bias_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="15-bonus-selection-bias_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="15-bonus-selection-bias_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="15-bonus-selection-bias_files/libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
-  <script src="13-bonus-selection-bias_files/libs/revealjs/plugin/notes/notes.js"></script>
-  <script src="13-bonus-selection-bias_files/libs/revealjs/plugin/search/search.js"></script>
-  <script src="13-bonus-selection-bias_files/libs/revealjs/plugin/zoom/zoom.js"></script>
-  <script src="13-bonus-selection-bias_files/libs/revealjs/plugin/math/math.js"></script>
+  <script src="15-bonus-selection-bias_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="15-bonus-selection-bias_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="15-bonus-selection-bias_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="15-bonus-selection-bias_files/libs/revealjs/plugin/math/math.js"></script>
   <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
 
   <script>
@@ -466,7 +495,7 @@ Malcolm Barrett
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -578,13 +607,14 @@ Malcolm Barrett
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy
