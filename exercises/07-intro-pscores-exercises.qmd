@@ -8,6 +8,7 @@ format: html
 library(tidyverse)
 library(broom)
 library(touringplans)
+library(halfmoon)
 library(ggdag)
 library(ggokabeito)
 ```
@@ -18,7 +19,7 @@ Historically, guests who stayed in a Walt Disney World resort hotel were able to
 These extra hours could be in the morning or evening.
 The Seven Dwarfs Mine Train is a ride at Walt Disney World's Magic Kingdom. Typically, each day Magic Kingdom may or may not be selected to have these "Extra Magic Hours".
 
-We are interested in examining the relationship between whether there were "Extra Magic Hours" in the morning and the average wait time for the Seven Dwarfs Mine Train the same day between 9am and 10am.
+We are interested in examining the relationship between whether there were "Extra Magic Hours" in the morning and the average posted wait time for the Seven Dwarfs Mine Train the same day between 9 AM and 10 AM in 2018.
 
 Below is a proposed DAG for this question.
 
@@ -106,7 +107,7 @@ Here's a data dictionary of the variables we need in the `seven_dwarfs` data set
 | Closing Time                   | `park_close`                  |
 | Historic Temperature           | `park_temperature_high`        |
 
-## Your Turn
+## Your Turn 1
 
 Now, fit a propensity score model for `park_extra_magic_morning` using the above proposed confounders.
 
@@ -123,6 +124,34 @@ Add the propensity scores to the `seven_dwarfs` data set, call this new dataset 
 ```{r}
 df <- propensity_model |>
   ____(type.predict = ____, data = ____)
+```
+
+## Your Turn 2
+
+Model statistics can't tell us how well we've adjusted for confounding, but we do have expectations about how the model behaves.
+First, check that the model is well-calibrated: among the days with a predicted probability of 0.3, about 30% should have had Extra Magic Hours in the morning.
+
+```{r}
+plot_model_calibration(
+  ____,
+  method = "windowed",
+  window_size = 0.15
+)
+```
+
+Next, look at how well the model discriminates between days with and without Extra Magic Hours in the morning.
+
+```{r}
+df |>
+  check_model_roc_curve(____, ____) |>
+  plot_model_roc_curve()
+```
+
+Finally, calculate the area under that curve.
+Values between 0.6 and 0.8 usually mean we've picked up enough signal from the confounders to adjust for, but not so much that we have positivity problems.
+
+```{r}
+check_model_auc(df, .exposure = ____, .fitted = ____)
 ```
 
 Stretch Goal 1:

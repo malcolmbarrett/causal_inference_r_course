@@ -35,6 +35,96 @@ options(
 
 ![](img/conf-3.png)
 
+## Which relationship should we model?
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 7
+#| fig-asp: 0.35
+#| out-width: 100%
+library(tidyverse)
+library(ggdag)
+library(ggokabeito)
+
+roadmap_dag <- dagify(
+  y ~ x + z,
+  x ~ z,
+  coords = list(
+    x = c(z = 0, x = 1, y = 2),
+    y = c(z = 0.5, x = 0, y = 0)
+  ),
+  labels = c(x = "Exposure", y = "Outcome", z = "Confounder"),
+  exposure = "x",
+  outcome = "y"
+) |>
+  tidy_dagitty() |>
+  node_status() |>
+  pull_dag_data()
+
+routes <- c(
+  "Paths into the exposure",
+  "Paths into the outcome",
+  "Both"
+)
+
+modeled <- bind_rows(
+  filter(roadmap_dag, to == "x") |> mutate(route = routes[1]),
+  filter(roadmap_dag, name == "z", to == "y") |> mutate(route = routes[2]),
+  filter(roadmap_dag, name == "z") |> mutate(route = routes[3])
+) |>
+  mutate(route = factor(route, levels = routes))
+
+routes |>
+  map(\(.route) mutate(roadmap_dag, route = .route)) |>
+  list_rbind() |>
+  mutate(route = factor(route, levels = routes)) |>
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges(edge_color = "grey80") +
+  geom_dag_edges(data_directed = modeled, edge_width = 1.1) +
+  geom_dag_point(aes(color = status)) +
+  geom_text(
+    aes(x = x, y = y, label = label, vjust = ifelse(name == "z", -1.5, 2.5)),
+    data = \(.x) distinct(.x, route, name, x, y, label),
+    inherit.aes = FALSE,
+    size = 3
+  ) +
+  facet_wrap(~route) +
+  scale_color_okabe_ito(na.value = "grey90") +
+  theme_dag() +
+  theme(legend.position = "none") +
+  expand_limits(x = c(-0.6, 2.6), y = c(-0.2, 0.7))
+```
+
+## Which relationship should we model?
+
+* Paths into the exposure: **propensity scores**
+* Paths into the outcome: **outcome models**
+* Both: **doubly robust** estimators
+
+::: {.fragment}
+All three can get us the right answer, given the right DAG and well-modeled relationships. We'll start with propensity scores, fit outcome models later, and combine both at the end.
+:::
+
+## The hidden experiment
+
+* Imagine the exposure had been randomized with a probability of 0.5
+* Then the arrows into the exposure wouldn't exist
+* In an experiment, the propensity score is *known*: `rbinom(1, 1, 0.5)`
+
+## The hidden experiment
+
+* Now imagine randomizing the exposure *within levels of the confounders*
+* Still a randomized experiment, but the probability of exposure depends on the covariates
+* This gives us **conditional exchangeability**
+
+## The hidden experiment
+
+* In observational data, these probabilities are not known
+* But *someone* decided who was exposed: what was that decision process?
+* Domain knowledge and statistics can estimate it: the **propensity score**
+
 ## Propensity scores
 
 Rosenbaum and Rubin showed in observational studies, conditioning on **propensity scores** can lead to unbiased estimates of the exposure effect
@@ -59,6 +149,8 @@ $$Pr(exposure = 1) = \frac{1}{1+\exp(-X\beta)}$$
 #| warning: false
 library(tidyverse)
 library(broom)
+library(causalworkshop)
+library(halfmoon)
 ```
 
 ## Propensity scores
@@ -91,6 +183,64 @@ glm(
 
 ![](img/pscores.png)
 
+## Propensity scores
+
+```{r}
+propensity_model <- glm(
+  net ~ income + health + temperature,
+  data = net_data,
+  family = binomial()
+)
+
+net_data_ps <- propensity_model |>
+  augment(type.predict = "response", data = net_data)
+```
+
+## Calibration ![](img/hex/halfmoon.png){.absolute top=0 right=0 width=140}
+
+<br />
+<br />
+
+If we look at all the households with a predicted probability of 0.3, about 30% of them should use a net
+
+```{r}
+#| output-location: slide
+plot_model_calibration(
+  propensity_model,
+  method = "windowed",
+  window_size = 0.15
+)
+```
+
+## ROC curve ![](img/hex/halfmoon.png){.absolute top=0 right=0 width=140}
+
+<br />
+<br />
+
+How well does the model discriminate between the exposed and the unexposed?
+
+```{r}
+#| output-location: slide
+net_data_ps |>
+  check_model_roc_curve(net, .fitted) |>
+  plot_model_roc_curve()
+```
+
+## AUC
+
+```{r}
+check_model_auc(net_data_ps, .exposure = net, .fitted = .fitted)
+```
+
+* Perfect discrimination would be a violation of **positivity**
+* Values between 0.6 and 0.8 usually mean we've picked up enough signal to adjust for
+
+## AUC
+
+* There is no clear cutoff for a "good" AUC in causal inference
+* A randomized trial has an expected AUC of 0.5
+* We are not trying to optimize the AUC; we use it as a **diagnostic**
+
 ## Example: The Seven Dwarfs Mine Train {.small}
 
 :::: {.columns}
@@ -113,7 +263,7 @@ The Seven Dwarfs Mine Train is a ride at Walt Disney World's Magic Kingdom. Typi
 
 ## {background-color="#23373B" .large .center}
 
-*We are interested in examining the relationship between whether there were* **"Extra Magic Hours"** *in the morning and* **the average wait time** *for the Seven Dwarfs Mine Train the same day between 9am and 10am.*
+*We are interested in examining the relationship between whether there were* **"Extra Magic Hours"** *in the morning and* **the average posted wait time** *for the Seven Dwarfs Mine Train the same day between 9 AM and 10 AM in 2018.*
 
 ---
 
@@ -191,9 +341,11 @@ dagify(
 
 ## *Your turn*
 
-`r countdown::countdown(minutes = 6)`
+`r countdown::countdown(minutes = 8)`
 
 ### Using the confounders identified in the previous DAG, fit a propensity score model for `park_extra_magic_morning`
+
+### Check the calibration, ROC curve, and AUC of your model
 
 ### *Stretch*: Create two histograms, one of the propensity scores for days with extra morning magic hours and one for those without
 

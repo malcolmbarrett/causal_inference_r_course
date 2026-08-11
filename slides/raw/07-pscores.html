@@ -1,22 +1,25 @@
 <!DOCTYPE html>
 <html lang="en"><head>
-<script src="06-pscores_files/libs/clipboard/clipboard.min.js"></script>
-<script src="06-pscores_files/libs/quarto-html/tabby.min.js"></script>
-<script src="06-pscores_files/libs/quarto-html/popper.min.js"></script>
-<script src="06-pscores_files/libs/quarto-html/tippy.umd.min.js"></script>
-<link href="06-pscores_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="06-pscores_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="06-pscores_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<script src="07-pscores_files/libs/clipboard/clipboard.min.js"></script>
+<script src="07-pscores_files/libs/quarto-html/tabby.min.js"></script>
+<script src="07-pscores_files/libs/quarto-html/popper.min.js"></script>
+<script src="07-pscores_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="07-pscores_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="07-pscores_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="07-pscores_files/libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
 
   <meta name="author" content="Lucy D’Agostino McGowan">
   <title>Propensity Scores</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
-  <link rel="stylesheet" href="06-pscores_files/libs/revealjs/dist/reset.css">
-  <link rel="stylesheet" href="06-pscores_files/libs/revealjs/dist/reveal.css">
+  <link rel="stylesheet" href="07-pscores_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="07-pscores_files/libs/revealjs/dist/reveal.css">
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -95,11 +98,11 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="06-pscores_files/libs/revealjs/dist/theme/quarto-aac8c9227b08918aec88d28519f1f1ca.css">
-  <link href="06-pscores_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
-  <link href="06-pscores_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
-  <link href="06-pscores_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
-  <link href="06-pscores_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <link rel="stylesheet" href="07-pscores_files/libs/revealjs/dist/theme/quarto-f3805f66672ef64978618ca456565276.css">
+  <link href="07-pscores_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="07-pscores_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="07-pscores_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="07-pscores_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
       margin: 0;
@@ -187,8 +190,8 @@
       margin-right: 0; 
     }
   </style>
-  <link href="06-pscores_files/libs/countdown-0.4.0/countdown.css" rel="stylesheet">
-  <script src="06-pscores_files/libs/countdown-0.4.0/countdown.js"></script>
+  <link href="07-pscores_files/libs/countdown-0.6.0/countdown.css" rel="stylesheet">
+  <script src="07-pscores_files/libs/countdown-0.6.0/countdown.js"></script>
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -229,6 +232,45 @@ Lucy D’Agostino McGowan
 <h2>Confounding</h2>
 
 <img data-src="img/conf-3.png" class="r-stretch"></section>
+<section id="which-relationship-should-we-model" class="slide level2">
+<h2>Which relationship should we model?</h2>
+
+<img data-src="07-pscores_files/figure-revealjs/unnamed-chunk-2-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:100.0%"></section>
+<section id="which-relationship-should-we-model-1" class="slide level2">
+<h2>Which relationship should we model?</h2>
+<ul>
+<li class="fragment">Paths into the exposure: <strong>propensity scores</strong></li>
+<li class="fragment">Paths into the outcome: <strong>outcome models</strong></li>
+<li class="fragment">Both: <strong>doubly robust</strong> estimators</li>
+</ul>
+<div class="fragment">
+<p>All three can get us the right answer, given the right DAG and well-modeled relationships. We’ll start with propensity scores, fit outcome models later, and combine both at the end.</p>
+</div>
+</section>
+<section id="the-hidden-experiment" class="slide level2">
+<h2>The hidden experiment</h2>
+<ul>
+<li class="fragment">Imagine the exposure had been randomized with a probability of 0.5</li>
+<li class="fragment">Then the arrows into the exposure wouldn’t exist</li>
+<li class="fragment">In an experiment, the propensity score is <em>known</em>: <code>rbinom(1, 1, 0.5)</code></li>
+</ul>
+</section>
+<section id="the-hidden-experiment-1" class="slide level2">
+<h2>The hidden experiment</h2>
+<ul>
+<li class="fragment">Now imagine randomizing the exposure <em>within levels of the confounders</em></li>
+<li class="fragment">Still a randomized experiment, but the probability of exposure depends on the covariates</li>
+<li class="fragment">This gives us <strong>conditional exchangeability</strong></li>
+</ul>
+</section>
+<section id="the-hidden-experiment-2" class="slide level2">
+<h2>The hidden experiment</h2>
+<ul>
+<li class="fragment">In observational data, these probabilities are not known</li>
+<li class="fragment">But <em>someone</em> decided who was exposed: what was that decision process?</li>
+<li class="fragment">Domain knowledge and statistics can estimate it: the <strong>propensity score</strong></li>
+</ul>
+</section>
 <section id="propensity-scores" class="slide level2">
 <h2>Propensity scores</h2>
 <p>Rosenbaum and Rubin showed in observational studies, conditioning on <strong>propensity scores</strong> can lead to unbiased estimates of the exposure effect</p>
@@ -252,35 +294,114 @@ Lucy D’Agostino McGowan
 <section id="propensity-scores-2" class="slide level2">
 <h2>Propensity scores</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href=""></a><span class="fu">library</span>(broom)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href=""></a><span class="fu">library</span>(broom)</span>
+<span id="cb1-3"><a href=""></a><span class="fu">library</span>(causalworkshop)</span>
+<span id="cb1-4"><a href=""></a><span class="fu">library</span>(halfmoon)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="propensity-scores-3" class="slide level2">
 <h2>Propensity scores</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="fu">glm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="fu">glm</span>(</span>
 <span id="cb2-2"><a href=""></a>  exposure <span class="sc">~</span> confounder_1 <span class="sc">+</span> confounder_2 <span class="sc">+</span> confounder_3 <span class="sc">+</span> ..., </span>
 <span id="cb2-3"><a href=""></a>  <span class="at">data =</span> df,</span>
 <span id="cb2-4"><a href=""></a>  <span class="at">family =</span> <span class="fu">binomial</span>()</span>
-<span id="cb2-5"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-5"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="propensity-scores-4" class="slide level2">
 <h2>Propensity scores</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb3" data-code-line-numbers="|6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">glm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" data-code-line-numbers="|6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">glm</span>(</span>
 <span id="cb3-2"><a href=""></a>  exposure <span class="sc">~</span> confounder_1 <span class="sc">+</span> confounder_2 <span class="sc">+</span> confounder_3 <span class="sc">+</span> ..., </span>
 <span id="cb3-3"><a href=""></a>  <span class="at">data =</span> df,</span>
 <span id="cb3-4"><a href=""></a>  <span class="at">family =</span> <span class="fu">binomial</span>()</span>
 <span id="cb3-5"><a href=""></a>) <span class="sc">|&gt;</span></span>
-<span id="cb3-6"><a href=""></a>  <span class="fu">augment</span>(<span class="at">type.predict =</span> <span class="st">"response"</span>, <span class="at">data =</span> df) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-6"><a href=""></a>  <span class="fu">augment</span>(<span class="at">type.predict =</span> <span class="st">"response"</span>, <span class="at">data =</span> df) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="propensity-scores-5" class="slide level2" data-background-color="#23373B">
 <h2>Propensity scores</h2>
 
 <img data-src="img/pscores.png" class="r-stretch"></section>
+<section id="propensity-scores-6" class="slide level2">
+<h2>Propensity scores</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a>propensity_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb4-2"><a href=""></a>  net <span class="sc">~</span> income <span class="sc">+</span> health <span class="sc">+</span> temperature,</span>
+<span id="cb4-3"><a href=""></a>  <span class="at">data =</span> net_data,</span>
+<span id="cb4-4"><a href=""></a>  <span class="at">family =</span> <span class="fu">binomial</span>()</span>
+<span id="cb4-5"><a href=""></a>)</span>
+<span id="cb4-6"><a href=""></a></span>
+<span id="cb4-7"><a href=""></a>net_data_ps <span class="ot">&lt;-</span> propensity_model <span class="sc">|&gt;</span></span>
+<span id="cb4-8"><a href=""></a>  <span class="fu">augment</span>(<span class="at">type.predict =</span> <span class="st">"response"</span>, <span class="at">data =</span> net_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="calibration" class="slide level2">
+<h2>Calibration <img data-src="img/hex/halfmoon.png" class="absolute" style="top: 0px; right: 0px; width: 140px; "></h2>
+<p><br> <br></p>
+<p>If we look at all the households with a predicted probability of 0.3, about 30% of them should use a net</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="fu">plot_model_calibration</span>(</span>
+<span id="cb5-2"><a href=""></a>  propensity_model,</span>
+<span id="cb5-3"><a href=""></a>  <span class="at">method =</span> <span class="st">"windowed"</span>,</span>
+<span id="cb5-4"><a href=""></a>  <span class="at">window_size =</span> <span class="fl">0.15</span></span>
+<span id="cb5-5"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+</section>
+<section id="calibration-output" class="slide level2 output-location-slide"><h2>Calibration <img data-src="img/hex/halfmoon.png" class="absolute" style="top: 0px; right: 0px; width: 140px; "></h2><div class="cell output-location-slide" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="07-pscores_files/figure-revealjs/unnamed-chunk-7-1.png" class="quarto-figure quarto-figure-center" style="width:80.0%"></p>
+</figure>
+</div>
+</div>
+</div></section><section id="roc-curve" class="slide level2">
+<h2>ROC curve <img data-src="img/hex/halfmoon.png" class="absolute" style="top: 0px; right: 0px; width: 140px; "></h2>
+<p><br> <br></p>
+<p>How well does the model discriminate between the exposed and the unexposed?</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a>net_data_ps <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href=""></a>  <span class="fu">check_model_roc_curve</span>(net, .fitted) <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href=""></a>  <span class="fu">plot_model_roc_curve</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+</section>
+<section id="roc-curve-output" class="slide level2 output-location-slide"><h2>ROC curve <img data-src="img/hex/halfmoon.png" class="absolute" style="top: 0px; right: 0px; width: 140px; "></h2><div class="cell output-location-slide" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="07-pscores_files/figure-revealjs/unnamed-chunk-8-1.png" class="quarto-figure quarto-figure-center" style="width:80.0%"></p>
+</figure>
+</div>
+</div>
+</div></section><section id="auc" class="slide level2">
+<h2>AUC</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a><span class="fu">check_model_auc</span>(net_data_ps, <span class="at">.exposure =</span> net, <span class="at">.fitted =</span> .fitted)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  method     auc
+  &lt;chr&gt;    &lt;dbl&gt;
+1 observed 0.600</code></pre>
+</div>
+</div>
+<ul>
+<li class="fragment">Perfect discrimination would be a violation of <strong>positivity</strong></li>
+<li class="fragment">Values between 0.6 and 0.8 usually mean we’ve picked up enough signal to adjust for</li>
+</ul>
+</section>
+<section id="auc-1" class="slide level2">
+<h2>AUC</h2>
+<ul>
+<li class="fragment">There is no clear cutoff for a “good” AUC in causal inference</li>
+<li class="fragment">A randomized trial has an expected AUC of 0.5</li>
+<li class="fragment">We are not trying to optimize the AUC; we use it as a <strong>diagnostic</strong></li>
+</ul>
+</section>
 <section id="example-the-seven-dwarfs-mine-train" class="slide level2 small">
 <h2>Example: The Seven Dwarfs Mine Train</h2>
 <div class="columns">
@@ -295,16 +416,17 @@ Lucy D’Agostino McGowan
 </section>
 <section id="section-2" class="slide level2 large center" data-background-color="#23373B">
 <h2></h2>
-<p><em>We are interested in examining the relationship between whether there were</em> <strong>“Extra Magic Hours”</strong> <em>in the morning and</em> <strong>the average wait time</strong> <em>for the Seven Dwarfs Mine Train the same day between 9am and 10am.</em></p>
+<p><em>We are interested in examining the relationship between whether there were</em> <strong>“Extra Magic Hours”</strong> <em>in the morning and</em> <strong>the average posted wait time</strong> <em>for the Seven Dwarfs Mine Train the same day between 9 AM and 10 AM in 2018.</em></p>
 </section>
 <section class="slide level2">
 
 
-<img data-src="06-pscores_files/figure-revealjs/unnamed-chunk-5-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="07-pscores_files/figure-revealjs/unnamed-chunk-10-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="your-turn" class="slide level2">
 <h2><em>Your turn</em></h2>
-<p></p><div class="countdown" id="timer_cc6905f1" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">06</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
+<p><countdown-timer class="countdown" id="timer_d77e1075" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 <h3 id="using-the-confounders-identified-in-the-previous-dag-fit-a-propensity-score-model-for-park_extra_magic_morning">Using the confounders identified in the previous DAG, fit a propensity score model for <code>park_extra_magic_morning</code></h3>
+<h3 id="check-the-calibration-roc-curve-and-auc-of-your-model">Check the calibration, ROC curve, and AUC of your model</h3>
 <h3 id="stretch-create-two-histograms-one-of-the-propensity-scores-for-days-with-extra-morning-magic-hours-and-one-for-those-without"><em>Stretch</em>: Create two histograms, one of the propensity scores for days with extra morning magic hours and one for those without</h3>
 
 </section>
@@ -316,19 +438,19 @@ Lucy D’Agostino McGowan
 </div></div>
 
   <script>window.backupDefine = window.define; window.define = undefined;</script>
-  <script src="06-pscores_files/libs/revealjs/dist/reveal.js"></script>
+  <script src="07-pscores_files/libs/revealjs/dist/reveal.js"></script>
   <!-- reveal.js plugins -->
-  <script src="06-pscores_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
-  <script src="06-pscores_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
-  <script src="06-pscores_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
-  <script src="06-pscores_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
-  <script src="06-pscores_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  <script src="07-pscores_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="07-pscores_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="07-pscores_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="07-pscores_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="07-pscores_files/libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
-  <script src="06-pscores_files/libs/revealjs/plugin/notes/notes.js"></script>
-  <script src="06-pscores_files/libs/revealjs/plugin/search/search.js"></script>
-  <script src="06-pscores_files/libs/revealjs/plugin/zoom/zoom.js"></script>
-  <script src="06-pscores_files/libs/revealjs/plugin/math/math.js"></script>
+  <script src="07-pscores_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="07-pscores_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="07-pscores_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="07-pscores_files/libs/revealjs/plugin/math/math.js"></script>
   <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
 
   <script>
@@ -497,7 +619,7 @@ Lucy D’Agostino McGowan
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -609,13 +731,14 @@ Lucy D’Agostino McGowan
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy

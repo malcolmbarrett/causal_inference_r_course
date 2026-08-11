@@ -13,7 +13,7 @@ library(halfmoon)
 library(propensity)
 ```
 
-We are interested in examining the relationship between whether there were "Extra Magic Hours" in the morning (the **exposure**) and the average wait time for the Seven Dwarfs Mine Train the same day between 9am and 10am (the **outcome**).
+We are interested in examining the relationship between whether there were "Extra Magic Hours" in the morning (the **exposure**) and the average posted wait time for the Seven Dwarfs Mine Train the same day between 9 AM and 10 AM in 2018 (the **outcome**).
 
 Below is the propensity score model and weights you created in the previous exercise.
 
