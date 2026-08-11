@@ -90,7 +90,7 @@ Here we are proposing that there are three confounders: the historic high temper
 
 We can build a propensity score model using the `seven_dwarfs_train_2018` data set from the touringplans package.
 Each row of this dataset contains information about the Seven Dwarfs Mine Train during a certain hour on a given day.
-First we need to subset the data to only include average wait times between 9 and 10 am.
+First we need to subset the data to only include average wait times between 9 and 10 AM.
 
 ```{r}
 seven_dwarfs <- seven_dwarfs_train_2018 |>
@@ -130,6 +130,8 @@ df <- propensity_model |>
 
 Model statistics can't tell us how well we've adjusted for confounding, but we do have expectations about how the model behaves.
 First, check that the model is well-calibrated: among the days with a predicted probability of 0.3, about 30% should have had Extra Magic Hours in the morning.
+Expect a warning about small sample sizes in some of the windows.
+Only about 60 of these 354 days had Extra Magic Hours in the morning, so the windows at the sparse end of the propensity score distribution contain very few days; the warning tells you that the confidence band is imprecise there, not that you have done something wrong.
 
 ```{r}
 plot_model_calibration(
