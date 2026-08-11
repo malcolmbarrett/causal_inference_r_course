@@ -202,11 +202,17 @@ dags <- dag_data |>
   theme(legend.position = "none") +
   facet_wrap(~dag, scales = "free") + 
   expand_plot(
-    expand_x = expansion(c(0.25, 0.25)), 
+    expand_x = expansion(c(0.25, 0.25)),
     expand_y = expansion(c(0.25, 0.25))
   )
 
-dags
+# the numbers match the datasets, so they stay hidden until the reveal
+dags +
+  facet_wrap(
+    ~dag,
+    scales = "free",
+    labeller = as_labeller(\(dag) str_remove(dag, "^\\(\\d\\) "))
+  )
 ```
 
 
