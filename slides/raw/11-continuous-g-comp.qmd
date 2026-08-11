@@ -16,6 +16,7 @@ options(
 library(tidyverse)
 library(broom)
 library(causaldata)
+library(marginaleffects)
 
 set.seed(1000)
 ```
@@ -187,12 +188,139 @@ predictions |>
   mutate(across(everything(), \(x) round(x, digits = 1)))
 ```
 
+## Marginalizing over the covariates
+
+```{r}
+#| echo: false
+bind_cols(greek_data, predictions) |>
+  pivot_longer(
+    c(untreated, treated),
+    names_to = "scenario",
+    values_to = "predicted"
+  ) |>
+  ggplot(aes(x = factor(l), y = predicted, color = scenario)) +
+  geom_hline(
+    yintercept = mean(predictions$treated),
+    linetype = "dashed",
+    color = "grey40"
+  ) +
+  geom_point(
+    position = position_jitterdodge(
+      jitter.width = 0.25,
+      dodge.width = 0.6,
+      seed = 10
+    ),
+    size = 3,
+    alpha = 0.8
+  ) +
+  annotate(
+    "label",
+    x = 1.5,
+    y = mean(predictions$treated),
+    label = "average prediction"
+  ) +
+  labs(x = "l", y = "predicted y", color = NULL)
+```
+
+**Predict at every observation's actual covariates, then average**
+
+## `avg_comparisons()` does all five steps
+
+```{r}
+#| eval: false
+library(marginaleffects)
+
+avg_comparisons(greek_model, variables = "a")
+```
+
+```{r}
+#| echo: false
+avg_comparisons(greek_model, variables = "a") |>
+  tidy() |>
+  select(estimate, std.error, conf.low, conf.high) |>
+  mutate(across(everything(), \(x) round(x, digits = 2)))
+```
+
+The standard error comes from the **delta method**, which approximates the variance of a transformation of the estimated coefficients
+
+## Targeting estimands with `newdata`
+
+`newdata` changes whose covariates we average over
+
+```{r}
+#| eval: false
+#| code-line-numbers: "|5,11"
+# ATT: average over the treated
+avg_comparisons(
+  greek_model,
+  variables = "a",
+  newdata = filter(greek_data, a == 1)
+)
+
+# ATC: average over the untreated
+avg_comparisons(
+  greek_model,
+  variables = "a",
+  newdata = filter(greek_data, a == 0)
+)
+```
+
+## Same model, three populations
+
+```{r}
+#| echo: false
+bind_rows(
+  ATE = tidy(avg_comparisons(greek_model, variables = "a")),
+  ATT = tidy(avg_comparisons(
+    greek_model,
+    variables = "a",
+    newdata = filter(greek_data, a == 1)
+  )),
+  ATC = tidy(avg_comparisons(
+    greek_model,
+    variables = "a",
+    newdata = filter(greek_data, a == 0)
+  )),
+  .id = "estimand"
+) |>
+  select(estimand, estimate, conf.low, conf.high) |>
+  mutate(across(where(is.numeric), \(x) round(x, digits = 2)))
+```
+
+Without an exposure-covariate interaction, the three coincide: the model assumes a constant effect across covariate values
+
+## Tilting toward a target population
+
+The ATO and ATM populations are not subsets of the rows, so weight the average by the tilting function instead
+
+```{r}
+#| eval: false
+library(propensity)
+
+greek_ps <- glm(a ~ l, data = greek_data, family = binomial()) |>
+  predict(type = "response")
+
+avg_comparisons(
+  greek_model,
+  variables = "a",
+  wts = ps_tilt(greek_ps, "ato")
+)
+```
+
 ## {background-color="#23373B" .huge .center} 
 **Continuous exposures**
 
 ## {background-color="#23373B" .huge .center} 
 
 **We recommend g-computation over propensity scores for continuous exposures because of stability issues**
+
+## {background-color="#23373B" .center}
+
+When overlap is poor, IPW makes its reliance on overlap explicit: the weights blow up and we are forced to confront the problem.
+
+. . .
+
+G-computation absorbs the problem silently, producing a stable estimate that may nonetheless be wrong.
 
 ## Do *posted* wait times at 8 am affect *actual* wait times at 9 am?
 
@@ -228,7 +356,7 @@ coord_dag <- list(
 labels <- c(
   extra = "Extra Magic Morning",
   x = "Average posted wait ",
-  y = "Average acutal wait",
+  y = "Average actual wait",
   Season = "Ticket Season",
   weather = "Historic high temperature",
   close = "Time park closed"
@@ -274,7 +402,7 @@ dagify(
 
 ## *Your Turn*
 
-### Work through Your Turns 1-3 in `11-continuous-g-computation-exercises.qmd`
+### Work through Your Turns 1-4 in `11-continuous-g-computation-exercises.qmd`
 
 `r countdown::countdown(minutes = 10)`
 

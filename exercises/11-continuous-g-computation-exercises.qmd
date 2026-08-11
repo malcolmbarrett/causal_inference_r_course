@@ -9,6 +9,7 @@ library(tidyverse)
 library(broom)
 library(touringplans)
 library(splines)
+library(marginaleffects)
 ```
 
 For this set of exercises, we'll use g-computation to calculate a causal effect for continuous exposures.
@@ -30,7 +31,7 @@ coord_dag <- list(
 labels <- c(
   extra = "Extra Magic Morning",
   x = "Average posted wait ",
-  y = "Average acutal wait",
+  y = "Average actual wait",
   Season = "Ticket Season",
   weather = "Historic high temperature",
   close = "Time park closed"
@@ -105,7 +106,7 @@ wait_times <- eight |>
 
 For the parametric G-formula, we'll use a single model to fit a causal model of Posted Waiting Times (`wait_minutes_posted_avg`) on Actual Waiting Times (`wait_minutes_actual_avg`) where we  include all covariates, much as we normally fit regression models. However, instead of interpreting the coefficients, we'll calculate the estimate by predicting on cloned data sets.
 
-Two additional differences in our model: we'll use a natural cubic spline on the exposure, `wait_minutes_posted_avg`, using `ns()` from the splines package, and we'll include an interaction term between `wait_minutes_posted_avg` and `park_extra_magic_morning`. These complicate the interpretation of the coefficient of the model in normal regression but have virtually no downside (as long as we have a reasonable sample size) in g-computation, because we still get an easily interpretable result.
+Two additional differences in our model: we'll use a natural cubic spline on the exposure, `wait_minutes_posted_avg`, using `ns()` from the splines package, and we'll include an interaction term between `wait_minutes_posted_avg` and `park_extra_magic_morning`. These complicate the interpretation of the coefficient of the model in normal regression but have virtually no downside (as long as we have a reasonable sample size) in g-computation, because we still get an easily interpretable result. The interaction also decides which estimands are available to us: without one, the ATE, the ATT, and the ATC from g-computation are identical, because the model assumes the effect of the exposure is the same at every covariate value.
 
 First, let's fit the model. 
 
@@ -161,9 +162,25 @@ _______ |>
 
 That's it! `difference` is our effect estimate, marginalized over the spline terms, interaction effects, and confounders.
 
-## Stretch goal: Boostrapped intervals
+# Your Turn 4
 
-Like propensity-based models, we need to do a little more work to get correct standard errors and confidence intervals. In this stretch goal, use rsample to bootstrap the estimates we got from the G-computation model.
+Now let's calculate the same estimate the short way. `avg_comparisons()` from the marginaleffects package does every step you just did by hand, and it attaches a standard error and a confidence interval calculated with the delta method.
+
+1. Pass `standardized_model` to `avg_comparisons()`.
+2. Use the `variables` argument to set the two posted wait times you want to compare, 30 and 60 minutes.
+
+```{r}
+avg_comparisons(
+  _______,
+  variables = list(wait_minutes_posted_avg = c(___, ___))
+)
+```
+
+The point estimate is the `difference` you calculated in Your Turn 3. The interval is the new information, and it is the lesson here: it is wide enough to include large effects in both directions, so this effect is not precisely estimated.
+
+## Stretch goal: Bootstrapped intervals
+
+The delta method is not the only route to an interval. As with propensity-based models, we can also bootstrap. In this stretch goal, use rsample to bootstrap the estimates we got from the G-computation model.
 
 Remember, you need to bootstrap the entire modeling process, including the regression model, cloning the data sets, and calculating the effects.
 
@@ -204,9 +221,35 @@ boot_estimate <- int_bca(_______, results, .fn = fit_gcomp)
 boot_estimate
 ```
 
+## Stretch goal: The causal dose-response function
+
+With a continuous exposure, we don't have to settle for a single contrast. We can ask what the average actual wait time would be at every posted wait time, which traces out a causal dose-response function. `avg_predictions()` marginalizes the same way `avg_comparisons()` does: at each value of the exposure, it predicts at every observation's own covariate values and averages those predictions.
+
+1. Use `avg_predictions()` on `standardized_model`, setting the exposure to a grid of values with the `variables` argument.
+2. Plot the estimates as a line with a confidence band, using `conf.low` and `conf.high`.
+
+```{r}
+dose_response <- avg_predictions(
+  _______,
+  variables = list(wait_minutes_posted_avg = seq(10, 80, by = 5))
+)
+
+dose_response |>
+  ggplot(aes(x = wait_minutes_posted_avg, y = estimate)) +
+  geom_ribbon(aes(ymin = _______, ymax = _______), alpha = 0.2) +
+  geom_line(linewidth = 1) +
+  labs(
+    x = "Posted wait time at 8 am (minutes)",
+    y = "Average actual wait at 9 am (minutes)"
+  )
+```
+
+The grid runs from 10 to 80 minutes because that is about the range of posted wait times we observe; asking for predictions outside it would make the spline extrapolate. Notice how much of the plot the confidence band takes up, and compare that to the interval you got in Your Turn 4.
+
 ***
 
 # Take aways
 
 * To fit the parametric G-formula, fit a standardized model with all covariates. Then, use cloned data sets with values set to each level of the exposure you want to study. 
 * Use the model to predict the values for that level of the exposure and compute the effect estimate you want
+* `avg_comparisons()` runs those steps in a single call and returns a standard error and confidence interval with the estimate

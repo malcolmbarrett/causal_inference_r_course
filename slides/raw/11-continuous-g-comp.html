@@ -1,22 +1,25 @@
 <!DOCTYPE html>
 <html lang="en"><head>
-<script src="10-continuous-g-comp_files/libs/clipboard/clipboard.min.js"></script>
-<script src="10-continuous-g-comp_files/libs/quarto-html/tabby.min.js"></script>
-<script src="10-continuous-g-comp_files/libs/quarto-html/popper.min.js"></script>
-<script src="10-continuous-g-comp_files/libs/quarto-html/tippy.umd.min.js"></script>
-<link href="10-continuous-g-comp_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="10-continuous-g-comp_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="10-continuous-g-comp_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<script src="11-continuous-g-comp_files/libs/clipboard/clipboard.min.js"></script>
+<script src="11-continuous-g-comp_files/libs/quarto-html/tabby.min.js"></script>
+<script src="11-continuous-g-comp_files/libs/quarto-html/popper.min.js"></script>
+<script src="11-continuous-g-comp_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="11-continuous-g-comp_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="11-continuous-g-comp_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="11-continuous-g-comp_files/libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
 
   <meta name="author" content="Malcolm Barrett">
   <title>Continuous exposures and g-computation</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
-  <link rel="stylesheet" href="10-continuous-g-comp_files/libs/revealjs/dist/reset.css">
-  <link rel="stylesheet" href="10-continuous-g-comp_files/libs/revealjs/dist/reveal.css">
+  <link rel="stylesheet" href="11-continuous-g-comp_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="11-continuous-g-comp_files/libs/revealjs/dist/reveal.css">
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -95,11 +98,11 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="10-continuous-g-comp_files/libs/revealjs/dist/theme/quarto-aac8c9227b08918aec88d28519f1f1ca.css">
-  <link href="10-continuous-g-comp_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
-  <link href="10-continuous-g-comp_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
-  <link href="10-continuous-g-comp_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
-  <link href="10-continuous-g-comp_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <link rel="stylesheet" href="11-continuous-g-comp_files/libs/revealjs/dist/theme/quarto-f3805f66672ef64978618ca456565276.css">
+  <link href="11-continuous-g-comp_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="11-continuous-g-comp_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="11-continuous-g-comp_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="11-continuous-g-comp_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
       margin: 0;
@@ -187,8 +190,8 @@
       margin-right: 0; 
     }
   </style>
-  <link href="10-continuous-g-comp_files/libs/countdown-0.4.0/countdown.css" rel="stylesheet">
-  <script src="10-continuous-g-comp_files/libs/countdown-0.4.0/countdown.js"></script>
+  <link href="11-continuous-g-comp_files/libs/countdown-0.6.0/countdown.css" rel="stylesheet">
+  <script src="11-continuous-g-comp_files/libs/countdown-0.6.0/countdown.js"></script>
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -694,7 +697,7 @@ Malcolm Barrett
 }
 </style>
 
-<table class="gt_table caption-top" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_col_headings header">
 <th id="name" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">The name of a Greek god</th>
@@ -775,7 +778,7 @@ Malcolm Barrett
 <section id="fit-a-model-for-y-a-l" class="slide level2">
 <h2>1. Fit a model for <code>y ~ a + l</code></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a>greek_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> a <span class="sc">+</span> l, <span class="at">data =</span> greek_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a>greek_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> a <span class="sc">+</span> l, <span class="at">data =</span> greek_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="create-a-duplicate-of-your-data-set-for-each-level-of-a" class="slide level2">
@@ -1232,7 +1235,7 @@ Malcolm Barrett
 }
 </style>
 
-<table class="gt_table caption-top" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_col_headings header">
 <th id="name" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">The name of a Greek god</th>
@@ -1765,7 +1768,7 @@ Malcolm Barrett
 }
 </style>
 
-<table class="gt_table caption-top" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_col_headings header">
 <th id="name" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">The name of a Greek god</th>
@@ -2294,7 +2297,7 @@ Malcolm Barrett
 }
 </style>
 
-<table class="gt_table caption-top" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_col_headings header">
 <th id="name" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">The name of a Greek god</th>
@@ -2828,7 +2831,7 @@ Malcolm Barrett
 }
 </style>
 
-<table class="gt_table caption-top" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_col_headings header">
 <th id="name" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">The name of a Greek god</th>
@@ -3357,7 +3360,7 @@ Malcolm Barrett
 }
 </style>
 
-<table class="gt_table caption-top" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_col_headings header">
 <th id="name" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">The name of a Greek god</th>
@@ -3438,19 +3441,19 @@ Malcolm Barrett
 <section id="set-the-value-of-a-to-a-single-value-for-each-cloned-data-set-1" class="slide level2">
 <h2>3. Set the value of <code>a</code> to a single value for each cloned data set</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb2" data-code-line-numbers="|3,7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="co">#  set all participants to have a = 0</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" data-code-line-numbers="|3,7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="co">#  set all participants to have a = 0</span></span>
 <span id="cb2-2"><a href=""></a>untreated_data <span class="ot">&lt;-</span> greek_data <span class="sc">|&gt;</span></span>
 <span id="cb2-3"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">a =</span> <span class="dv">0</span>) </span>
 <span id="cb2-4"><a href=""></a></span>
 <span id="cb2-5"><a href=""></a><span class="co">#  set all participants to have a = 1</span></span>
 <span id="cb2-6"><a href=""></a>treated_data <span class="ot">&lt;-</span> greek_data <span class="sc">|&gt;</span></span>
-<span id="cb2-7"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">a =</span> <span class="dv">1</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-7"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">a =</span> <span class="dv">1</span>) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="make-predictions-using-the-model-on-the-cloned-data-sets" class="slide level2">
 <h2>4. Make predictions using the model on the cloned data sets</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb3" data-code-line-numbers="|2-3,7-8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="co">#  predict under the data where everyone is untreated</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" data-code-line-numbers="|2-3,7-8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="co">#  predict under the data where everyone is untreated</span></span>
 <span id="cb3-2"><a href=""></a>predicted_untreated <span class="ot">&lt;-</span> greek_model <span class="sc">|&gt;</span></span>
 <span id="cb3-3"><a href=""></a>  <span class="fu">augment</span>(<span class="at">newdata =</span> untreated_data) <span class="sc">|&gt;</span></span>
 <span id="cb3-4"><a href=""></a>  <span class="fu">select</span>(<span class="at">untreated =</span> .fitted)</span>
@@ -3463,18 +3466,18 @@ Malcolm Barrett
 <span id="cb3-11"><a href=""></a>predictions <span class="ot">&lt;-</span> <span class="fu">bind_cols</span>(</span>
 <span id="cb3-12"><a href=""></a>  predicted_untreated, </span>
 <span id="cb3-13"><a href=""></a>  predicted_treated</span>
-<span id="cb3-14"><a href=""></a>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-14"><a href=""></a>) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="calculate-the-estimate-you-want" class="slide level2">
 <h2>5. Calculate the estimate you want</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb4" data-code-line-numbers="|5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a>predictions <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" data-code-line-numbers="|5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a>predictions <span class="sc">|&gt;</span></span>
 <span id="cb4-2"><a href=""></a>  <span class="fu">summarise</span>(</span>
 <span id="cb4-3"><a href=""></a>    <span class="at">mean_treated =</span> <span class="fu">mean</span>(treated),</span>
 <span id="cb4-4"><a href=""></a>    <span class="at">mean_untreated =</span> <span class="fu">mean</span>(untreated),</span>
 <span id="cb4-5"><a href=""></a>    <span class="at">difference =</span> mean_treated <span class="sc">-</span> mean_untreated</span>
-<span id="cb4-6"><a href=""></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-6"><a href=""></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell fragment" data-layout-align="center">
 
@@ -3488,6 +3491,77 @@ Malcolm Barrett
 </div>
 </div>
 </section>
+<section id="marginalizing-over-the-covariates" class="slide level2">
+<h2>Marginalizing over the covariates</h2>
+
+<img data-src="11-continuous-g-comp_files/figure-revealjs/unnamed-chunk-12-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"><p><strong>Predict at every observation’s actual covariates, then average</strong></p>
+</section>
+<section id="avg_comparisons-does-all-five-steps" class="slide level2">
+<h2><code>avg_comparisons()</code> does all five steps</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a><span class="fu">library</span>(marginaleffects)</span>
+<span id="cb6-2"><a href=""></a></span>
+<span id="cb6-3"><a href=""></a><span class="fu">avg_comparisons</span>(greek_model, <span class="at">variables =</span> <span class="st">"a"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 4
+  estimate std.error conf.low conf.high
+     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1        0      0.24    -0.47      0.47</code></pre>
+</div>
+</div>
+<p>The standard error comes from the <strong>delta method</strong>, which approximates the variance of a transformation of the estimated coefficients</p>
+</section>
+<section id="targeting-estimands-with-newdata" class="slide level2">
+<h2>Targeting estimands with <code>newdata</code></h2>
+<p><code>newdata</code> changes whose covariates we average over</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" data-code-line-numbers="|5,11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href=""></a><span class="co"># ATT: average over the treated</span></span>
+<span id="cb8-2"><a href=""></a><span class="fu">avg_comparisons</span>(</span>
+<span id="cb8-3"><a href=""></a>  greek_model,</span>
+<span id="cb8-4"><a href=""></a>  <span class="at">variables =</span> <span class="st">"a"</span>,</span>
+<span id="cb8-5"><a href=""></a>  <span class="at">newdata =</span> <span class="fu">filter</span>(greek_data, a <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb8-6"><a href=""></a>)</span>
+<span id="cb8-7"><a href=""></a></span>
+<span id="cb8-8"><a href=""></a><span class="co"># ATC: average over the untreated</span></span>
+<span id="cb8-9"><a href=""></a><span class="fu">avg_comparisons</span>(</span>
+<span id="cb8-10"><a href=""></a>  greek_model,</span>
+<span id="cb8-11"><a href=""></a>  <span class="at">variables =</span> <span class="st">"a"</span>,</span>
+<span id="cb8-12"><a href=""></a>  <span class="at">newdata =</span> <span class="fu">filter</span>(greek_data, a <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb8-13"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="same-model-three-populations" class="slide level2">
+<h2>Same model, three populations</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  estimand estimate conf.low conf.high
+  &lt;chr&gt;       &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 ATE             0    -0.47      0.47
+2 ATT             0    -0.47      0.47
+3 ATC             0    -0.47      0.47</code></pre>
+</div>
+</div>
+<p>Without an exposure-covariate interaction, the three coincide: the model assumes a constant effect across covariate values</p>
+</section>
+<section id="tilting-toward-a-target-population" class="slide level2">
+<h2>Tilting toward a target population</h2>
+<p>The ATO and ATM populations are not subsets of the rows, so weight the average by the tilting function instead</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href=""></a><span class="fu">library</span>(propensity)</span>
+<span id="cb10-2"><a href=""></a></span>
+<span id="cb10-3"><a href=""></a>greek_ps <span class="ot">&lt;-</span> <span class="fu">glm</span>(a <span class="sc">~</span> l, <span class="at">data =</span> greek_data, <span class="at">family =</span> <span class="fu">binomial</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb10-4"><a href=""></a>  <span class="fu">predict</span>(<span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb10-5"><a href=""></a></span>
+<span id="cb10-6"><a href=""></a><span class="fu">avg_comparisons</span>(</span>
+<span id="cb10-7"><a href=""></a>  greek_model,</span>
+<span id="cb10-8"><a href=""></a>  <span class="at">variables =</span> <span class="st">"a"</span>,</span>
+<span id="cb10-9"><a href=""></a>  <span class="at">wts =</span> <span class="fu">ps_tilt</span>(greek_ps, <span class="st">"ato"</span>)</span>
+<span id="cb10-10"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
 <section id="section-1" class="slide level2 huge center" data-background-color="#23373B">
 <h2></h2>
 <p><strong>Continuous exposures</strong></p>
@@ -3496,14 +3570,21 @@ Malcolm Barrett
 <h2></h2>
 <p><strong>We recommend g-computation over propensity scores for continuous exposures because of stability issues</strong></p>
 </section>
+<section id="section-3" class="slide level2 center" data-background-color="#23373B">
+<h2></h2>
+<p>When overlap is poor, IPW makes its reliance on overlap explicit: the weights blow up and we are forced to confront the problem.</p>
+<div class="fragment">
+<p>G-computation absorbs the problem silently, producing a stable estimate that may nonetheless be wrong.</p>
+</div>
+</section>
 <section id="do-posted-wait-times-at-8-am-affect-actual-wait-times-at-9-am" class="slide level2">
 <h2>Do <em>posted</em> wait times at 8 am affect <em>actual</em> wait times at 9 am?</h2>
 
-<img data-src="10-continuous-g-comp_files/figure-revealjs/unnamed-chunk-12-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="11-continuous-g-comp_files/figure-revealjs/unnamed-chunk-18-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="your-turn" class="slide level2">
 <h2><em>Your Turn</em></h2>
-<h3 id="work-through-your-turns-1-3-in-10-continuous-g-computation-exercises.qmd">Work through Your Turns 1-3 in <code>10-continuous-g-computation-exercises.qmd</code></h3>
-<p></p><div class="countdown" id="timer_8914c719" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">10</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
+<h3 id="work-through-your-turns-1-4-in-11-continuous-g-computation-exercises.qmd">Work through Your Turns 1-4 in <code>11-continuous-g-computation-exercises.qmd</code></h3>
+<p><countdown-timer class="countdown" id="timer_caf861fd" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 
 </section>
     </div>
@@ -3514,19 +3595,19 @@ Malcolm Barrett
 </div></div>
 
   <script>window.backupDefine = window.define; window.define = undefined;</script>
-  <script src="10-continuous-g-comp_files/libs/revealjs/dist/reveal.js"></script>
+  <script src="11-continuous-g-comp_files/libs/revealjs/dist/reveal.js"></script>
   <!-- reveal.js plugins -->
-  <script src="10-continuous-g-comp_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
-  <script src="10-continuous-g-comp_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
-  <script src="10-continuous-g-comp_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
-  <script src="10-continuous-g-comp_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
-  <script src="10-continuous-g-comp_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  <script src="11-continuous-g-comp_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="11-continuous-g-comp_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="11-continuous-g-comp_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="11-continuous-g-comp_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="11-continuous-g-comp_files/libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
-  <script src="10-continuous-g-comp_files/libs/revealjs/plugin/notes/notes.js"></script>
-  <script src="10-continuous-g-comp_files/libs/revealjs/plugin/search/search.js"></script>
-  <script src="10-continuous-g-comp_files/libs/revealjs/plugin/zoom/zoom.js"></script>
-  <script src="10-continuous-g-comp_files/libs/revealjs/plugin/math/math.js"></script>
+  <script src="11-continuous-g-comp_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="11-continuous-g-comp_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="11-continuous-g-comp_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="11-continuous-g-comp_files/libs/revealjs/plugin/math/math.js"></script>
   <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
 
   <script>
@@ -3695,7 +3776,7 @@ Malcolm Barrett
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -3807,13 +3888,14 @@ Malcolm Barrett
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy
