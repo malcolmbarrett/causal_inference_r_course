@@ -856,7 +856,7 @@ mosquito_dag |>
 
 . . .
 
-**It's in no adjustment set, but include it anyway**
+**It's in no minimal adjustment set, but include it anyway**
 
 . . .
 
