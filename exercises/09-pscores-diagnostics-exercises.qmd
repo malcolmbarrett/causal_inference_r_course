@@ -34,21 +34,24 @@ seven_dwarfs_ps <- propensity_model |>
 
 ## Your Turn 1
 
-Calculate the standardized mean differences with and without weights
+Calculate the balance metrics with and without weights
 
 ```{r}
-smds <- seven_dwarfs_ps |>
+balance_metrics <- seven_dwarfs_ps |>
   mutate(park_close = as.numeric(park_close)) |>
-  tidy_smd(
+  check_balance(
   .vars = ____,
-  .group = ____,
-  .wts = ____
+  .exposure = ____,
+  .weights = ____
 )
 ```
 
 Create the Love Plot using ggplot and halfmoon
 
 ```{r}
+smds <- balance_metrics |>
+  filter(metric == "smd")
+
 ggplot(
   data = ____,
   aes(x = abs(____), y = ____, group = ____, color = ____)
@@ -56,7 +59,7 @@ ggplot(
   geom_love()
 ```
 
-Stretch goal: Create a Love Plot using `make_dummy_vars = TRUE` and sorted by `abs(smd)` for the SMD values for the rows represnting the observed data.
+Stretch goal: Create a Love Plot using `make_dummy_vars = TRUE` and sorted by `abs(estimate)` for the SMD values for the rows representing the observed data.
 
 ## Your Turn 2
 
@@ -66,27 +69,29 @@ Create an unweighted ECDF for `park_temperature_high` by whether or not the day 
 ggplot(seven_dwarfs_ps, aes(x = ____, group = ____, color = factor(____))) +
   ____() +
   scale_color_manual(
-    "Extra Magic Hours", 
+    "Extra Magic Hours",
     values = c("#5154B8", "#5DB854"),
-    labels = c("Yes", "No")
-  ) + 
-  xlab(____) + 
-  ylab("Proportion <= x") 
+    labels = c("No", "Yes")
+  ) +
+  xlab(____) +
+  ylab("Proportion <= x")
 ```
 
 Create an weighted ECDF for `park_temperature_high` by whether or not the day had Extra Magic Hours.
 
 ```{r}
 ggplot(seven_dwarfs_ps, aes(x = ____, color = factor(____))) +
-  ____(aes(weights = ____)) + 
+  ____(aes(weights = ____)) +
   scale_color_manual(
     "Extra Magic Hours",
     values = c("#5154B8", "#5DB854"),
-    labels = c("Yes", "No")
+    labels = c("No", "Yes")
   ) +
   xlab("Historic Temperature") +
   ylab("Proportion <= x (Weighted)")
 ```
+
+If the weighted curves still diverge, refit the propensity score model with `splines::ns(park_temperature_high, df = 5)` and look again.
 
 ## Bonus Your Turn: Weighted Tables
 
@@ -94,24 +99,26 @@ Create a weighted table for the seven dwarfs dataset given your weights
 
 1. Create a survey design object using `svydesign()` that specifies the weights as `w_ate`
 2. Use `tbl_svysummary()` by `park_extra_magic_morning` to specify a weighted table
-3. Use `add_difference()` to add `"smd"` differences for every variable
+3. Use `add_ess_header()` to report the effective sample size for each group
+4. Use `add_overall(last = TRUE)` to add the overall column at the end
 
 
 ```{r}
 library(survey)
 library(gtsummary)
-seven_dwarfs_ps |> 
-  select(park_extra_magic_morning, park_ticket_season, park_close, park_temperature_high, w_ate) |> 
+seven_dwarfs_ps |>
+  select(park_extra_magic_morning, park_ticket_season, park_close, park_temperature_high, w_ate) |>
 ______(
-  ids = ~ 1,
+  ids = ~1,
   data = _,
-  weights = ~ ____
-) |> 
+  weights = ~____
+) |>
   ______(
     by = ____,
     include = -w_ate
   ) |>
-  add_difference(everything() ~ "____") 
+  ______() |>
+  add_overall(last = TRUE)
 ```
 
 
