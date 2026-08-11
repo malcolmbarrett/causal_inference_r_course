@@ -22,24 +22,24 @@ options(
 
 ### When you have no confounders and there is a linear relationship between the exposure and the outcome, that *correlation is a causal relationship*
 
-### `r emo::ji("wow")`
+### 😮
 
 ## {background-color="#23373B" .center}
 
 ### When you have no confounders and there is a linear relationship between the *exposure* and the outcome, that correlation is a causal relationship
 
-### `r emo::ji("wow")`
+### 😮
 
 ## {background-color="#23373B" .center}
 
 ### When you have no confounders and there is a linear relationship between the exposure and the *outcome*, that correlation is a causal relationship
 
-### `r emo::ji("wow")`
+### 😮
 
 ## {background-color="#23373B" .center}
 
 ### When you have no *confounders* and there is a linear relationship between the exposure and the outcome, that correlation is a causal relationship
-### `r emo::ji("wow")`
+### 😮
 
 ## {background-color="#23373B" .center}
 

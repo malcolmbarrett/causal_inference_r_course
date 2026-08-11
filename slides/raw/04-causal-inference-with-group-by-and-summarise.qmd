@@ -150,7 +150,7 @@ sim |>
 
 . . .
 
-`r emo::ji("tada")`
+🎉
 
 ## Two binary confounders {background-color="#23373B" .center}
 

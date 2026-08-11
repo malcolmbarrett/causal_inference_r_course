@@ -32,15 +32,15 @@ lm(outcome ~ exposure, data = df, weights = wts) |>
 
 . . .
 
-`r emo::ji("check")` This will get us the point estimate  
+✅ This will get us the point estimate  
 
 . . .
 
-`r emo::ji("x")` This will get NOT us the correct confidence intervals  
+❌ This will get NOT us the correct confidence intervals  
 
 . . .
 
-`r emo::ji("package")` Let's bootstrap them with rsample
+📦 Let's bootstrap them with rsample
 
 ## 1. Create a function to run your analysis once on a sample of your data
 
