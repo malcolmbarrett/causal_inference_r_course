@@ -336,7 +336,6 @@ The Seven Dwarfs Mine Train is a ride at Walt Disney World's Magic Kingdom. Typi
 #| echo: false
 #| message: false
 #| warning: false
-#| fig.height: 4.0
 library(tidyverse)
 library(ggdag)
 library(ggokabeito)
@@ -344,7 +343,7 @@ library(ggokabeito)
 geom_dag_label_repel <- function(..., seed = 10) {
   ggdag::geom_dag_label_repel(
     aes(x, y, label = label),
-    box.padding = 3.5,
+    box.padding = 1.25,
     inherit.aes = FALSE,
     max.overlaps = Inf,
     family = "sans",
@@ -554,17 +553,17 @@ countdown::countdown(minutes = 8)
 - TMLE is a flexible, efficient method for estimating causal effects based in semi-parametric theory
 - TMLE solves three problems: doubly robustness, targeted estimation, and valid statistical inference
 
-## Targeted Learning: doubly robustness
+## Targeted Learning: doubly robustness {.small}
 
 - In **IPW** and **G-computation**, we estimate the propensity score and outcome model separately. If either model is misspecified, the estimate will be biased.
 - In **TMLE**, we combine the two models in a way that is doubly robust: if either the propensity score or outcome model is correctly specified, the estimate will be consistent.
 
-## Targeted Learning: targeted estimation
+## Targeted Learning: targeted estimation {.small}
 
 - In **IPW** and **G-computation**, we estimate the average treatment effect (ATE) using predictions from the exposure and outcome models. But these algorithms optimize for the predictions, not the ATE.
 - In **TMLE**, we adjust the predictions to specifically target the ATE. We change the bias-variance tradeoff to focus on the ATE rather than just minimizing prediction error. This is a debiasing step that also improves the efficiency of the estimate!
 
-## Targeted Learning: valid statistical inference
+## Targeted Learning: valid statistical inference {.small}
 - In **IPW** and **G-computation**, we cannot easily get valid confidence intervals with ML. Bootstrapping is often used, but it can be computationally intensive and not always valid.
 - In **TMLE**, we can use the influence curve to get valid confidence intervals. The influence curve is a way to estimate the variance of the TMLE estimate, even when using complex ML algorithms.
 

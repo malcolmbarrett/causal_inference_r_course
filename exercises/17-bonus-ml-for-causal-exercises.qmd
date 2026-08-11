@@ -413,9 +413,9 @@ epsilon <- __________
 epsilon
 ```
 
-8. Now that we've calculated the fluctuation parameter, we can update our predictions to obtain targeted predictions that are minimize the bias-variance tradeoff for the average treatment effect.
+8. Now that we've calculated the fluctuation parameter, we can update our predictions to obtain targeted predictions that minimize the bias-variance tradeoff for the average treatment effect.
    - For treated units, we add `epsilon * (1 / propensity_scores)`.
-   - For control units, we add `epsilon * (-1 / (1 - propensity_scores)`.
+   - For control units, we add `epsilon * (-1 / (1 - propensity_scores))`.
 
 ```{r}
 # Step 4: Update our predictions using the fluctuation parameter
