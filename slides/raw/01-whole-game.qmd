@@ -266,7 +266,7 @@ mosquito_dag |>
 #| fig-width: 9
 
 mosquito_dag |>
-  ggdag_adjustment_set(text = FALSE, use_labels = "label", node_size = 10, shadow = TRUE) +
+  ggdag_adjustment_set(use_text = FALSE, use_labels = TRUE, node_size = 10, shadow = TRUE) +
   theme_dag() +
   facet_wrap(
     vars(set),

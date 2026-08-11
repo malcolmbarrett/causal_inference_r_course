@@ -213,7 +213,7 @@ health, and temperature.
 
 ```{r}
 mosquito_dag |>
-  ggdag_adjustment_set(text = FALSE, use_labels = "label", shadow = TRUE) +
+  ggdag_adjustment_set(use_text = FALSE, use_labels = TRUE, shadow = TRUE) +
   theme_dag() +
   scale_color_okabe_ito(order = c(1, 5)) +
   scale_fill_okabe_ito(order = c(1, 5))

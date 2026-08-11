@@ -133,7 +133,7 @@ smk_wt_dag <- dagify(
 
 smk_wt_dag |>
   filter(name %in% c("qsmk", "wt82_71")) |>
-  ggdag(text = FALSE, use_labels = "label") +
+  ggdag(use_text = FALSE, use_labels = TRUE) +
   ylim(min(smk_wt_dag$data$y) - 0.25, max(smk_wt_dag$data$y) + 0.25) +  
   xlim(min(smk_wt_dag$data$x) - 0.25, max(smk_wt_dag$data$x) + 0.25) +
   theme_dag()
@@ -145,7 +145,7 @@ smk_wt_dag |>
 #| echo: false
 #| fig.width: 9
 smk_wt_dag |>
-  ggdag(text = FALSE, use_labels = "label") +
+  ggdag(use_text = FALSE, use_labels = TRUE) +
   ylim(min(smk_wt_dag$data$y) - 0.25, max(smk_wt_dag$data$y) + 0.25) +  
   xlim(min(smk_wt_dag$data$x) - 0.25, max(smk_wt_dag$data$x) + 0.25) +
   theme_dag()
@@ -235,7 +235,7 @@ smk_wt_dag |>
 #| echo: false
 #| fig.width: 9
 smk_wt_dag |>
-  ggdag_adjustment_set(text = FALSE, use_labels = "label", node_size = 10, shadow = TRUE) +
+  ggdag_adjustment_set(use_text = FALSE, use_labels = TRUE, node_size = 10, shadow = TRUE) +
   theme_dag() + 
   facet_wrap(
     vars(set), 
