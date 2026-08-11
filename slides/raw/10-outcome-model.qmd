@@ -16,6 +16,7 @@ library(tidyverse)
 library(broom)
 library(propensity)
 library(causalworkshop)
+library(marginaleffects)
 
 set.seed(1234)
 ```
@@ -36,11 +37,25 @@ lm(outcome ~ exposure, data = df, weights = wts) |>
 
 . . .
 
-❌ This will get NOT us the correct confidence intervals  
+❌ This will NOT get us the correct confidence intervals
 
 . . .
 
-📦 Let's bootstrap them with rsample
+📦 There are three ways to get them right
+
+## Three ways to estimate the uncertainty
+
+::: {.small}
+::: nonincremental
+1. **A bootstrap**: correct and general purpose, but slow
+2. **A robust standard error**: a sandwich estimator for the outcome model alone
+3. **A propensity-aware sandwich**: correct and fast
+:::
+:::
+
+. . .
+
+The bootstrap is still worth knowing: it also solves problems that have no closed-form solution
 
 ## 1. Create a function to run your analysis once on a sample of your data
 
@@ -110,6 +125,8 @@ ipw_results
 ```{r}
 #| echo: false
 ipw_results |>
+  # remove the original data set results
+  filter(id != "Apparent") |>
   mutate(
     estimate = map_dbl(
       boot_fits,
@@ -120,7 +137,7 @@ ipw_results |>
     )
   ) |>
   ggplot(aes(estimate)) +
-  geom_histogram(fill = "#D55E00FF", color = "white", alpha = 0.8) + 
+  geom_histogram(bins = 30, fill = "#D55E00FF", color = "white", alpha = 0.8) +
   theme_minimal()
 ```
 
@@ -137,12 +154,124 @@ boot_estimate <- int_t(ipw_results, boot_fits) |>
 boot_estimate
 ```
 
+## Fit both models on the full data {.small}
+
+```{r}
+#| code-line-numbers: "|1-5|7-9|11"
+propensity_model <- glm(
+  net ~ income + health + temperature,
+  family = binomial(),
+  data = net_data
+)
+
+net_data_wts <- propensity_model |>
+  augment(type.predict = "response", data = net_data) |>
+  mutate(wts = wt_ate(.fitted, net, exposure_type = "binary"))
+
+ipw_model <- lm(malaria_risk ~ net, data = net_data_wts, weights = wts)
+```
+
+## Robust standard errors are not enough {.small}
+
+```{r}
+#| code-line-numbers: "|1|4|5|6"
+#| output-location: fragment
+robust_se <- avg_comparisons(ipw_model, variables = "net", vcov = "HC3")
+
+bind_rows(
+  "lm() default" = tidy(ipw_model) |> filter(term == "netTRUE"),
+  "HC3 robust SE" = tidy(robust_se),
+  "ipw()" = tidy(ipw(propensity_model, ipw_model)),
+  .id = "method"
+) |>
+  select(method, estimate, std.error)
+```
+
+. . .
+
+❌ Robust SEs account for the weights, but not for estimating them
+
+## ipw(): correct and fast
+
+::: nonincremental
+- `ipw()` uses a sandwich estimator that also accounts for the uncertainty in
+  the propensity score model
+- Bring your own models: you fit the propensity score and outcome models
+  yourself, then supply them to `ipw()`
+:::
+
+. . .
+
+```{r}
+ipw_fit <- ipw(propensity_model, ipw_model)
+```
+
+## ipw(): correct and fast {.small}
+
+```{r}
+ipw_fit
+```
+
+. . .
+
+`ipw()` reports the estimand along with the estimate
+
+## The bootstrap and ipw() agree
+
+```{r}
+#| echo: false
+bind_rows(
+  "bootstrap" = boot_estimate |>
+    select(estimate = .estimate, conf.low = .lower, conf.high = .upper),
+  "ipw()" = ipw_fit |>
+    tidy(conf.int = TRUE) |>
+    select(estimate, conf.low, conf.high),
+  .id = "method"
+)
+```
+
+. . .
+
+`ipw()` fits each model once and takes a fraction of a second; the bootstrap fits 1,001 pairs of models
+
 ## *Your Turn*
 
 `r countdown::countdown(minutes = 8)`
 
-### Create a function called `ipw_fit` that fits the propensity score model and the weighted outcome model for the effect between `park_extra_magic_morning` and `wait_minutes_posted_avg`
+### Create a function called `fit_ipw` that fits the propensity score model and the weighted outcome model for the effect between `park_extra_magic_morning` and `wait_minutes_posted_avg`
 
 ### Using the `bootstraps()` and `int_t()` functions to estimate the final effect.
 
+## Binary outcomes: an odds ratio {.small}
 
+```{r}
+#| code-line-numbers: "|1-2|9"
+#| output-location: fragment
+net_data_wts <- net_data_wts |>
+  mutate(risk_over_50 = malaria_risk > 50)
+
+glm(
+  risk_over_50 ~ net,
+  data = net_data_wts,
+  weights = wts,
+  # quasibinomial() avoids a warning about non-integer successes
+  family = quasibinomial()
+) |>
+  tidy(exponentiate = TRUE, conf.int = TRUE) |>
+  filter(term == "netTRUE") |>
+  select(estimate, conf.low, conf.high)
+```
+
+## Binary outcomes: a risk difference {.small}
+
+```{r}
+#| output-location: fragment
+lm(risk_over_50 ~ net, data = net_data_wts, weights = wts) |>
+  tidy(conf.int = TRUE) |>
+  filter(term == "netTRUE") |>
+  select(estimate, conf.low, conf.high)
+```
+
+. . .
+
+The default standard errors still do not account for the propensity score model; the same bootstrap and sandwich approaches apply here

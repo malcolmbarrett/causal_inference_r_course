@@ -20,7 +20,7 @@ We are interested in examining the relationship between whether there were "Extr
 
 ## Your turn
 
-Create a function called `ipw_fit` that fits the propensity score model and incorporates the ATE weights (as calculated in the previous exercises), then uses the weights in a weighted outcome model.
+Create a function called `fit_ipw` that fits the propensity score model and incorporates the ATE weights (as calculated in the previous exercises), then uses the weights in a weighted outcome model.
 
 ```{r}
 fit_ipw <- function(split, ...) { 
@@ -73,4 +73,57 @@ boot_estimate
 ```
 
 
-Stretch goal: Do the same for a model using matching.
+Stretch goal: Do the same for a model using matching. Bootstrapping matched data the same way is not valid: matching induces a dependence between matched pairs, and resampling rows breaks it. There are two valid routes, and both start from a matched data set that we create once and then leave fixed.
+
+```{r}
+library(MatchIt)
+
+matched_dwarfs <- matchit(
+  park_extra_magic_morning ~ park_ticket_season +
+    park_close +
+    park_temperature_high,
+  data = seven_dwarfs
+)
+
+matched_data <- get_matches(matched_dwarfs)
+
+matched_outcome <- lm(___ ~ ___, data = matched_data)
+```
+
+The first route is a cluster-robust standard error, clustered within matched pairs. `get_matches()` returns a `subclass` column that identifies each pair; pass it to `vcovCL()` as a formula.
+
+```{r}
+library(sandwich)
+
+vcl <- vcovCL(____, cluster = ~____)
+
+tibble(
+  estimate = coef(matched_outcome)[["park_extra_magic_morning"]],
+  robust_se = sqrt(vcl["park_extra_magic_morning", "park_extra_magic_morning"]),
+  conf.low = estimate - 1.96 * robust_se,
+  conf.high = estimate + 1.96 * robust_se
+)
+```
+
+The second route is a cluster bootstrap: resample whole matched pairs rather than rows, and do not re-run `matchit()` inside the bootstrap.
+
+```{r}
+fit_matched <- function(.split, ...) {
+  .df <- as.data.frame(.split)
+  lm(___ ~ ___, data = .df) |>
+    tidy()
+}
+
+cluster_boots <- ____(
+  matched_data,
+  group = ____,
+  times = 1000,
+  apparent = TRUE
+)
+
+cluster_results <- cluster_boots |>
+  mutate(boot_fits = map(splits, ____))
+
+int_t(cluster_results, boot_fits) |>
+  filter(term == ____)
+```
