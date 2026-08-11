@@ -184,7 +184,7 @@ predictions |>
     mean_untreated = mean(untreated),
     difference = mean_treated - mean_untreated
   ) |>
-  mutate(across(everything(), round, digits = 1))
+  mutate(across(everything(), \(x) round(x, digits = 1)))
 ```
 
 ## {background-color="#23373B" .huge .center} 

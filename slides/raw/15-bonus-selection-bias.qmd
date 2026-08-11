@@ -85,7 +85,7 @@ bind_rows(
   fit_model(y ~ x + m)
 ) |> 
   ggplot(aes(x = estimate, y = formula, xmin = conf.low, xmax = conf.high)) +
-  geom_vline(xintercept = 0, size = 1, color = "grey80") + 
+  geom_vline(xintercept = 0, linewidth = 1, color = "grey80") + 
   geom_pointrange(color = "steelblue", fatten = 3, size = 1) +
   theme_minimal(18) +
   labs(

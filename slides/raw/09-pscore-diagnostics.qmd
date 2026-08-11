@@ -124,7 +124,7 @@ ggplot(
 ) +
   geom_line(orientation = "y") +
   geom_point() + 
-  geom_vline(xintercept = 0.1, color = "black", size = 0.1)
+  geom_vline(xintercept = 0.1, color = "black", linewidth = 0.1)
 ```
 
 ## Your turn 1
