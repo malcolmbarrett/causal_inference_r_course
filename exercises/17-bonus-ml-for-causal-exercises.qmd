@@ -189,7 +189,7 @@ set.seed(1234)
 seven_dwarfs <- seven_dwarfs_train_2018 |>
   filter(wait_hour == 9)
 
-sl_library <- c(________, ________, ________, ________)
+sl_library <- c(________, ________, ________)
 
 exposure_sl <- __________(
   Y = seven_dwarfs$__________,
@@ -390,7 +390,7 @@ clever_covariate <- ifelse(
 )
 ```
 
-6. Fit a fluctuation model with the bounded outcome, using `qlogis(initial_pred_observed)` as an offset and the clever covariate as a predictor (with no intercept). Use binomial family for the model.
+6. Fit a fluctuation model with the bounded outcome, using `qlogis(initial_pred_observed)` as an offset and the clever covariate as a predictor (with no intercept). Use the quasibinomial family for the model.
 7. Get the fluctuation parameter `epsilon` from the model coefficients; this is the coefficient for the clever covariate.
 
 ```{r}
@@ -398,10 +398,11 @@ clever_covariate <- ifelse(
 # We're not re-fitting from scratch; we're making a targeted adjustment
 # The offset keeps our initial predictions on the logit scale
 # No intercept because we're adjusting around the initial predictions, not estimating a new model
-# Use binomial family for bounded continuous outcomes
+# Use quasibinomial family for bounded continuous outcomes;
+# quasibinomial() avoids a warning about non-integer successes
 fluctuation_model <- glm(
   __________ ~ -1 + offset(qlogis(__________)) + __________,
-  family = binomial()
+  family = quasibinomial()
 )
 
 # Epsilon: the fluctuation parameter that solves the efficient influence function
@@ -438,11 +439,18 @@ targeted_pred_observed <- ifelse(
 )
 ```
 
-9. Let's visualize the initial vs targeted individual-level predictions for treated and control units. Set the x-axis to the initial predictions and the y-axis to the targeted predictions. For the first plot, use `initial_pred_treated` and `targeted_pred_treated`, and for the second plot, use `initial_pred_control` and `targeted_pred_control`.
+9. Let's visualize the initial vs targeted individual-level predictions for treated and control units. First, collect the four sets of predictions into a data frame, `targeting_data`. Then set the x-axis to the initial predictions and the y-axis to the targeted predictions. For the first plot, use `initial_treated` and `targeted_treated`, and for the second plot, use `initial_control` and `targeted_control`.
 
 ```{r}
+targeting_data <- tibble(
+  initial_treated = initial_pred_treated,
+  targeted_treated = targeted_pred_treated,
+  initial_control = initial_pred_control,
+  targeted_control = targeted_pred_control
+)
+
 # plot the initial vs targeted individual-level predictions for treated units
-ggplot(seven_dwarfs, aes(x = __________, y = __________)) +
+ggplot(targeting_data, aes(x = __________, y = __________)) +
   geom_point() +
   # perfect prediction line: y = x
   geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
@@ -453,7 +461,7 @@ ggplot(seven_dwarfs, aes(x = __________, y = __________)) +
   theme_minimal()
 
 # plot the initial vs targeted individual-level predictions for control units
-ggplot(seven_dwarfs, aes(x = __________, y = __________)) +
+ggplot(targeting_data, aes(x = __________, y = __________)) +
   geom_point() +
   # perfect prediction line: y = x
   geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +

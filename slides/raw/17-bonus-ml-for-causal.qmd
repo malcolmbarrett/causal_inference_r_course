@@ -503,11 +503,19 @@ ipw_model <- lm(
 )
 ```
 
+::: {.small}
+`wt_ate()` targets the average treatment effect (ATE). The TMLE derivation later in this deck is specific to the ATE.
+:::
+
 ## IPW with SuperLearner
 
 ```{r}
 tidy(ipw_model)
 ```
+
+::: {.fragment .small}
+These standard errors are not correct: they do not account for having estimated the propensity score. `ipw()` uses a sandwich estimator that also accounts for the uncertainty in the propensity score model, but that correction is available only for a parametric model, not a SuperLearner fit.
+:::
 
 ## G-computation with SuperLearner
 
@@ -632,7 +640,7 @@ clever_covariate <- ifelse(
 #| code-line-numbers: "|4|5|6|7|8|11-12"
 #| output-location: fragment
 # Fluctuation model - learns how much to adjust
-# Use binomial family and work on logit scale
+# Use quasibinomial family and work on logit scale
 fluctuation_model <- glm(
   y_bounded ~
      -1 +
@@ -668,7 +676,7 @@ targeted_pred_no_net <- plogis(logit_pred_no_net)
 ```{r}
 #| echo: false
 #| fig-width: 10
-#| fig-height: 5
+#| fig-asp: 0.5
 library(patchwork)
 
 targeting_data <- tibble(
