@@ -6,8 +6,8 @@
 <script src="08-pscore-diagnostics_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="08-pscore-diagnostics_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="08-pscore-diagnostics_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="08-pscore-diagnostics_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<link href="08-pscore-diagnostics_files/libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
 
   <meta name="author" content="Lucy D’Agostino McGowan">
   <title>Propensity Score Diagnostics</title>
@@ -17,6 +17,9 @@
   <link rel="stylesheet" href="08-pscore-diagnostics_files/libs/revealjs/dist/reset.css">
   <link rel="stylesheet" href="08-pscore-diagnostics_files/libs/revealjs/dist/reveal.css">
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -95,7 +98,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="08-pscore-diagnostics_files/libs/revealjs/dist/theme/quarto-aac8c9227b08918aec88d28519f1f1ca.css">
+  <link rel="stylesheet" href="08-pscore-diagnostics_files/libs/revealjs/dist/theme/quarto-f3805f66672ef64978618ca456565276.css">
   <link href="08-pscore-diagnostics_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="08-pscore-diagnostics_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="08-pscore-diagnostics_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -225,7 +228,7 @@ Lucy D’Agostino McGowan
 <p><br></p>
 <p>Calculate standardized mean differences</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb1" data-code-line-numbers="|4|6|7|8|9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">library</span>(halfmoon)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" data-code-line-numbers="|4|6|7|8|9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">library</span>(halfmoon)</span>
 <span id="cb1-2"><a href=""></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-3"><a href=""></a></span>
 <span id="cb1-4"><a href=""></a>smds <span class="ot">&lt;-</span> <span class="fu">tidy_smd</span>(</span>
@@ -234,53 +237,43 @@ Lucy D’Agostino McGowan
 <span id="cb1-7"><a href=""></a>  <span class="at">.group =</span> exposure,</span>
 <span id="cb1-8"><a href=""></a>  <span class="at">.wts =</span> wts <span class="co"># optional,</span></span>
 <span id="cb1-9"><a href=""></a>  <span class="at">make_dummy_vars =</span> <span class="cn">TRUE</span> <span class="co"># optional</span></span>
-<span id="cb1-10"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-10"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="calculating-smds" class="slide level2">
 <h2>Calculating SMDs</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a>vars <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb2-2"><a href=""></a>  <span class="st">"sex"</span>, <span class="st">"race"</span>, <span class="st">"age"</span>, <span class="st">"education"</span>,</span>
-<span id="cb2-3"><a href=""></a>  <span class="st">"smokeintensity"</span>, <span class="st">"smokeyrs"</span>, </span>
-<span id="cb2-4"><a href=""></a>  <span class="st">"exercise"</span>, <span class="st">"active"</span>, <span class="st">"wt71"</span></span>
-<span id="cb2-5"><a href=""></a>)</span>
-<span id="cb2-6"><a href=""></a></span>
-<span id="cb2-7"><a href=""></a>smds <span class="ot">&lt;-</span> <span class="fu">tidy_smd</span>(</span>
-<span id="cb2-8"><a href=""></a>  nhefs_complete_wts,</span>
-<span id="cb2-9"><a href=""></a>  <span class="at">.vars =</span> <span class="fu">all_of</span>(vars),</span>
-<span id="cb2-10"><a href=""></a>  <span class="at">.group =</span> qsmk,</span>
-<span id="cb2-11"><a href=""></a>  <span class="at">.wts =</span> w_ate,</span>
-<span id="cb2-12"><a href=""></a>  <span class="at">make_dummy_vars =</span> <span class="cn">TRUE</span></span>
-<span id="cb2-13"><a href=""></a>)</span>
-<span id="cb2-14"><a href=""></a></span>
-<span id="cb2-15"><a href=""></a>smds</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a>vars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"income"</span>, <span class="st">"health"</span>, <span class="st">"temperature"</span>)</span>
+<span id="cb2-2"><a href=""></a></span>
+<span id="cb2-3"><a href=""></a>smds <span class="ot">&lt;-</span> <span class="fu">tidy_smd</span>(</span>
+<span id="cb2-4"><a href=""></a>  net_data_wts,</span>
+<span id="cb2-5"><a href=""></a>  <span class="at">.vars =</span> <span class="fu">all_of</span>(vars),</span>
+<span id="cb2-6"><a href=""></a>  <span class="at">.group =</span> net,</span>
+<span id="cb2-7"><a href=""></a>  <span class="at">.wts =</span> w_ate</span>
+<span id="cb2-8"><a href=""></a>)</span>
+<span id="cb2-9"><a href=""></a></span>
+<span id="cb2-10"><a href=""></a>smds</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
 <section id="calculating-smds-output" class="slide level2 output-location-slide"><h2>Calculating SMDs</h2><div class="cell output-location-slide" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 28 × 4
-   variable       method   qsmk      smd
-   &lt;chr&gt;          &lt;chr&gt;    &lt;chr&gt;   &lt;dbl&gt;
- 1 sex1           observed 1      0.160 
- 2 race1          observed 1      0.177 
- 3 age            observed 1     -0.282 
- 4 education2     observed 1      0.112 
- 5 education3     observed 1      0.0472
- 6 education4     observed 1      0.0270
- 7 education5     observed 1     -0.166 
- 8 smokeintensity observed 1      0.217 
- 9 smokeyrs       observed 1     -0.159 
-10 exercise1      observed 1     -0.0398
-# ℹ 18 more rows</code></pre>
+<pre><code># A tibble: 6 × 4
+  variable    method   net       smd
+  &lt;chr&gt;       &lt;chr&gt;    &lt;chr&gt;   &lt;dbl&gt;
+1 income      observed TRUE  -0.330 
+2 health      observed TRUE  -0.253 
+3 temperature observed TRUE   0.0756
+4 income      w_ate    TRUE   0.0177
+5 health      w_ate    TRUE   0.0141
+6 temperature w_ate    TRUE  -0.0128</code></pre>
 </div>
 </div></section><section id="plotting-smds" class="slide level2">
 <h2>Plotting SMDs <img data-src="img/hex/halfmoon.png" class="absolute" style="top: 0px; right: 0px; width: 140px; "></h2>
 <p><br></p>
 <p>Plot them! (in a Love plot!)</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb4" data-code-line-numbers="|2|3-8|10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a><span class="fu">ggplot</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" data-code-line-numbers="|2|3-8|10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a><span class="fu">ggplot</span>(</span>
 <span id="cb4-2"><a href=""></a>  <span class="at">data =</span> smds,</span>
 <span id="cb4-3"><a href=""></a>  <span class="fu">aes</span>(</span>
 <span id="cb4-4"><a href=""></a>    <span class="at">x =</span> <span class="fu">abs</span>(smd), </span>
@@ -289,7 +282,7 @@ Lucy D’Agostino McGowan
 <span id="cb4-7"><a href=""></a>    <span class="at">color =</span> method</span>
 <span id="cb4-8"><a href=""></a>  )</span>
 <span id="cb4-9"><a href=""></a>) <span class="sc">+</span>  </span>
-<span id="cb4-10"><a href=""></a>  <span class="fu">geom_love</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-10"><a href=""></a>  <span class="fu">geom_love</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="love-plot" class="slide level2">
@@ -298,7 +291,7 @@ Lucy D’Agostino McGowan
 <img data-src="08-pscore-diagnostics_files/figure-revealjs/unnamed-chunk-6-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="your-turn-1" class="slide level2">
 <h2>Your turn 1</h2>
-<p></p><div class="countdown" id="timer_c012c273" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">06</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
+<p></p><div class="countdown" id="timer_1caccf38" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">06</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
 <h3 id="create-a-love-plot-for-the-propensity-score-weighting-you-created-in-the-previous-exercise">Create a Love Plot for the propensity score weighting you created in the previous exercise</h3>
 </section>
 <section id="ecdf" class="slide level2">
@@ -312,15 +305,15 @@ Lucy D’Agostino McGowan
 <section id="unweighted-ecdf" class="slide level2">
 <h2>Unweighted ECDF</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb5" data-code-line-numbers="|1|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="fu">ggplot</span>(nhefs_complete_wts, <span class="fu">aes</span>(<span class="at">x =</span> wt71, <span class="at">color =</span> <span class="fu">factor</span>(qsmk))) <span class="sc">+</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" data-code-line-numbers="|1|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="fu">ggplot</span>(net_data_wts, <span class="fu">aes</span>(<span class="at">x =</span> income, <span class="at">color =</span> <span class="fu">factor</span>(net))) <span class="sc">+</span></span>
 <span id="cb5-2"><a href=""></a>  <span class="fu">geom_ecdf</span>() <span class="sc">+</span></span>
 <span id="cb5-3"><a href=""></a>  <span class="fu">scale_color_manual</span>(</span>
-<span id="cb5-4"><a href=""></a>    <span class="st">"Quit smoking"</span>, </span>
+<span id="cb5-4"><a href=""></a>    <span class="st">"Net use"</span>,</span>
 <span id="cb5-5"><a href=""></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#5154B8"</span>, <span class="st">"#5DB854"</span>),</span>
-<span id="cb5-6"><a href=""></a>    <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Yes"</span>, <span class="st">"No"</span>)</span>
-<span id="cb5-7"><a href=""></a>  ) <span class="sc">+</span> </span>
-<span id="cb5-8"><a href=""></a>  <span class="fu">xlab</span>(<span class="st">"Weight in Kg in 1971"</span>) <span class="sc">+</span> </span>
-<span id="cb5-9"><a href=""></a>  <span class="fu">ylab</span>(<span class="st">"Proportion &lt;= x"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-6"><a href=""></a>    <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No"</span>, <span class="st">"Yes"</span>)</span>
+<span id="cb5-7"><a href=""></a>  ) <span class="sc">+</span></span>
+<span id="cb5-8"><a href=""></a>  <span class="fu">xlab</span>(<span class="st">"Income"</span>) <span class="sc">+</span></span>
+<span id="cb5-9"><a href=""></a>  <span class="fu">ylab</span>(<span class="st">"Proportion &lt;= x"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
@@ -335,15 +328,15 @@ Lucy D’Agostino McGowan
 </div></section><section id="weighted-ecdf" class="slide level2">
 <h2>Weighted ECDF</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb6" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a><span class="fu">ggplot</span>(nhefs_complete_wts, <span class="fu">aes</span>(<span class="at">x =</span> wt71, <span class="at">color =</span> <span class="fu">factor</span>(qsmk))) <span class="sc">+</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a><span class="fu">ggplot</span>(net_data_wts, <span class="fu">aes</span>(<span class="at">x =</span> income, <span class="at">color =</span> <span class="fu">factor</span>(net))) <span class="sc">+</span></span>
 <span id="cb6-2"><a href=""></a>  <span class="fu">geom_ecdf</span>(<span class="fu">aes</span>(<span class="at">weights =</span> w_ate)) <span class="sc">+</span></span>
 <span id="cb6-3"><a href=""></a>  <span class="fu">scale_color_manual</span>(</span>
-<span id="cb6-4"><a href=""></a>    <span class="st">"Quit smoking"</span>, </span>
+<span id="cb6-4"><a href=""></a>    <span class="st">"Net use"</span>,</span>
 <span id="cb6-5"><a href=""></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#5154B8"</span>, <span class="st">"#5DB854"</span>),</span>
-<span id="cb6-6"><a href=""></a>    <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Yes"</span>, <span class="st">"No"</span>)</span>
-<span id="cb6-7"><a href=""></a>  ) <span class="sc">+</span> </span>
-<span id="cb6-8"><a href=""></a>  <span class="fu">xlab</span>(<span class="st">"Weight in Kg in 1971"</span>) <span class="sc">+</span> </span>
-<span id="cb6-9"><a href=""></a>  <span class="fu">ylab</span>(<span class="st">"Proportion &lt;= x (Weighted)"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-6"><a href=""></a>    <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No"</span>, <span class="st">"Yes"</span>)</span>
+<span id="cb6-7"><a href=""></a>  ) <span class="sc">+</span></span>
+<span id="cb6-8"><a href=""></a>  <span class="fu">xlab</span>(<span class="st">"Income"</span>) <span class="sc">+</span></span>
+<span id="cb6-9"><a href=""></a>  <span class="fu">ylab</span>(<span class="st">"Proportion &lt;= x (Weighted)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
@@ -357,7 +350,7 @@ Lucy D’Agostino McGowan
 </div>
 </div></section><section id="your-turn-2" class="slide level2">
 <h2><em>Your turn 2</em></h2>
-<p></p><div class="countdown" id="timer_74430240" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">06</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
+<p></p><div class="countdown" id="timer_a3ef816a" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">06</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
 <h3 id="create-an-unweighted-ecdf-examining-the-park_temperature_high-confounder-by-whether-or-not-the-day-had-extra-magic-hours.">Create an unweighted ECDF examining the <code>park_temperature_high</code> confounder by whether or not the day had Extra Magic Hours.</h3>
 <h3 id="create-a-weighted-ecdf-examining-the-park_temperature_high-confounder">Create a weighted ECDF examining the <code>park_temperature_high</code> confounder</h3>
 </section>
@@ -368,45 +361,45 @@ Lucy D’Agostino McGowan
 <section id="create-a-design-object-to-incorporate-the-weights" class="slide level2 gtsummary">
 <h2>1. Create a “design object” to incorporate the weights</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a><span class="fu">library</span>(survey)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a><span class="fu">library</span>(survey)</span>
 <span id="cb7-2"><a href=""></a></span>
 <span id="cb7-3"><a href=""></a>svy_des <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
 <span id="cb7-4"><a href=""></a>  <span class="at">ids =</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
 <span id="cb7-5"><a href=""></a>  <span class="at">data =</span> df,</span>
 <span id="cb7-6"><a href=""></a>  <span class="at">weights =</span> <span class="sc">~</span> wts</span>
-<span id="cb7-7"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-7"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="pass-to-gtsummarytbl_svysummary" class="slide level2 gtsummary">
 <h2>2. Pass to <code>gtsummary::tbl_svysummary()</code></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href=""></a><span class="fu">library</span>(gtsummary)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href=""></a><span class="fu">library</span>(gtsummary)</span>
 <span id="cb8-2"><a href=""></a><span class="fu">tbl_svysummary</span>(svy_des, <span class="at">by =</span> x) <span class="sc">|&gt;</span></span>
 <span id="cb8-3"><a href=""></a>  <span class="fu">add_difference</span>(<span class="fu">everything</span>() <span class="sc">~</span> <span class="st">"smd"</span>)</span>
-<span id="cb8-4"><a href=""></a><span class="co"># modify_column_hide(ci) to hide CI column</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-4"><a href=""></a><span class="co"># modify_column_hide(ci) to hide CI column</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="section-1" class="slide level2 gtsummary tiny">
 <h2></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="jbulnmiqxm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#jbulnmiqxm table {
+<div id="faewviokdf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#faewviokdf table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#jbulnmiqxm thead, #jbulnmiqxm tbody, #jbulnmiqxm tfoot, #jbulnmiqxm tr, #jbulnmiqxm td, #jbulnmiqxm th {
+#faewviokdf thead, #faewviokdf tbody, #faewviokdf tfoot, #faewviokdf tr, #faewviokdf td, #faewviokdf th {
   border-style: none;
 }
 
-#jbulnmiqxm p {
+#faewviokdf p {
   margin: 0;
   padding: 0;
 }
 
-#jbulnmiqxm .gt_table {
+#faewviokdf .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -432,12 +425,12 @@ Lucy D’Agostino McGowan
   border-left-color: #D3D3D3;
 }
 
-#jbulnmiqxm .gt_caption {
+#faewviokdf .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#jbulnmiqxm .gt_title {
+#faewviokdf .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -449,7 +442,7 @@ Lucy D’Agostino McGowan
   border-bottom-width: 0;
 }
 
-#jbulnmiqxm .gt_subtitle {
+#faewviokdf .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -461,7 +454,7 @@ Lucy D’Agostino McGowan
   border-top-width: 0;
 }
 
-#jbulnmiqxm .gt_heading {
+#faewviokdf .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -473,13 +466,13 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#jbulnmiqxm .gt_bottom_border {
+#faewviokdf .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#jbulnmiqxm .gt_col_headings {
+#faewviokdf .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -494,7 +487,7 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#jbulnmiqxm .gt_col_heading {
+#faewviokdf .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -514,7 +507,7 @@ Lucy D’Agostino McGowan
   overflow-x: hidden;
 }
 
-#jbulnmiqxm .gt_column_spanner_outer {
+#faewviokdf .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -526,15 +519,15 @@ Lucy D’Agostino McGowan
   padding-right: 4px;
 }
 
-#jbulnmiqxm .gt_column_spanner_outer:first-child {
+#faewviokdf .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#jbulnmiqxm .gt_column_spanner_outer:last-child {
+#faewviokdf .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#jbulnmiqxm .gt_column_spanner {
+#faewviokdf .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -546,11 +539,11 @@ Lucy D’Agostino McGowan
   width: 100%;
 }
 
-#jbulnmiqxm .gt_spanner_row {
+#faewviokdf .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#jbulnmiqxm .gt_group_heading {
+#faewviokdf .gt_group_heading {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -576,7 +569,7 @@ Lucy D’Agostino McGowan
   text-align: left;
 }
 
-#jbulnmiqxm .gt_empty_group_heading {
+#faewviokdf .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -591,15 +584,15 @@ Lucy D’Agostino McGowan
   vertical-align: middle;
 }
 
-#jbulnmiqxm .gt_from_md > :first-child {
+#faewviokdf .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#jbulnmiqxm .gt_from_md > :last-child {
+#faewviokdf .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#jbulnmiqxm .gt_row {
+#faewviokdf .gt_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -618,7 +611,7 @@ Lucy D’Agostino McGowan
   overflow-x: hidden;
 }
 
-#jbulnmiqxm .gt_stub {
+#faewviokdf .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -631,7 +624,7 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#jbulnmiqxm .gt_stub_row_group {
+#faewviokdf .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -645,15 +638,15 @@ Lucy D’Agostino McGowan
   vertical-align: top;
 }
 
-#jbulnmiqxm .gt_row_group_first td {
+#faewviokdf .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#jbulnmiqxm .gt_row_group_first th {
+#faewviokdf .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#jbulnmiqxm .gt_summary_row {
+#faewviokdf .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -663,16 +656,16 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#jbulnmiqxm .gt_first_summary_row {
+#faewviokdf .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#jbulnmiqxm .gt_first_summary_row.thick {
+#faewviokdf .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#jbulnmiqxm .gt_last_summary_row {
+#faewviokdf .gt_last_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -682,7 +675,7 @@ Lucy D’Agostino McGowan
   border-bottom-color: #D3D3D3;
 }
 
-#jbulnmiqxm .gt_grand_summary_row {
+#faewviokdf .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -692,7 +685,7 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#jbulnmiqxm .gt_first_grand_summary_row {
+#faewviokdf .gt_first_grand_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -702,7 +695,7 @@ Lucy D’Agostino McGowan
   border-top-color: #D3D3D3;
 }
 
-#jbulnmiqxm .gt_last_grand_summary_row_top {
+#faewviokdf .gt_last_grand_summary_row_top {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -712,11 +705,11 @@ Lucy D’Agostino McGowan
   border-bottom-color: #D3D3D3;
 }
 
-#jbulnmiqxm .gt_striped {
+#faewviokdf .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#jbulnmiqxm .gt_table_body {
+#faewviokdf .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -725,7 +718,7 @@ Lucy D’Agostino McGowan
   border-bottom-color: #D3D3D3;
 }
 
-#jbulnmiqxm .gt_footnotes {
+#faewviokdf .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -739,7 +732,7 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#jbulnmiqxm .gt_footnote {
+#faewviokdf .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 1px;
@@ -748,7 +741,7 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#jbulnmiqxm .gt_sourcenotes {
+#faewviokdf .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -762,7 +755,7 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#jbulnmiqxm .gt_sourcenote {
+#faewviokdf .gt_sourcenote {
   font-size: 90%;
   padding-top: 1px;
   padding-bottom: 1px;
@@ -770,193 +763,131 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#jbulnmiqxm .gt_left {
+#faewviokdf .gt_left {
   text-align: left;
 }
 
-#jbulnmiqxm .gt_center {
+#faewviokdf .gt_center {
   text-align: center;
 }
 
-#jbulnmiqxm .gt_right {
+#faewviokdf .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#jbulnmiqxm .gt_font_normal {
+#faewviokdf .gt_font_normal {
   font-weight: normal;
 }
 
-#jbulnmiqxm .gt_font_bold {
+#faewviokdf .gt_font_bold {
   font-weight: bold;
 }
 
-#jbulnmiqxm .gt_font_italic {
+#faewviokdf .gt_font_italic {
   font-style: italic;
 }
 
-#jbulnmiqxm .gt_super {
+#faewviokdf .gt_super {
   font-size: 65%;
 }
 
-#jbulnmiqxm .gt_footnote_marks {
+#faewviokdf .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#jbulnmiqxm .gt_asterisk {
+#faewviokdf .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#jbulnmiqxm .gt_indent_1 {
+#faewviokdf .gt_indent_1 {
   text-indent: 5px;
 }
 
-#jbulnmiqxm .gt_indent_2 {
+#faewviokdf .gt_indent_2 {
   text-indent: 10px;
 }
 
-#jbulnmiqxm .gt_indent_3 {
+#faewviokdf .gt_indent_3 {
   text-indent: 15px;
 }
 
-#jbulnmiqxm .gt_indent_4 {
+#faewviokdf .gt_indent_4 {
   text-indent: 20px;
 }
 
-#jbulnmiqxm .gt_indent_5 {
+#faewviokdf .gt_indent_5 {
   text-indent: 25px;
 }
 
-#jbulnmiqxm .katex-display {
+#faewviokdf .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#jbulnmiqxm div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#faewviokdf div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-  <thead>
-    <tr class="gt_col_headings">
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="label"><span data-qmd-base64="KipDaGFyYWN0ZXJpc3RpYyoq"><span class="gt_from_md"><strong>Characteristic</strong></span></span></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_1"><span data-qmd-base64="KiowKiogIApOID0gMSw1NjU="><span class="gt_from_md"><strong>0</strong><br>
-N = 1,565</span></span><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_2"><span data-qmd-base64="KioxKiogIApOID0gMSw1NjE="><span class="gt_from_md"><strong>1</strong><br>
-N = 1,561</span></span><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="estimate"><span data-qmd-base64="KipEaWZmZXJlbmNlKio="><span class="gt_from_md"><strong>Difference</strong></span></span><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>2</sup></span></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="conf.low"><span data-qmd-base64="Kio5NSUgQ0kqKg=="><span class="gt_from_md"><strong>95% CI</strong></span></span><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>2</sup></span></th>
-    </tr>
-  </thead>
-  <tbody class="gt_table_body">
-    <tr><td headers="label" class="gt_row gt_left">WEIGHT IN KILOGRAMS  IN 1971</td>
-<td headers="stat_1" class="gt_row gt_center">69 (60, 80)</td>
-<td headers="stat_2" class="gt_row gt_center">69 (59, 79)</td>
-<td headers="estimate" class="gt_row gt_center">0.01</td>
-<td headers="conf.low" class="gt_row gt_center">-0.06, 0.08</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">0: WHITE 1: BLACK OR OTHER IN 1971</td>
-<td headers="stat_1" class="gt_row gt_center"><br></td>
-<td headers="stat_2" class="gt_row gt_center"><br></td>
-<td headers="estimate" class="gt_row gt_center">0.01</td>
-<td headers="conf.low" class="gt_row gt_center">-0.06, 0.08</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;0</td>
-<td headers="stat_1" class="gt_row gt_center">1,359 (87%)</td>
-<td headers="stat_2" class="gt_row gt_center">1,352 (87%)</td>
-<td headers="estimate" class="gt_row gt_center"><br></td>
-<td headers="conf.low" class="gt_row gt_center"><br></td></tr>
-    <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;1</td>
-<td headers="stat_1" class="gt_row gt_center">206 (13%)</td>
-<td headers="stat_2" class="gt_row gt_center">209 (13%)</td>
-<td headers="estimate" class="gt_row gt_center"><br></td>
-<td headers="conf.low" class="gt_row gt_center"><br></td></tr>
-    <tr><td headers="label" class="gt_row gt_left">AGE IN 1971</td>
-<td headers="stat_1" class="gt_row gt_center">43 (33, 52)</td>
-<td headers="stat_2" class="gt_row gt_center">43 (33, 53)</td>
-<td headers="estimate" class="gt_row gt_center">-0.01</td>
-<td headers="conf.low" class="gt_row gt_center">-0.08, 0.06</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">0: MALE 1: FEMALE</td>
-<td headers="stat_1" class="gt_row gt_center"><br></td>
-<td headers="stat_2" class="gt_row gt_center"><br></td>
-<td headers="estimate" class="gt_row gt_center">0.00</td>
-<td headers="conf.low" class="gt_row gt_center">-0.07, 0.07</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;0</td>
-<td headers="stat_1" class="gt_row gt_center">764 (49%)</td>
-<td headers="stat_2" class="gt_row gt_center">764 (49%)</td>
-<td headers="estimate" class="gt_row gt_center"><br></td>
-<td headers="conf.low" class="gt_row gt_center"><br></td></tr>
-    <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;1</td>
-<td headers="stat_1" class="gt_row gt_center">802 (51%)</td>
-<td headers="stat_2" class="gt_row gt_center">797 (51%)</td>
-<td headers="estimate" class="gt_row gt_center"><br></td>
-<td headers="conf.low" class="gt_row gt_center"><br></td></tr>
-    <tr><td headers="label" class="gt_row gt_left">NUMBER OF CIGARETTES SMOKED PER DAY IN 1971</td>
-<td headers="stat_1" class="gt_row gt_center">20 (10, 25)</td>
-<td headers="stat_2" class="gt_row gt_center">20 (10, 30)</td>
-<td headers="estimate" class="gt_row gt_center">0.02</td>
-<td headers="conf.low" class="gt_row gt_center">-0.05, 0.09</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">YEARS OF SMOKING</td>
-<td headers="stat_1" class="gt_row gt_center">24 (15, 33)</td>
-<td headers="stat_2" class="gt_row gt_center">24 (14, 33)</td>
-<td headers="estimate" class="gt_row gt_center">0.00</td>
-<td headers="conf.low" class="gt_row gt_center">-0.07, 0.07</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">IN RECREATION, HOW MUCH EXERCISE? IN 1971, 0:much exercise,1:moderate exercise,2:little or no exercise</td>
-<td headers="stat_1" class="gt_row gt_center"><br></td>
-<td headers="stat_2" class="gt_row gt_center"><br></td>
-<td headers="estimate" class="gt_row gt_center">0.04</td>
-<td headers="conf.low" class="gt_row gt_center">-0.03, 0.11</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;0</td>
-<td headers="stat_1" class="gt_row gt_center">302 (19%)</td>
-<td headers="stat_2" class="gt_row gt_center">294 (19%)</td>
-<td headers="estimate" class="gt_row gt_center"><br></td>
-<td headers="conf.low" class="gt_row gt_center"><br></td></tr>
-    <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;1</td>
-<td headers="stat_1" class="gt_row gt_center">665 (42%)</td>
-<td headers="stat_2" class="gt_row gt_center">691 (44%)</td>
-<td headers="estimate" class="gt_row gt_center"><br></td>
-<td headers="conf.low" class="gt_row gt_center"><br></td></tr>
-    <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;2</td>
-<td headers="stat_1" class="gt_row gt_center">599 (38%)</td>
-<td headers="stat_2" class="gt_row gt_center">576 (37%)</td>
-<td headers="estimate" class="gt_row gt_center"><br></td>
-<td headers="conf.low" class="gt_row gt_center"><br></td></tr>
-    <tr><td headers="label" class="gt_row gt_left">IN YOUR USUAL DAY, HOW ACTIVE ARE YOU? IN 1971, 0:very active, 1:moderately active, 2:inactive</td>
-<td headers="stat_1" class="gt_row gt_center"><br></td>
-<td headers="stat_2" class="gt_row gt_center"><br></td>
-<td headers="estimate" class="gt_row gt_center">0.03</td>
-<td headers="conf.low" class="gt_row gt_center">-0.04, 0.10</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;0</td>
-<td headers="stat_1" class="gt_row gt_center">700 (45%)</td>
-<td headers="stat_2" class="gt_row gt_center">684 (44%)</td>
-<td headers="estimate" class="gt_row gt_center"><br></td>
-<td headers="conf.low" class="gt_row gt_center"><br></td></tr>
-    <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;1</td>
-<td headers="stat_1" class="gt_row gt_center">718 (46%)</td>
-<td headers="stat_2" class="gt_row gt_center">738 (47%)</td>
-<td headers="estimate" class="gt_row gt_center"><br></td>
-<td headers="conf.low" class="gt_row gt_center"><br></td></tr>
-    <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;2</td>
-<td headers="stat_1" class="gt_row gt_center">147 (9.4%)</td>
-<td headers="stat_2" class="gt_row gt_center">138 (8.9%)</td>
-<td headers="estimate" class="gt_row gt_center"><br></td>
-<td headers="conf.low" class="gt_row gt_center"><br></td></tr>
-  </tbody>
-  <tfoot class="gt_sourcenotes">
-    <tr>
-      <td class="gt_sourcenote" colspan="5"><span data-qmd-base64="QWJicmV2aWF0aW9uOiBDSSA9IENvbmZpZGVuY2UgSW50ZXJ2YWw="><span class="gt_from_md">Abbreviation: CI = Confidence Interval</span></span></td>
-    </tr>
-  </tfoot>
-  <tfoot class="gt_footnotes">
-    <tr>
-      <td class="gt_footnote" colspan="5"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> <span data-qmd-base64="TWVkaWFuIChRMSwgUTMpOyBuICglKQ=="><span class="gt_from_md">Median (Q1, Q3); n (%)</span></span></td>
-    </tr>
-    <tr>
-      <td class="gt_footnote" colspan="5"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>2</sup></span> <span data-qmd-base64="U3RhbmRhcmRpemVkIE1lYW4gRGlmZmVyZW5jZQ=="><span class="gt_from_md">Standardized Mean Difference</span></span></td>
-    </tr>
-  </tfoot>
+
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="gt_col_headings header">
+<th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Characteristic</strong></th>
+<th id="stat_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>TRUE</strong><br>
+N = 1,760<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+<th id="stat_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>FALSE</strong><br>
+N = 1,751<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>Difference</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>2</sup></span></th>
+<th id="conf.low" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% CI</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>2</sup></span></th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">income</td>
+<td class="gt_row gt_center" headers="stat_2">892 (755, 1,039)</td>
+<td class="gt_row gt_center" headers="stat_1">892 (767, 1,025)</td>
+<td class="gt_row gt_center" headers="estimate">0.02</td>
+<td class="gt_row gt_center" headers="conf.low">-0.05, 0.08</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">health</td>
+<td class="gt_row gt_center" headers="stat_2">49 (37, 64)</td>
+<td class="gt_row gt_center" headers="stat_1">50 (36, 63)</td>
+<td class="gt_row gt_center" headers="estimate">0.01</td>
+<td class="gt_row gt_center" headers="conf.low">-0.05, 0.08</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">temperature</td>
+<td class="gt_row gt_center" headers="stat_2">23.8 (20.8, 27.3)</td>
+<td class="gt_row gt_center" headers="stat_1">23.9 (20.9, 27.1)</td>
+<td class="gt_row gt_center" headers="estimate">-0.01</td>
+<td class="gt_row gt_center" headers="conf.low">-0.08, 0.05</td>
+</tr>
+</tbody><tfoot>
+<tr class="gt_footnotes odd">
+<td colspan="5" class="gt_footnote"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> Median (Q1, Q3)</td>
+</tr>
+<tr class="gt_footnotes even">
+<td colspan="5" class="gt_footnote"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>2</sup></span> Standardized Mean Difference</td>
+</tr>
+<tr class="gt_sourcenotes odd">
+<td colspan="5" class="gt_sourcenote">Abbreviation: CI = Confidence Interval</td>
+</tr>
+</tfoot>
+
 </table>
+
 </div>
 </div>
 </div>
@@ -1155,7 +1086,7 @@ N = 1,561</span></span><span class="gt_footnote_marks" style="white-space:nowrap
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -1267,13 +1198,14 @@ N = 1,561</span></span><span class="gt_footnote_marks" style="white-space:nowrap
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy

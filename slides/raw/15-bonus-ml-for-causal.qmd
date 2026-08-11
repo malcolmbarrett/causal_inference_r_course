@@ -15,7 +15,7 @@ options(
 
 library(tidyverse)
 library(broom)
-library(causaldata)
+library(causalworkshop)
 library(touringplans)
 library(propensity)
 library(SuperLearner)
@@ -25,10 +25,6 @@ library(ggdag)
 library(ggokabeito)
 
 set.seed(1234)
-
-# prepare NHEFS data
-nhefs_complete_uc <- nhefs_complete |>
-  filter(censored == 0)
 ```
 
 # Machine learning cannot automate causal inference... but maybe it can help some difficult parts of estimating causal effects {background-color="#23373B"}
@@ -138,27 +134,23 @@ dag_base +
 ```{r}
 #| echo: false
 propensity_model <- glm(
-  qsmk ~ sex +
-    race + age + I(age^2) + education +
-    smokeintensity + I(smokeintensity^2) +
-    smokeyrs + I(smokeyrs^2) + exercise + active +
-    wt71 + I(wt71^2),
+  net ~ income + health + temperature,
   family = binomial(),
-  data = nhefs_complete_uc
+  data = net_data
 )
 
-nhefs_complete_uc <- propensity_model |>
-  augment(type.predict = "response", data = nhefs_complete_uc) |>
-  mutate(
-    wts = wt_ate(.fitted, qsmk),
-    qsmk = factor(qsmk, levels = c(0, 1), labels = c("No", "Yes"))
-  )
+net_data <- propensity_model |>
+  augment(type.predict = "response", data = net_data) |>
+  mutate(wts = wt_ate(.fitted, net))
 
 halfmoon::plot_mirror_distributions(
-  nhefs_complete_uc |>
-    mutate(weighted = wts),
+  net_data |>
+    mutate(
+      weighted = wts,
+      net = factor(net, levels = c(FALSE, TRUE), labels = c("No", "Yes"))
+    ),
   .fitted,
-  .exposure = qsmk,
+  .exposure = net,
   .weights = weighted
 ) +
   theme_minimal(base_size = 12) +
@@ -187,37 +179,33 @@ halfmoon::plot_mirror_distributions(
 ```{r}
 #| echo: false
 outcome_model <- lm(
-  wt82_71 ~ qsmk + sex +
-    race + age + I(age^2) + education +
-    smokeintensity + I(smokeintensity^2) +
-    smokeyrs + I(smokeyrs^2) + exercise + active +
-    wt71 + I(wt71^2),
-  data = nhefs_complete_uc
+  malaria_risk ~ net + income + health + temperature,
+  data = net_data
 )
 
-data_all_quit <- nhefs_complete_uc |>
-  mutate(qsmk = "Yes")
+data_all_net <- net_data |>
+  mutate(net = TRUE)
 
-data_all_no_quit <- nhefs_complete_uc |>
-  mutate(qsmk = "No")
+data_all_no_net <- net_data |>
+  mutate(net = FALSE)
 
-pred_quit <- predict(outcome_model, newdata = data_all_quit)
-pred_no_quit <- predict(outcome_model, newdata = data_all_no_quit)
+pred_net <- predict(outcome_model, newdata = data_all_net)
+pred_no_net <- predict(outcome_model, newdata = data_all_no_net)
 
 gcomp_data <- bind_rows(
   tibble(
-    predicted_weight_change = pred_quit,
+    predicted_malaria_risk = pred_net,
     scenario = "All Treated"
   ),
   tibble(
-    predicted_weight_change = pred_no_quit,
+    predicted_malaria_risk = pred_no_net,
     scenario = "None Treated"
   )
 ) |>
   mutate(scenario = factor(scenario, levels = c("None Treated", "All Treated")))
 
 
-ggplot(gcomp_data, aes(x = predicted_weight_change)) +
+ggplot(gcomp_data, aes(x = predicted_malaria_risk)) +
   geom_density(
     aes(fill = scenario),
     alpha = 0.7,
@@ -257,37 +245,58 @@ dag_base +
 
 # Two Causal Questions {background-color="#23373B"}
 
-## **Does quitting smoking cause weight gain?**
+## **Does bed net use reduce malaria risk?**
 
 ```{r}
 #| echo: false
 #| fig-width: 10
-smk_wt_dag <- dagify(
-  qsmk ~ sex + race + age + education +
-    smokeintensity + smokeyrs + exercise + active + wt71,
-  wt82_71 ~ qsmk + sex + race + age + education +
-    smokeintensity + smokeyrs + exercise + active + wt71,
-  exposure = "qsmk",
-  outcome = "wt82_71",
-  coords = time_ordered_coords(),
+mosquito_dag <- dagify(
+  malaria_risk ~ net + income + health + temperature + resistance,
+  net ~ income + health + temperature + eligible + household,
+  eligible ~ income + household,
+  health ~ income,
+  # specify causal question:
+  exposure = "net",
+  outcome = "malaria_risk",
+  # lay the nodes out by hand:
+  coords = list(
+    x = c(
+      malaria_risk = 7,
+      net = 3,
+      income = 4,
+      health = 5,
+      temperature = 6,
+      resistance = 8.5,
+      eligible = 2,
+      household = 1
+    ),
+    y = c(
+      malaria_risk = 2,
+      net = 2,
+      income = 3,
+      health = 1,
+      temperature = 3,
+      resistance = 2,
+      eligible = 3,
+      household = 2
+    )
+  ),
+  # set up labels:
   labels = c(
-    "qsmk" = "quit\nsmoking",
-    "wt82_71" = "change in\nweight",
-    "age" = "age",
-    "sex" = "sex",
-    "race" = "race",
-    "education" = "education",
-    "wt71" = "baseline\nweight",
-    "active" = "daily\nactivity",
-    "exercise" = "exercise",
-    "smokeintensity" = "smoking\nintensity",
-    "smokeyrs" = "years\nsmoking"
+    malaria_risk = "Risk of malaria",
+    net = "Mosquito net",
+    income = "Income",
+    health = "Health",
+    temperature = "Nighttime temperatures",
+    resistance = "Insecticide resistance",
+    eligible = "Eligible for program",
+    household = "Number in the household"
   )
 ) |>
   tidy_dagitty() |>
   node_status()
 
-smk_wt_dag |>
+mosquito_dag |>
   ggplot(aes(x, y, xend = xend, yend = yend, color = status)) +
   geom_dag_edges() +
   geom_dag_point() +
@@ -422,15 +431,14 @@ Given a set of candidate algorithms (and hyperparameters), stacked ensembles com
 ## SuperLearner: Exposure Model
 
 ```{r}
-#| code-line-numbers: "|1,3,10|4-7|"
+#| code-line-numbers: "|1,3,9|4-7|"
 #| cache: true
 sl_library <- c("SL.glm", "SL.ranger", "SL.gam")
 
 propensity_sl <- SuperLearner(
-  Y = as.integer(nhefs_complete_uc$qsmk == "Yes"),
-  X = nhefs_complete_uc |>
-    select(sex, race, age, education, smokeintensity,
-           smokeyrs, exercise, active, wt71) |>
+  Y = as.integer(net_data$net),
+  X = net_data |>
+    select(income, health, temperature) |>
     mutate(across(everything(), as.numeric)),
   family = binomial(),
   SL.library = sl_library,
@@ -451,10 +459,9 @@ propensity_sl
 #| code-line-numbers: "|2|3-5|"
 #| cache: true
 outcome_sl <- SuperLearner(
-  Y = nhefs_complete_uc$wt82_71,
-  X = nhefs_complete_uc |>
-    select(qsmk, sex, race, age, education, smokeintensity,
-           smokeyrs, exercise, active, wt71) |>
+  Y = net_data$malaria_risk,
+  X = net_data |>
+    select(net, income, health, temperature) |>
     mutate(across(everything(), as.numeric)),
   family = gaussian(),
   SL.library = sl_library,
@@ -487,11 +494,11 @@ countdown::countdown(minutes = 8)
 #| code-line-numbers: "|1|3|5-9"
 propensity_scores <- predict(propensity_sl, type = "response")$pred[, 1]
 
-ate_weights <- wt_ate(propensity_scores, nhefs_complete_uc$qsmk)
+ate_weights <- wt_ate(propensity_scores, net_data$net)
 
 ipw_model <- lm(
-  wt82_71 ~ qsmk,
-  data = nhefs_complete_uc,
+  malaria_risk ~ net,
+  data = net_data,
   weights = ate_weights
 )
 ```
@@ -505,23 +512,21 @@ tidy(ipw_model)
 ## G-computation with SuperLearner
 
 ```{r}
-#| code-line-numbers: "|1,5,7,11|13-14|16"
-data_all_quit <- nhefs_complete_uc |>
-  select(qsmk, sex, race, age, education, smokeintensity,
-           smokeyrs, exercise, active, wt71) |>
+#| code-line-numbers: "|1,4,6,9|11-12|14"
+data_all_net <- net_data |>
+  select(net, income, health, temperature) |>
   mutate(across(everything(), as.numeric)) |>
-  mutate(qsmk = 1)
+  mutate(net = 1)
 
-data_all_no_quit <- nhefs_complete_uc |>
-  select(qsmk, sex, race, age, education, smokeintensity,
-           smokeyrs, exercise, active, wt71) |>
+data_all_no_net <- net_data |>
+  select(net, income, health, temperature) |>
   mutate(across(everything(), as.numeric)) |>
-  mutate(qsmk = 0)
+  mutate(net = 0)
 
-pred_quit <- predict(outcome_sl, newdata = data_all_quit)$pred[, 1]
-pred_no_quit <- predict(outcome_sl, newdata = data_all_no_quit)$pred[, 1]
+pred_net <- predict(outcome_sl, newdata = data_all_net)$pred[, 1]
+pred_no_net <- predict(outcome_sl, newdata = data_all_no_net)$pred[, 1]
 
-mean(pred_quit - pred_no_quit)
+mean(pred_net - pred_no_net)
 ```
 
 ## *Your Turn 2*
@@ -574,16 +579,15 @@ countdown::countdown(minutes = 8)
 #| cache: true
 #| cache.lazy: false
 # For TMLE with continuous outcomes, fit SuperLearner on bounded Y
-min_y <- min(nhefs_complete_uc$wt82_71)
-max_y <- max(nhefs_complete_uc$wt82_71)
-y_bounded <- (nhefs_complete_uc$wt82_71 - min_y) / (max_y - min_y)
+min_y <- min(net_data$malaria_risk)
+max_y <- max(net_data$malaria_risk)
+y_bounded <- (net_data$malaria_risk - min_y) / (max_y - min_y)
 
 # Fit new SuperLearner on bounded outcome
 outcome_sl_bounded <- SuperLearner(
   Y = y_bounded,
-  X = nhefs_complete_uc |>
-    select(qsmk, sex, race, age, education, smokeintensity,
-           smokeyrs, exercise, active, wt71) |>
+  X = net_data |>
+    select(net, income, health, temperature) |>
     mutate(across(everything(), as.numeric)),
   family = quasibinomial(),
   SL.library = sl_library,
@@ -594,14 +598,14 @@ outcome_sl_bounded <- SuperLearner(
 ## TMLE Step 1: Initial Predictions (on the bounded [0,1] scale)
 
 ```{r}
-initial_pred_quit <- predict(outcome_sl_bounded, newdata = data_all_quit)$pred[, 1]
-initial_pred_no_quit <- predict(outcome_sl_bounded, newdata = data_all_no_quit)$pred[, 1]
+initial_pred_net <- predict(outcome_sl_bounded, newdata = data_all_net)$pred[, 1]
+initial_pred_no_net <- predict(outcome_sl_bounded, newdata = data_all_no_net)$pred[, 1]
 
 # Predictions for observed treatment
 initial_pred_observed <- ifelse(
-  nhefs_complete_uc$qsmk == "Yes",
-  initial_pred_quit,
-  initial_pred_no_quit
+  net_data$net,
+  initial_pred_net,
+  initial_pred_no_net
 )
 ```
 
@@ -610,7 +614,7 @@ initial_pred_observed <- ifelse(
 ```{r}
 #| code-line-numbers: "|3-4"
 clever_covariate <- ifelse(
-  nhefs_complete_uc$qsmk == "Yes",
+  net_data$net,
   1 / propensity_scores,
   -1 / (1 - propensity_scores)
 )
@@ -651,12 +655,12 @@ epsilon
 ```{r}
 #| code-line-numbers: "|2-3|6-7"
 # Update predictions on logit scale, then transform back
-logit_pred_quit <- qlogis(initial_pred_quit) + epsilon * (1 / propensity_scores)
-logit_pred_no_quit <- qlogis(initial_pred_no_quit) + epsilon * (-1 / (1 - propensity_scores))
+logit_pred_net <- qlogis(initial_pred_net) + epsilon * (1 / propensity_scores)
+logit_pred_no_net <- qlogis(initial_pred_no_net) + epsilon * (-1 / (1 - propensity_scores))
 
 # Transform back to probability scale
-targeted_pred_quit <- plogis(logit_pred_quit)
-targeted_pred_no_quit <- plogis(logit_pred_no_quit)
+targeted_pred_net <- plogis(logit_pred_net)
+targeted_pred_no_net <- plogis(logit_pred_no_net)
 ```
 
 ##
@@ -668,33 +672,33 @@ targeted_pred_no_quit <- plogis(logit_pred_no_quit)
 library(patchwork)
 
 targeting_data <- tibble(
-  initial_quit = initial_pred_quit,
-  targeted_quit = targeted_pred_quit,
-  initial_no_quit = initial_pred_no_quit,
-  targeted_no_quit = targeted_pred_no_quit
+  initial_net = initial_pred_net,
+  targeted_net = targeted_pred_net,
+  initial_no_net = initial_pred_no_net,
+  targeted_no_net = targeted_pred_no_net
 )
 
-p_quit <- ggplot(targeting_data, aes(x = initial_quit, y = targeted_quit)) +
+p_net <- ggplot(targeting_data, aes(x = initial_net, y = targeted_net)) +
   geom_point(alpha = 0.6, color = "#009E73") +
   geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
   labs(
-    x = "Initial Predictions (Quit Smoking)",
-    y = "Targeted Predictions (Quit Smoking)"
+    x = "Initial Predictions (Net Use)",
+    y = "Targeted Predictions (Net Use)"
   ) +
   theme_minimal(base_size = 14) +
   coord_fixed()
 
-p_no_quit <- ggplot(targeting_data, aes(x = initial_no_quit, y = targeted_no_quit)) +
+p_no_net <- ggplot(targeting_data, aes(x = initial_no_net, y = targeted_no_net)) +
   geom_point(alpha = 0.6, color = "#E69F00") +
   geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
   labs(
-    x = "Initial Predictions (No Quit)",
-    y = "Targeted Predictions (No Quit)"
+    x = "Initial Predictions (No Net)",
+    y = "Targeted Predictions (No Net)"
   ) +
   theme_minimal(base_size = 14) +
   coord_fixed()
 
-p_quit + p_no_quit
+p_net + p_no_net
 ```
 
 ## *Your Turn 3*
@@ -714,12 +718,12 @@ countdown::countdown(minutes = 10)
 
 ```{r}
 initial_ate <- mean(
-  initial_pred_quit - initial_pred_no_quit
+  initial_pred_net - initial_pred_no_net
   # Transform back to original scale for ATE
 ) * (max_y - min_y)
 
 targeted_ate <- mean(
-  targeted_pred_quit - targeted_pred_no_quit
+  targeted_pred_net - targeted_pred_no_net
 ) * (max_y - min_y)
 
 tibble(initial = initial_ate, targeted = targeted_ate)
@@ -730,17 +734,17 @@ tibble(initial = initial_ate, targeted = targeted_ate)
 ```{r}
 #| output-location: slide
 targeted_pred_observed <- ifelse(
-  nhefs_complete_uc$qsmk == "Yes",
-  targeted_pred_quit,
-  targeted_pred_no_quit
+  net_data$net,
+  targeted_pred_net,
+  targeted_pred_no_net
 )
 
 # IC uses bounded outcomes and predictions
 ic <- clever_covariate * (y_bounded - targeted_pred_observed) +
-      targeted_pred_quit - targeted_pred_no_quit - targeted_ate / (max_y - min_y)
+      targeted_pred_net - targeted_pred_no_net - targeted_ate / (max_y - min_y)
 
 # Standard error on original scale
-se_tmle <- sqrt(var(ic) / nrow(nhefs_complete_uc)) * (max_y - min_y)
+se_tmle <- sqrt(var(ic) / nrow(net_data)) * (max_y - min_y)
 
 # 95% CI
 tibble(
@@ -759,11 +763,10 @@ tibble(
 library(tmle)
 
 tmle_result <- tmle(
-  Y = nhefs_complete_uc$wt82_71,
-  A = as.integer(nhefs_complete_uc$qsmk == "Yes"),
-  W = nhefs_complete_uc |>
-    select(sex, race, age, education, smokeintensity,
-           smokeyrs, exercise, active, wt71) |>
+  Y = net_data$malaria_risk,
+  A = as.integer(net_data$net),
+  W = net_data |>
+    select(income, health, temperature) |>
     mutate(across(everything(), as.numeric)),
   Q.SL.library = sl_library,
   g.SL.library = sl_library

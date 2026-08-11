@@ -1,0 +1,3 @@
+[lint.rules]
+missing-chunk-labels = false
+undefined-references = false

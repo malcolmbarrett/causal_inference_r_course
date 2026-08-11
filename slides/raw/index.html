@@ -6,10 +6,10 @@
 <script src="index_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="index_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="index_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="index_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<link href="index_files/libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
 
-  <meta name="dcterms.date" content="2025-09-16">
+  <meta name="dcterms.date" content="2026-08-10">
   <title>Causal Inference in R Slides</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,6 +17,9 @@
   <link rel="stylesheet" href="index_files/libs/revealjs/dist/reset.css">
   <link rel="stylesheet" href="index_files/libs/revealjs/dist/reveal.css">
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -29,7 +32,7 @@
       vertical-align: middle;
     }
   </style>
-  <link rel="stylesheet" href="index_files/libs/revealjs/dist/theme/quarto-aac8c9227b08918aec88d28519f1f1ca.css">
+  <link rel="stylesheet" href="index_files/libs/revealjs/dist/theme/quarto-f3805f66672ef64978618ca456565276.css">
   <link href="index_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="index_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="index_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -132,12 +135,12 @@
 <div class="quarto-title-authors">
 </div>
 
-  <p class="date">2025-09-16</p>
+  <p class="date">2026-08-10</p>
 </section>
 <section id="section" class="slide level2 small" data-background-color="#23373B">
 <h2></h2>
 <h4 id="intro"><a href="https://causal-inference-r-workshop.netlify.app/00-intro.html">00 Intro</a></h4>
-<h4 id="whole-game"><a href="https://causal-inference-r-workshop.netlify.app/01-causal_modeling_whole_game.html">01 Whole Game</a></h4>
+<h4 id="whole-game"><a href="https://causal-inference-r-workshop.netlify.app/01-whole-game.html">01 Whole Game</a></h4>
 <h4 id="when-standard-methods-succeed"><a href="https://causal-inference-r-workshop.netlify.app/02-when-standard-methods-succeed.html">02 When Standard Methods Succeed</a></h4>
 <h4 id="causal-inference-with-group_by-and-summarise"><a href="https://causal-inference-r-workshop.netlify.app/03-causal-inference-with-group-by-and-summarise.html">03 Causal Inference with <code>group_by</code> and <code>summarise</code></a></h4>
 <h4 id="causal-diagrams"><a href="https://causal-inference-r-workshop.netlify.app/04-dags.html">04 Causal Diagrams</a></h4>
@@ -148,7 +151,6 @@
 <h4 id="fitting-the-outcome-model"><a href="https://causal-inference-r-workshop.netlify.app/09-outcome-model.html">09 Fitting the outcome model</a></h4>
 <h4 id="continuous-exposures-and-g-computation"><a href="https://causal-inference-r-workshop.netlify.app/10-continuous-g-comp.html">10 Continuous Exposures and G-Computation</a></h4>
 <h4 id="tipping-point-sensitivity-analyses"><a href="https://causal-inference-r-workshop.netlify.app/11-tipr.html">11 Tipping Point Sensitivity Analyses</a></h4>
-<h4 id="whole-game-your-turn"><a href="https://causal-inference-r-workshop.netlify.app/12-whole_game-2.html">12 Whole Game (Your Turn)</a></h4>
 <h4 id="bonus-selection-bias"><a href="https://causal-inference-r-workshop.netlify.app/13-bonus-selection-bias.html">13 Bonus: Selection Bias</a></h4>
 <h4 id="bonus-continous-exposures-with-propensity-scores"><a href="https://causal-inference-r-workshop.netlify.app/14-bonus-continuous-pscores.html">14 Bonus: Continous Exposures with Propensity Scores</a></h4>
 <h4 id="bonus-machine-learning-for-causal-inference"><a href="https://causal-inference-r-workshop.netlify.app/15-bonus-ml-for-causal.html">15 Bonus: Machine Learning for Causal Inference</a></h4>
@@ -343,7 +345,7 @@
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -455,13 +457,14 @@
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy
