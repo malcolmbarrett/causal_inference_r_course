@@ -181,7 +181,7 @@ as_tibble(matched_data)
 
 ## Target estimands
 
-### *Average Treatment Effect among the Controls (ATC)*
+### *Average Treatment Effect among the Unexposed (ATU / ATC)*
 
 $$\tau = E[Y(1) - Y(0) | Z = 0]$$
 
@@ -227,7 +227,7 @@ ggplot(aes(x = x, y = y, color = color)) +
 </tbody>
 </table>
 
-## Matching in R (ATC)
+## Matching in R (ATU)
 
 ```{r}
 #| output-location: fragment
@@ -239,6 +239,8 @@ m <- matchit(
 )
 m
 ```
+
+`matchit()` spells this estimand `ATC`
 
 ## Target estimands
 
@@ -302,7 +304,7 @@ m
 
 . . .
 
-Observations with propensity scores (on the linear logit scale) within 0.1 standard errors (the caliper) will be discarded
+The caliper is the largest difference between two observations we accept as a match, measured in standard deviations of the propensity score (here, on the linear logit scale). Observations that cannot be matched within it are discarded
 
 ## Matching in R (ATM)
 
@@ -333,6 +335,12 @@ Direct Adjustment
 
 ...
 
+## Matching or weighting?
+
+* Weighting is statistically more efficient; we recommend it when possible
+* Matching has a distinct advantage: it's easy to understand
+* Not everyone will follow a pseudo-population or a non-integer sample size
+
 ## Histogram of propensity scores
 
 ```{r}
@@ -343,7 +351,7 @@ df <- propensity_model |>
   mutate(
     w_ate = wt_ate(.fitted, net),
     w_att = wt_att(.fitted, net),
-    w_atc = wt_atu(.fitted, net),
+    w_atu = wt_atu(.fitted, net),
     w_atm = wt_atm(.fitted, net),
     w_ato = wt_ato(.fitted, net),
     net = factor(net)
@@ -364,6 +372,58 @@ ggplot(df, aes(.fitted)) +
   theme(legend.position = "bottom")
 ```
 
+## Tilting functions {background-color="#23373B"}
+
+```{r}
+#| include: false
+tilt_df <- tibble(p = seq(0.01, 0.99, by = 0.01)) |>
+  mutate(
+    ATE = 1,
+    ATT = p,
+    ATU = 1 - p,
+    ATM = pmin(p, 1 - p),
+    ATO = p * (1 - p)
+  ) |>
+  pivot_longer(-p, names_to = "estimand", values_to = "tilt") |>
+  mutate(
+    tilting = tilt,
+    treated = tilt / p,
+    untreated = tilt / (1 - p)
+  ) |>
+  pivot_longer(
+    c(tilting, treated, untreated),
+    names_to = "panel",
+    values_to = "value"
+  ) |>
+  mutate(
+    panel = factor(
+      panel,
+      levels = c("tilting", "treated", "untreated"),
+      labels = c(
+        "tilting function",
+        "weights (treated)",
+        "weights (untreated)"
+      )
+    )
+  )
+
+plot_tilt <- function(.estimand) {
+  tilt_df |>
+    filter(estimand == .estimand) |>
+    ggplot(aes(p, value)) +
+    geom_line(linewidth = 1.1) +
+    facet_wrap(~panel, scales = "free_y") +
+    labs(x = "propensity score", y = NULL) +
+    expand_limits(y = 0)
+}
+```
+
+Every weight is the ATE weight times a **tilting function**, $h(p_i)$
+
+$$\Large w_i = \frac{h(p_i)Z_i}{p_i} + \frac{h(p_i)(1-Z_i)}{1 - p_i}$$
+
+The tilting function reshapes the population we are targeting
+
 ## Target estimands: ATE {background-color="#23373B"}
 
 Average Treatment Effect (ATE)
@@ -373,6 +433,15 @@ $$\Large w_{ATE} = \frac{Z_i}{p_i} + \frac{1-Z_i}{1 - p_i}$$
 ```{r}
 #| eval: false
 (Z / p) + ((1 - Z) / (1 - p))
+```
+
+The tilting function is $h(p_i) = 1$: the population is unchanged and the weights are unbounded
+
+## ATE tilting function
+
+```{r}
+#| echo: false
+plot_tilt("ATE")
 ```
 
 ## ATE
@@ -392,7 +461,7 @@ ggplot(df, aes(.fitted)) +
   theme(legend.position = "bottom")
 ```
 
-## Target estimands: ATT & ATC {background-color="#23373B"}
+## Target estimands: ATT & ATU {background-color="#23373B"}
 
 . . .
 
@@ -403,14 +472,18 @@ Average Treatment Effect Among the Treated (ATT) $$\Large w_{ATT} = \frac{p_i Z_
 ((p * Z) / p) + ((p * (1 - Z)) / (1 - p))
 ```
 
-## Target estimands: ATT & ATC {background-color="#23373B"}
+The tilting function is $h(p_i) = p_i$: the treated get a weight of 1
 
-Average Treatment Effect Among the Controls (ATC) $$\Large w_{ATC} = \frac{(1-p_i)Z_i}{p_i} + \frac{(1-p_i)(1-Z_i)}{(1-p_i)}$$
+## Target estimands: ATT & ATU {background-color="#23373B"}
+
+Average Treatment Effect Among the Unexposed (ATU) $$\Large w_{ATU} = \frac{(1-p_i)Z_i}{p_i} + \frac{(1-p_i)(1-Z_i)}{(1-p_i)}$$
 
 ```{r}
 #| eval: false
 (((1 - p) * Z) / p) + (((1 - p) * (1 - Z)) / (1 - p))
 ```
+
+The tilting function is $h(p_i) = 1 - p_i$: the untreated get a weight of 1
 
 ## ATT
 
@@ -429,7 +502,7 @@ ggplot(df, aes(.fitted)) +
   theme(legend.position = "bottom")
 ```
 
-## ATC
+## ATU
 
 ```{r}
 #| echo: false
@@ -437,7 +510,7 @@ ggplot(df, aes(.fitted)) +
 #| warning: false
 ggplot(df, aes(.fitted)) + 
   geom_mirror_histogram(bins = 50, aes(group = net)) + 
-  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_atc), alpha = 0.5) + 
+  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_atu), alpha = 0.5) + 
   geom_hline(yintercept = 0, lwd = 0.5) +
   ylab("count") + 
   xlab("propensity score") +
@@ -457,6 +530,8 @@ Average Treatment Effect Among the Evenly Matchable (ATM) $$\Large w_{ATM} = \fr
 pmin(p, 1 - p) / (Z * p + (1 - Z) * (1 - p))
 ```
 
+The tilting function is $h(p_i) = \min \{p_i, 1-p_i\}$: a triangle peaking at 0.5
+
 ## Target estimands: ATM & ATO {background-color="#23373B"}
 
 Average Treatment Effect Among the Overlap Population $$\Large w_{ATO} = (1-p_i)Z_i + p_i(1-Z_i)$$
@@ -466,11 +541,22 @@ Average Treatment Effect Among the Overlap Population $$\Large w_{ATO} = (1-p_i)
 (1 - p) * Z + p * (1 - Z)
 ```
 
+The tilting function is $h(p_i) = p_i(1-p_i)$: smooth, peaking at 0.5, and the weights are bounded by 0 and 1
+
+## ATO tilting function
+
+```{r}
+#| echo: false
+plot_tilt("ATO")
+```
+
 ## Target estimands
 
 | Estimand | Target population  | Example Research Question |
 |----------|--------------------|---------------------------|
 | ATO     | Overlap population | *Same as ATM*             |
+
+We will compare these populations with the effective sample size when we check balance
 
 ## ATM
 
@@ -519,6 +605,69 @@ df <- propensity_model |>
   augment(type.predict = "response", data = net_data) |>
   mutate(w_ate = wt_ate(.fitted, net))
 ```
+
+## Extreme weights
+
+* The minimum of the ATE weights is 1, but the maximum is unbounded
+* The closer the probability of the observed exposure is to 0, the higher the weight
+* **Extreme weights** *destabilize* our estimate, resulting in worse precision and potentially worse bias
+
+## Extreme weights
+
+```{r}
+#| output-location: slide
+df |>
+  arrange(desc(w_ate)) |>
+  select(net, income, health, temperature, .fitted, w_ate)
+```
+
+## Stabilized weights ![](img/hex/propensity.png){.absolute top="0" right="0" width="140"}
+
+```{r}
+#| output-location: fragment
+#| code-line-numbers: "|3"
+df <- df |>
+  mutate(
+    sw_ate = wt_ate(.fitted, net, stabilize = TRUE)
+  )
+
+df |>
+  summarize(mean = mean(sw_ate), min = min(sw_ate), max = max(sw_ate))
+```
+
+. . .
+
+Stabilizing uses the proportion exposed in the numerator: the spread of the weights shrinks and their mean is 1
+
+## Trimming and truncation
+
+* **Trimming**: set an acceptable range of the propensity score and drop the observations outside it
+* **Truncation**: set the values outside the range to the minimum or maximum of the range
+* Some authors use these terms interchangeably, or with the opposite meanings
+
+## Trimming and truncation in R ![](img/hex/propensity.png){.absolute top="0" right="0" width="140"}
+
+```{r}
+#| output-location: slide
+#| code-line-numbers: "|3-4|5|6"
+df <- df |>
+  mutate(
+    trimmed_ps = ps_trim(.fitted, method = "adaptive") |>
+      ps_refit(propensity_model),
+    trimmed = is_unit_trimmed(trimmed_ps),
+    trunc_ps = ps_trunc(.fitted, method = "pctl", lower = 0.01, upper = 1)
+  )
+
+df |>
+  select(net, income, health, temperature, .fitted, trimmed) |>
+  filter(trimmed)
+```
+
+## Trimming and truncation
+
+* Trimming and truncation, like using a caliper, change the population we are making inferences about
+* The tilting function is 0 for the observations we trimmed and 1 for the ones that remain
+* You can think of the resulting estimand as another type of overlap population
 
 ## *Your Turn 2*
 
