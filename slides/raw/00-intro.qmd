@@ -16,7 +16,7 @@ options(
 
 ```{css}
 /*| echo: false*/
-img {
+img.rounded-circle {
   height: 250px;
   width: 250px;
   border-radius: 50%;
@@ -72,7 +72,21 @@ img {
 
 1. Describe
 2. Predict
-3. Explain
+3. Explain (causal inference)
+
+## {background-color="#23373B" .center}
+
+> Our results suggest that "Schrödinger's causal inference," where studies avoid stating (or even explicitly deny) an interest in estimating causal effects yet are otherwise embedded with causal intent, inference, implications, and recommendations, is common.
+
+::: {.small}
+Haber et al., *American Journal of Epidemiology*, 2022
+:::
+
+## Causal language in health research {background-color="#23373B"}
+
+- Only around **1%** of studies used the root word "cause" at all
+- A **third** of studies had action recommendations
+- Researchers rated **80%** of those recommendations as having at least some causal implication
 
 ## {background-color="#23373B" .center}
 ### Normal regression estimates associations. But we want *counterfactual, causal* estimates: 
@@ -88,18 +102,47 @@ img {
 
 ### Today, we'll focus on the assumption of *no confounding*.
 
+## Diagramming a causal claim
+
+![](img/sentence-diagram-1.png)
+
+## Does smoking cause lung cancer?
+
+![](img/sentence-diagram-2.png)
+
+## A more specific causal claim
+
+![](img/sentence-diagram-3.png)
+
+## Causal analysis terminology
+
+![](img/sentence-diagram-4.png)
+
+## {background-color="#23373B" .center}
+### Does the answer match the question?
+
+<br />
+
+### *For people who smoke 15+ cigarettes a day, does reducing smoking by 50% reduce the lung cancer risk over 5-10 years?*
+
 ## Tools for causal inference {background-color="#23373B"}
 
-- Causal diagrams
-- Propensity score weighting
-- Propensity score matching
-- G-methods & friends
+::: {.small}
+- **Causal diagrams**: state our assumptions about the causal structure
+- **Propensity score weighting**: reweight units to create a pseudo-population where exchangeability holds
+- **Propensity score matching**: find comparable treated and untreated units
+- **G-computation**: fit an outcome model, then marginalize over the covariates
+- **Doubly robust methods**: fit both models; only one needs to be correct. Includes TMLE
+:::
 
-## Other tools for causal inference {background-color="#23373B"}
+## Tools that make other assumptions {background-color="#23373B"}
 
-- Randomized trials
-- Instrumental variables & friends
-- TMLE and other ML for causal inference
+::: {.small}
+- **Instrumental variables**: a variable affects the treatment but does not directly affect the outcome except through the treatment
+- **Regression discontinuity**: a cutoff determines who gets the treatment, and individuals just above or below it are comparable
+- **Difference-in-differences**: the treated and untreated groups would have followed the same trend without the treatment
+- **Synthetic controls**: a weighted combination of untreated units approximates the treated unit's outcome without the treatment
+:::
 
 ## Resources {background-color="#23373B"}
 ### [Causal Inference in R](https://www.r-causal.org/): Our book! Free online.
