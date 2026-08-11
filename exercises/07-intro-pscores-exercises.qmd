@@ -58,7 +58,7 @@ dagify(
   geom_dag_point() +
   geom_dag_label_repel(
     aes(x, y, label = label),
-    box.padding = 3.5, 
+    box.padding = 1.25, 
     inherit.aes = FALSE,
     max.overlaps = Inf, 
     family = "sans",
