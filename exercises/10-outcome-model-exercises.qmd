@@ -73,7 +73,7 @@ boot_estimate
 ```
 
 
-Stretch goal: Do the same for a model using matching. Bootstrapping matched data the same way is not valid: matching induces a dependence between matched pairs, and resampling rows breaks it. There are two valid routes, and both start from a matched data set that we create once and then leave fixed.
+Stretch goal: Now estimate the effect using matching. Bootstrapping matched data the same way is not valid: matching induces a dependence between matched pairs, and resampling rows breaks it. There are two valid routes, and both start from a matched data set that we create once and then leave fixed.
 
 ```{r}
 library(MatchIt)
@@ -105,9 +105,11 @@ tibble(
 )
 ```
 
-The second route is a cluster bootstrap: resample whole matched pairs rather than rows, and do not re-run `matchit()` inside the bootstrap.
+The second route is a cluster bootstrap: resample whole matched pairs rather than rows, and do not re-run `matchit()` inside the bootstrap. `rsample::group_bootstraps()` creates this pair-level bootstrap when you pass it `subclass` as the group variable.
 
 ```{r}
+set.seed(1234)
+
 fit_matched <- function(.split, ...) {
   .df <- as.data.frame(.split)
   lm(___ ~ ___, data = .df) |>
