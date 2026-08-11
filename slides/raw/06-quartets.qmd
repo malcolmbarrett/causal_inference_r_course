@@ -26,6 +26,20 @@ library(gt)
 
 # Causal Inference is not *just* a statistics problem {background-color="#23373B"}
 
+## *Anscombe's Quartet*
+
+```{r}
+#| echo: false
+#| eval: true
+#| fig.width: 8.5
+ggplot(anscombe_quartet, aes(x = x, y = y)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = "y ~ x", se = FALSE) +
+  facet_wrap(~dataset)
+```
+
+**Each of these datasets has nearly identical summary statistics: you must visualize your data to understand it**
+
 ## *The problem*
 
 :::{.large}
@@ -203,9 +217,10 @@ dags
 ## *Your turn 1* {.small}
 
 ### Load the `quartets` package
-###  For each of the following 4 datasets, create a scatterplot looking at the relationship between `exposure` and `outcome`: `causal_collider`, `causal_confounding`, `causal_mediator`, `causal_m_bias`
-### For each of the above 4 datasets, look at the correlation between `exposure` and `covariate`
-### *Stretch goal*: For each of the above 4 datasets, fit a linear model to examine the relationship between the `exposure` and the `outcome`
+### Use `causal_quartet`, which stacks the 4 datasets with the names of their data generating mechanisms hidden
+### For each of the 4 datasets, create a scatterplot looking at the relationship between `exposure` and `outcome`
+### For each of the 4 datasets, look at the correlation between `exposure` and `covariate`
+### *Stretch goal*: For each of the 4 datasets, fit a linear model to examine the relationship between the `exposure` and the `outcome`
 
 `r countdown::countdown(6)`
 
@@ -215,10 +230,16 @@ dags
 #| echo: false
 #| eval: true
 
-ggplot(causal_quartet, aes(x = exposure, y = outcome)) + 
-  geom_point() + 
-  geom_smooth(method = "lm", formula = "y ~ x") + 
-  facet_wrap(~ dataset)
+causal_quartet |>
+  # hide the dataset names
+  mutate(dataset = paste("Dataset", as.integer(factor(dataset)))) |>
+  group_by(dataset) |>
+  mutate(exposure = scale(exposure), outcome = scale(outcome)) |>
+  ungroup() |>
+  ggplot(aes(x = exposure, y = outcome)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = "y ~ x") +
+  facet_wrap(~dataset)
 ```
 
 ## *Relationship between exposure and covariate*
@@ -226,6 +247,8 @@ ggplot(causal_quartet, aes(x = exposure, y = outcome)) +
 ```{r}
 #| eval: true
 causal_quartet |>
+  # hide the dataset names
+  mutate(dataset = as.integer(factor(dataset))) |>
   group_by(dataset) |>
   summarise(corr = cor(exposure, covariate))
 ```
@@ -235,30 +258,96 @@ causal_quartet |>
 ```{r}
 #| echo: false
 #| eval: true
-causal_quartet |>
-  nest_by(dataset) |>
+effects <- causal_quartet |>
+  # hide the dataset names
+  nest_by(dataset = as.integer(factor(dataset))) |>
   mutate(
     ate_x = coef(lm(outcome ~ exposure, data = data))[2],
     ate_xz = coef(lm(outcome ~ exposure + covariate, data = data))[2],
     cor = cor(data$exposure, data$covariate)
   ) |>
-  select(-data, dataset) |> 
-  ungroup() |> 
-  gt() |> 
+  select(-data, dataset) |>
+  ungroup()
+
+effects |>
+  gt() |>
   gt::cols_label(
-    dataset = "Data generating mechanism",   
-    ate_x = "ATE not adjusting for Z",       
-    ate_xz = "ATE adjusting for Z", 
+    dataset = "Dataset",
+    ate_x = "ATE not adjusting for Z",
+    ate_xz = "ATE adjusting for Z",
     cor = "Correlation of X and Z"
   ) |>
-  fmt_number() |> 
+  fmt_number(columns = -dataset) |>
   tab_options(table.font.size = "80%")
 ```
 
 ::: tiny
-D'Agostino McGowan L, Gerke T, Barrett M (2023). 
-Causal inference is not a statistical problem. Preprint arXiv:2304.02683v1.
+D'Agostino McGowan L, Gerke T, Barrett M (2023). Causal inference is not just a statistics problem.
+Journal of Statistics and Data Science Education. doi:10.1080/26939169.2023.2276446
 :::
+
+## *The ten percent rule*
+
+```{r}
+#| echo: false
+#| eval: true
+effects |>
+  mutate(percent_change = (ate_x - ate_xz) / ate_x) |>
+  select(dataset, percent_change) |>
+  gt() |>
+  gt::cols_label(
+    dataset = "Dataset",
+    percent_change = "Percent change"
+  ) |>
+  fmt_percent(columns = percent_change, decimals = 1) |>
+  tab_options(table.font.size = "80%")
+```
+
+**Include a variable if it changes the effect estimate by more than ten percent**
+
+. . .
+
+**Every dataset trips the threshold, and adjusting is the wrong answer in some of them**
+
+## *Prediction metrics*
+
+```{r}
+#| echo: false
+#| eval: true
+get_rmse <- function(data, model) {
+  sqrt(mean((data$outcome - predict(model, data))^2))
+}
+
+get_r_squared <- function(model) {
+  summary(model)$r.squared
+}
+
+causal_quartet |>
+  # hide the dataset names
+  nest_by(dataset = as.integer(factor(dataset))) |>
+  mutate(
+    rmse = get_rmse(data, lm(outcome ~ exposure + covariate, data = data)) -
+      get_rmse(data, lm(outcome ~ exposure, data = data)),
+    r_squared = get_r_squared(lm(outcome ~ exposure + covariate, data = data)) -
+      get_r_squared(lm(outcome ~ exposure, data = data))
+  ) |>
+  select(dataset, rmse, r_squared) |>
+  ungroup() |>
+  gt() |>
+  gt::cols_label(
+    dataset = "Dataset",
+    rmse = "Change in RMSE",
+    r_squared = md("Change in R^2^")
+  ) |>
+  fmt_number(columns = -dataset) |>
+  tab_options(table.font.size = "80%")
+```
+
+**Adding the covariate improves the fit in every dataset**
+
+. . .
+
+**Correlation isn't causation, and neither is prediction**
 
 ## The solution
 
@@ -290,8 +379,8 @@ tribble(
 ```
 
 ::: tiny
-D'Agostino McGowan L, Gerke T, Barrett M (2023). 
-Causal inference is not a statistical problem. Preprint arXiv:2304.02683v1.
+D'Agostino McGowan L, Gerke T, Barrett M (2023). Causal inference is not just a statistics problem.
+Journal of Statistics and Data Science Education. doi:10.1080/26939169.2023.2276446
 :::
 
 ## The *partial* solution
@@ -419,7 +508,7 @@ no_col_bias
 
 ## *Your turn 2*
 
-### For each of the following 4 datasets, fit a linear linear model examining the relationship between `outcome_followup` and `exposure_baseline` adjusting for `covariate_baseline`: `causal_collider_time`, `causal_confounding_time`, `causal_mediator_time`, `causal_m_bias_time`
+### For each of the following 4 datasets, fit a linear model examining the relationship between `outcome_followup` and `exposure_baseline` adjusting for `covariate_baseline`: `causal_collider_time`, `causal_confounding_time`, `causal_mediator_time`, `causal_m_bias_time`
 
 `r countdown::countdown(6)`
 
@@ -451,8 +540,8 @@ causal_quartet_time |>
 
 
 ::: tiny
-D'Agostino McGowan L, Gerke T, Barrett M (2023). 
-Causal inference is not a statistical problem. Preprint arXiv:2304.02683v1.
+D'Agostino McGowan L, Gerke T, Barrett M (2023). Causal inference is not just a statistics problem.
+Journal of Statistics and Data Science Education. doi:10.1080/26939169.2023.2276446
 :::
 
 ## *On M-Bias*
@@ -461,7 +550,13 @@ Causal inference is not a statistical problem. Preprint arXiv:2304.02683v1.
 * The relationship between Z and the unmeasured confounders needs to be really large (Liu et al 2012)
 * "To obsess about the possibility of [M-bias] generates bad practical advice in all but the most unusual circumstances" (Rubin 2009)
 * There are (almost) no true zeros (Gelman 2011)
-* Asymptotic theory shows that induction of M-bias is quite sensitive to various deviations from the exact M-Structure (Ding and Miratrix 2014)
+* Asymptotic theory shows that induction of M-bias is quite sensitive to various deviations from the exact M-Structure (Ding and Miratrix 2015)
+:::
+
+. . .
+
+::: small
+**If it is clearly M-bias, do not adjust for the variable. If it is not clear, adjust for it**: confounding bias tends to be worse, and M-structures are sensitive to slight deviations
 :::
 
 

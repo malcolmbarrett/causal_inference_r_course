@@ -1,22 +1,25 @@
 <!DOCTYPE html>
 <html lang="en"><head>
-<script src="05-quartets_files/libs/clipboard/clipboard.min.js"></script>
-<script src="05-quartets_files/libs/quarto-html/tabby.min.js"></script>
-<script src="05-quartets_files/libs/quarto-html/popper.min.js"></script>
-<script src="05-quartets_files/libs/quarto-html/tippy.umd.min.js"></script>
-<link href="05-quartets_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="05-quartets_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="05-quartets_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<script src="06-quartets_files/libs/clipboard/clipboard.min.js"></script>
+<script src="06-quartets_files/libs/quarto-html/tabby.min.js"></script>
+<script src="06-quartets_files/libs/quarto-html/popper.min.js"></script>
+<script src="06-quartets_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="06-quartets_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="06-quartets_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="06-quartets_files/libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
 
   <meta name="author" content="Lucy D’Agostino McGowan">
   <title>Causal inference is not just a statistics problem</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
-  <link rel="stylesheet" href="05-quartets_files/libs/revealjs/dist/reset.css">
-  <link rel="stylesheet" href="05-quartets_files/libs/revealjs/dist/reveal.css">
+  <link rel="stylesheet" href="06-quartets_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="06-quartets_files/libs/revealjs/dist/reveal.css">
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -95,11 +98,11 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="05-quartets_files/libs/revealjs/dist/theme/quarto-aac8c9227b08918aec88d28519f1f1ca.css">
-  <link href="05-quartets_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
-  <link href="05-quartets_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
-  <link href="05-quartets_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
-  <link href="05-quartets_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <link rel="stylesheet" href="06-quartets_files/libs/revealjs/dist/theme/quarto-f3805f66672ef64978618ca456565276.css">
+  <link href="06-quartets_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="06-quartets_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="06-quartets_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="06-quartets_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
       margin: 0;
@@ -187,8 +190,8 @@
       margin-right: 0; 
     }
   </style>
-  <link href="05-quartets_files/libs/countdown-0.4.0/countdown.css" rel="stylesheet">
-  <script src="05-quartets_files/libs/countdown-0.4.0/countdown.js"></script>
+  <link href="06-quartets_files/libs/countdown-0.6.0/countdown.css" rel="stylesheet">
+  <script src="06-quartets_files/libs/countdown-0.6.0/countdown.js"></script>
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -218,6 +221,11 @@ Lucy D’Agostino McGowan
 <section id="causal-inference-is-not-just-a-statistics-problem" class="title-slide slide level1 center" data-background-color="#23373B">
 <h1>Causal Inference is not <em>just</em> a statistics problem</h1>
 
+</section>
+<section id="anscombes-quartet" class="slide level2">
+<h2><em>Anscombe’s Quartet</em></h2>
+
+<img data-src="06-quartets_files/figure-revealjs/unnamed-chunk-2-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"><p><strong>Each of these datasets has nearly identical summary statistics: you must visualize your data to understand it</strong></p>
 </section>
 <section id="the-problem" class="slide level2">
 <h2><em>The problem</em></h2>
@@ -281,7 +289,7 @@ Lucy D’Agostino McGowan
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="05-quartets_files/figure-revealjs/unnamed-chunk-2-1.png" class="quarto-figure quarto-figure-center" style="width:80.0%"></p>
+<p><img data-src="06-quartets_files/figure-revealjs/unnamed-chunk-3-1.png" class="quarto-figure quarto-figure-center" style="width:80.0%"></p>
 </figure>
 </div>
 </div>
@@ -289,7 +297,7 @@ Lucy D’Agostino McGowan
 <p><strong>One unit increase in the exposure yields an average increase in the outcome of 1</strong></p>
 </div><div class="column">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">cor</span>(exposure, covariate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">cor</span>(exposure, covariate)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
@@ -311,7 +319,7 @@ Lucy D’Agostino McGowan
 <section id="causal-quartet" class="slide level2">
 <h2><em>Causal Quartet</em></h2>
 
-<img data-src="05-quartets_files/figure-revealjs/unnamed-chunk-5-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="06-quartets_files/figure-revealjs/unnamed-chunk-6-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="section-1" class="slide level2 center middle">
 <h2></h2>
 
@@ -319,29 +327,32 @@ Lucy D’Agostino McGowan
 <section id="your-turn-1" class="slide level2 small">
 <h2><em>Your turn 1</em></h2>
 <h3 id="load-the-quartets-package">Load the <code>quartets</code> package</h3>
-<h3 id="for-each-of-the-following-4-datasets-create-a-scatterplot-looking-at-the-relationship-between-exposure-and-outcome-causal_collider-causal_confounding-causal_mediator-causal_m_bias">For each of the following 4 datasets, create a scatterplot looking at the relationship between <code>exposure</code> and <code>outcome</code>: <code>causal_collider</code>, <code>causal_confounding</code>, <code>causal_mediator</code>, <code>causal_m_bias</code></h3>
-<h3 id="for-each-of-the-above-4-datasets-look-at-the-correlation-between-exposure-and-covariate">For each of the above 4 datasets, look at the correlation between <code>exposure</code> and <code>covariate</code></h3>
-<h3 id="stretch-goal-for-each-of-the-above-4-datasets-fit-a-linear-model-to-examine-the-relationship-between-the-exposure-and-the-outcome"><em>Stretch goal</em>: For each of the above 4 datasets, fit a linear model to examine the relationship between the <code>exposure</code> and the <code>outcome</code></h3>
-<p></p><div class="countdown" id="timer_9e5cf574" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">06</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
+<h3 id="use-causal_quartet-which-stacks-the-4-datasets-with-the-names-of-their-data-generating-mechanisms-hidden">Use <code>causal_quartet</code>, which stacks the 4 datasets with the names of their data generating mechanisms hidden</h3>
+<h3 id="for-each-of-the-4-datasets-create-a-scatterplot-looking-at-the-relationship-between-exposure-and-outcome">For each of the 4 datasets, create a scatterplot looking at the relationship between <code>exposure</code> and <code>outcome</code></h3>
+<h3 id="for-each-of-the-4-datasets-look-at-the-correlation-between-exposure-and-covariate">For each of the 4 datasets, look at the correlation between <code>exposure</code> and <code>covariate</code></h3>
+<h3 id="stretch-goal-for-each-of-the-4-datasets-fit-a-linear-model-to-examine-the-relationship-between-the-exposure-and-the-outcome"><em>Stretch goal</em>: For each of the 4 datasets, fit a linear model to examine the relationship between the <code>exposure</code> and the <code>outcome</code></h3>
+<p><countdown-timer class="countdown" id="timer_b9c487e4" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="relationship-between-exposure-and-outcome" class="slide level2">
 <h2><em>Relationship between exposure and outcome</em></h2>
 
-<img data-src="05-quartets_files/figure-revealjs/unnamed-chunk-6-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="06-quartets_files/figure-revealjs/unnamed-chunk-7-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="relationship-between-exposure-and-covariate" class="slide level2">
 <h2><em>Relationship between exposure and covariate</em></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a>causal_quartet <span class="sc">|&gt;</span></span>
-<span id="cb3-2"><a href=""></a>  <span class="fu">group_by</span>(dataset) <span class="sc">|&gt;</span></span>
-<span id="cb3-3"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">corr =</span> <span class="fu">cor</span>(exposure, covariate))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a>causal_quartet <span class="sc">|&gt;</span></span>
+<span id="cb3-2"><a href=""></a>  <span class="co"># hide the dataset names</span></span>
+<span id="cb3-3"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">dataset =</span> <span class="fu">as.integer</span>(<span class="fu">factor</span>(dataset))) <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href=""></a>  <span class="fu">group_by</span>(dataset) <span class="sc">|&gt;</span></span>
+<span id="cb3-5"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">corr =</span> <span class="fu">cor</span>(exposure, covariate))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 2
-  dataset         corr
-  &lt;chr&gt;          &lt;dbl&gt;
-1 (1) Collider   0.700
-2 (2) Confounder 0.696
-3 (3) Mediator   0.696
-4 (4) M-Bias     0.696</code></pre>
+  dataset  corr
+    &lt;int&gt; &lt;dbl&gt;
+1       1 0.700
+2       2 0.696
+3       3 0.696
+4       4 0.696</code></pre>
 </div>
 </div>
 </section>
@@ -349,23 +360,23 @@ Lucy D’Agostino McGowan
 <h2><em>Observed effects</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="miavikdsdx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#miavikdsdx table {
+<div id="pxcqnhqfkk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#pxcqnhqfkk table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#miavikdsdx thead, #miavikdsdx tbody, #miavikdsdx tfoot, #miavikdsdx tr, #miavikdsdx td, #miavikdsdx th {
+#pxcqnhqfkk thead, #pxcqnhqfkk tbody, #pxcqnhqfkk tfoot, #pxcqnhqfkk tr, #pxcqnhqfkk td, #pxcqnhqfkk th {
   border-style: none;
 }
 
-#miavikdsdx p {
+#pxcqnhqfkk p {
   margin: 0;
   padding: 0;
 }
 
-#miavikdsdx .gt_table {
+#pxcqnhqfkk .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -391,12 +402,12 @@ Lucy D’Agostino McGowan
   border-left-color: #D3D3D3;
 }
 
-#miavikdsdx .gt_caption {
+#pxcqnhqfkk .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#miavikdsdx .gt_title {
+#pxcqnhqfkk .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -408,7 +419,7 @@ Lucy D’Agostino McGowan
   border-bottom-width: 0;
 }
 
-#miavikdsdx .gt_subtitle {
+#pxcqnhqfkk .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -420,7 +431,7 @@ Lucy D’Agostino McGowan
   border-top-width: 0;
 }
 
-#miavikdsdx .gt_heading {
+#pxcqnhqfkk .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -432,13 +443,13 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#miavikdsdx .gt_bottom_border {
+#pxcqnhqfkk .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#miavikdsdx .gt_col_headings {
+#pxcqnhqfkk .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -453,7 +464,7 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#miavikdsdx .gt_col_heading {
+#pxcqnhqfkk .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -473,7 +484,7 @@ Lucy D’Agostino McGowan
   overflow-x: hidden;
 }
 
-#miavikdsdx .gt_column_spanner_outer {
+#pxcqnhqfkk .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -485,15 +496,15 @@ Lucy D’Agostino McGowan
   padding-right: 4px;
 }
 
-#miavikdsdx .gt_column_spanner_outer:first-child {
+#pxcqnhqfkk .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#miavikdsdx .gt_column_spanner_outer:last-child {
+#pxcqnhqfkk .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#miavikdsdx .gt_column_spanner {
+#pxcqnhqfkk .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -505,11 +516,11 @@ Lucy D’Agostino McGowan
   width: 100%;
 }
 
-#miavikdsdx .gt_spanner_row {
+#pxcqnhqfkk .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#miavikdsdx .gt_group_heading {
+#pxcqnhqfkk .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -535,7 +546,7 @@ Lucy D’Agostino McGowan
   text-align: left;
 }
 
-#miavikdsdx .gt_empty_group_heading {
+#pxcqnhqfkk .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -550,15 +561,15 @@ Lucy D’Agostino McGowan
   vertical-align: middle;
 }
 
-#miavikdsdx .gt_from_md > :first-child {
+#pxcqnhqfkk .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#miavikdsdx .gt_from_md > :last-child {
+#pxcqnhqfkk .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#miavikdsdx .gt_row {
+#pxcqnhqfkk .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -577,7 +588,7 @@ Lucy D’Agostino McGowan
   overflow-x: hidden;
 }
 
-#miavikdsdx .gt_stub {
+#pxcqnhqfkk .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -590,7 +601,7 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#miavikdsdx .gt_stub_row_group {
+#pxcqnhqfkk .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -604,15 +615,15 @@ Lucy D’Agostino McGowan
   vertical-align: top;
 }
 
-#miavikdsdx .gt_row_group_first td {
+#pxcqnhqfkk .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#miavikdsdx .gt_row_group_first th {
+#pxcqnhqfkk .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#miavikdsdx .gt_summary_row {
+#pxcqnhqfkk .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -622,16 +633,16 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#miavikdsdx .gt_first_summary_row {
+#pxcqnhqfkk .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#miavikdsdx .gt_first_summary_row.thick {
+#pxcqnhqfkk .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#miavikdsdx .gt_last_summary_row {
+#pxcqnhqfkk .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -641,7 +652,7 @@ Lucy D’Agostino McGowan
   border-bottom-color: #D3D3D3;
 }
 
-#miavikdsdx .gt_grand_summary_row {
+#pxcqnhqfkk .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -651,7 +662,7 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#miavikdsdx .gt_first_grand_summary_row {
+#pxcqnhqfkk .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -661,7 +672,7 @@ Lucy D’Agostino McGowan
   border-top-color: #D3D3D3;
 }
 
-#miavikdsdx .gt_last_grand_summary_row_top {
+#pxcqnhqfkk .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -671,11 +682,11 @@ Lucy D’Agostino McGowan
   border-bottom-color: #D3D3D3;
 }
 
-#miavikdsdx .gt_striped {
+#pxcqnhqfkk .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#miavikdsdx .gt_table_body {
+#pxcqnhqfkk .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -684,7 +695,7 @@ Lucy D’Agostino McGowan
   border-bottom-color: #D3D3D3;
 }
 
-#miavikdsdx .gt_footnotes {
+#pxcqnhqfkk .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -698,7 +709,7 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#miavikdsdx .gt_footnote {
+#pxcqnhqfkk .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -707,7 +718,7 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#miavikdsdx .gt_sourcenotes {
+#pxcqnhqfkk .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -721,7 +732,7 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#miavikdsdx .gt_sourcenote {
+#pxcqnhqfkk .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -729,80 +740,80 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#miavikdsdx .gt_left {
+#pxcqnhqfkk .gt_left {
   text-align: left;
 }
 
-#miavikdsdx .gt_center {
+#pxcqnhqfkk .gt_center {
   text-align: center;
 }
 
-#miavikdsdx .gt_right {
+#pxcqnhqfkk .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#miavikdsdx .gt_font_normal {
+#pxcqnhqfkk .gt_font_normal {
   font-weight: normal;
 }
 
-#miavikdsdx .gt_font_bold {
+#pxcqnhqfkk .gt_font_bold {
   font-weight: bold;
 }
 
-#miavikdsdx .gt_font_italic {
+#pxcqnhqfkk .gt_font_italic {
   font-style: italic;
 }
 
-#miavikdsdx .gt_super {
+#pxcqnhqfkk .gt_super {
   font-size: 65%;
 }
 
-#miavikdsdx .gt_footnote_marks {
+#pxcqnhqfkk .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#miavikdsdx .gt_asterisk {
+#pxcqnhqfkk .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#miavikdsdx .gt_indent_1 {
+#pxcqnhqfkk .gt_indent_1 {
   text-indent: 5px;
 }
 
-#miavikdsdx .gt_indent_2 {
+#pxcqnhqfkk .gt_indent_2 {
   text-indent: 10px;
 }
 
-#miavikdsdx .gt_indent_3 {
+#pxcqnhqfkk .gt_indent_3 {
   text-indent: 15px;
 }
 
-#miavikdsdx .gt_indent_4 {
+#pxcqnhqfkk .gt_indent_4 {
   text-indent: 20px;
 }
 
-#miavikdsdx .gt_indent_5 {
+#pxcqnhqfkk .gt_indent_5 {
   text-indent: 25px;
 }
 
-#miavikdsdx .katex-display {
+#pxcqnhqfkk .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#miavikdsdx div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#pxcqnhqfkk div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
 
-<table class="gt_table caption-top" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_col_headings header">
-<th id="dataset" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Data generating mechanism</th>
+<th id="dataset" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Dataset</th>
 <th id="ate_x" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">ATE not adjusting for Z</th>
 <th id="ate_xz" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">ATE adjusting for Z</th>
 <th id="cor" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Correlation of X and Z</th>
@@ -810,25 +821,25 @@ Lucy D’Agostino McGowan
 </thead>
 <tbody class="gt_table_body">
 <tr class="odd">
-<td class="gt_row gt_left" headers="dataset">(1) Collider</td>
+<td class="gt_row gt_right" headers="dataset">1</td>
 <td class="gt_row gt_right" headers="ate_x">1.00</td>
 <td class="gt_row gt_right" headers="ate_xz">0.55</td>
 <td class="gt_row gt_right" headers="cor">0.70</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="dataset">(2) Confounder</td>
+<td class="gt_row gt_right" headers="dataset">2</td>
 <td class="gt_row gt_right" headers="ate_x">1.00</td>
 <td class="gt_row gt_right" headers="ate_xz">0.50</td>
 <td class="gt_row gt_right" headers="cor">0.70</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="dataset">(3) Mediator</td>
+<td class="gt_row gt_right" headers="dataset">3</td>
 <td class="gt_row gt_right" headers="ate_x">1.00</td>
 <td class="gt_row gt_right" headers="ate_xz">0.00</td>
 <td class="gt_row gt_right" headers="cor">0.70</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="dataset">(4) M-Bias</td>
+<td class="gt_row gt_right" headers="dataset">4</td>
 <td class="gt_row gt_right" headers="ate_x">1.00</td>
 <td class="gt_row gt_right" headers="ate_xz">0.88</td>
 <td class="gt_row gt_right" headers="cor">0.70</td>
@@ -840,34 +851,1017 @@ Lucy D’Agostino McGowan
 </div>
 </div>
 <div class="tiny">
-<p>D’Agostino McGowan L, Gerke T, Barrett M (2023). Causal inference is not a statistical problem. Preprint arXiv:2304.02683v1.</p>
+<p>D’Agostino McGowan L, Gerke T, Barrett M (2023). Causal inference is not just a statistics problem. Journal of Statistics and Data Science Education. doi:10.1080/26939169.2023.2276446</p>
 </div>
 </section>
-<section id="the-solution" class="slide level2">
-<h2>The solution</h2>
-
-<img data-src="05-quartets_files/figure-revealjs/unnamed-chunk-9-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
-<section id="correct-effects" class="slide level2">
-<h2><em>Correct effects</em></h2>
+<section id="the-ten-percent-rule" class="slide level2">
+<h2><em>The ten percent rule</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="yjeptforgp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#yjeptforgp table {
+<div id="njbugfjkkh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#njbugfjkkh table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#yjeptforgp thead, #yjeptforgp tbody, #yjeptforgp tfoot, #yjeptforgp tr, #yjeptforgp td, #yjeptforgp th {
+#njbugfjkkh thead, #njbugfjkkh tbody, #njbugfjkkh tfoot, #njbugfjkkh tr, #njbugfjkkh td, #njbugfjkkh th {
   border-style: none;
 }
 
-#yjeptforgp p {
+#njbugfjkkh p {
   margin: 0;
   padding: 0;
 }
 
-#yjeptforgp .gt_table {
+#njbugfjkkh .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 80%;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#njbugfjkkh .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#njbugfjkkh .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#njbugfjkkh .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#njbugfjkkh .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#njbugfjkkh .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#njbugfjkkh .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#njbugfjkkh .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#njbugfjkkh .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#njbugfjkkh .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#njbugfjkkh .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#njbugfjkkh .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#njbugfjkkh .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#njbugfjkkh .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#njbugfjkkh .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#njbugfjkkh .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#njbugfjkkh .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#njbugfjkkh .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#njbugfjkkh .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#njbugfjkkh .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#njbugfjkkh .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#njbugfjkkh .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#njbugfjkkh .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#njbugfjkkh .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#njbugfjkkh .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#njbugfjkkh .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#njbugfjkkh .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#njbugfjkkh .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#njbugfjkkh .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#njbugfjkkh .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#njbugfjkkh .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#njbugfjkkh .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#njbugfjkkh .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#njbugfjkkh .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#njbugfjkkh .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#njbugfjkkh .gt_left {
+  text-align: left;
+}
+
+#njbugfjkkh .gt_center {
+  text-align: center;
+}
+
+#njbugfjkkh .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#njbugfjkkh .gt_font_normal {
+  font-weight: normal;
+}
+
+#njbugfjkkh .gt_font_bold {
+  font-weight: bold;
+}
+
+#njbugfjkkh .gt_font_italic {
+  font-style: italic;
+}
+
+#njbugfjkkh .gt_super {
+  font-size: 65%;
+}
+
+#njbugfjkkh .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#njbugfjkkh .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#njbugfjkkh .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#njbugfjkkh .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#njbugfjkkh .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#njbugfjkkh .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#njbugfjkkh .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#njbugfjkkh .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#njbugfjkkh div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="dataset" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Dataset</th>
+<th id="percent_change" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Percent change</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right" headers="dataset">1</td>
+<td class="gt_row gt_right" headers="percent_change">44.6%</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="dataset">2</td>
+<td class="gt_row gt_right" headers="percent_change">49.7%</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="dataset">3</td>
+<td class="gt_row gt_right" headers="percent_change">99.8%</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="dataset">4</td>
+<td class="gt_row gt_right" headers="percent_change">12.5%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p><strong>Include a variable if it changes the effect estimate by more than ten percent</strong></p>
+<div class="fragment">
+<p><strong>Every dataset trips the threshold, and adjusting is the wrong answer in some of them</strong></p>
+</div>
+</section>
+<section id="prediction-metrics" class="slide level2">
+<h2><em>Prediction metrics</em></h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="bxsqraeqxb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#bxsqraeqxb table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#bxsqraeqxb thead, #bxsqraeqxb tbody, #bxsqraeqxb tfoot, #bxsqraeqxb tr, #bxsqraeqxb td, #bxsqraeqxb th {
+  border-style: none;
+}
+
+#bxsqraeqxb p {
+  margin: 0;
+  padding: 0;
+}
+
+#bxsqraeqxb .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 80%;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#bxsqraeqxb .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#bxsqraeqxb .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#bxsqraeqxb .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#bxsqraeqxb .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#bxsqraeqxb .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bxsqraeqxb .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#bxsqraeqxb .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#bxsqraeqxb .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#bxsqraeqxb .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#bxsqraeqxb .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#bxsqraeqxb .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#bxsqraeqxb .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#bxsqraeqxb .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#bxsqraeqxb .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#bxsqraeqxb .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#bxsqraeqxb .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#bxsqraeqxb .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#bxsqraeqxb .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bxsqraeqxb .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#bxsqraeqxb .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#bxsqraeqxb .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#bxsqraeqxb .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bxsqraeqxb .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#bxsqraeqxb .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#bxsqraeqxb .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bxsqraeqxb .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bxsqraeqxb .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#bxsqraeqxb .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bxsqraeqxb .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#bxsqraeqxb .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bxsqraeqxb .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#bxsqraeqxb .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bxsqraeqxb .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#bxsqraeqxb .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bxsqraeqxb .gt_left {
+  text-align: left;
+}
+
+#bxsqraeqxb .gt_center {
+  text-align: center;
+}
+
+#bxsqraeqxb .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#bxsqraeqxb .gt_font_normal {
+  font-weight: normal;
+}
+
+#bxsqraeqxb .gt_font_bold {
+  font-weight: bold;
+}
+
+#bxsqraeqxb .gt_font_italic {
+  font-style: italic;
+}
+
+#bxsqraeqxb .gt_super {
+  font-size: 65%;
+}
+
+#bxsqraeqxb .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#bxsqraeqxb .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#bxsqraeqxb .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#bxsqraeqxb .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#bxsqraeqxb .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#bxsqraeqxb .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#bxsqraeqxb .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#bxsqraeqxb .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#bxsqraeqxb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="dataset" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Dataset</th>
+<th id="rmse" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Change in RMSE</th>
+<th id="r_squared" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Change in R<sup>2</sup></th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right" headers="dataset">1</td>
+<td class="gt_row gt_right" headers="rmse">−0.14</td>
+<td class="gt_row gt_right" headers="r_squared">0.12</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="dataset">2</td>
+<td class="gt_row gt_right" headers="rmse">−0.20</td>
+<td class="gt_row gt_right" headers="r_squared">0.14</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="dataset">3</td>
+<td class="gt_row gt_right" headers="rmse">−0.48</td>
+<td class="gt_row gt_right" headers="r_squared">0.37</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="dataset">4</td>
+<td class="gt_row gt_right" headers="rmse">−0.01</td>
+<td class="gt_row gt_right" headers="r_squared">0.01</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p><strong>Adding the covariate improves the fit in every dataset</strong></p>
+<div class="fragment">
+<p><strong>Correlation isn’t causation, and neither is prediction</strong></p>
+</div>
+</section>
+<section id="the-solution" class="slide level2">
+<h2>The solution</h2>
+
+<img data-src="06-quartets_files/figure-revealjs/unnamed-chunk-12-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<section id="correct-effects" class="slide level2">
+<h2><em>Correct effects</em></h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="zxnjvxofor" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zxnjvxofor table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#zxnjvxofor thead, #zxnjvxofor tbody, #zxnjvxofor tfoot, #zxnjvxofor tr, #zxnjvxofor td, #zxnjvxofor th {
+  border-style: none;
+}
+
+#zxnjvxofor p {
+  margin: 0;
+  padding: 0;
+}
+
+#zxnjvxofor .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -893,12 +1887,12 @@ Lucy D’Agostino McGowan
   border-left-color: #D3D3D3;
 }
 
-#yjeptforgp .gt_caption {
+#zxnjvxofor .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#yjeptforgp .gt_title {
+#zxnjvxofor .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -910,7 +1904,7 @@ Lucy D’Agostino McGowan
   border-bottom-width: 0;
 }
 
-#yjeptforgp .gt_subtitle {
+#zxnjvxofor .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -922,7 +1916,7 @@ Lucy D’Agostino McGowan
   border-top-width: 0;
 }
 
-#yjeptforgp .gt_heading {
+#zxnjvxofor .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -934,13 +1928,13 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#yjeptforgp .gt_bottom_border {
+#zxnjvxofor .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#yjeptforgp .gt_col_headings {
+#zxnjvxofor .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -955,7 +1949,7 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#yjeptforgp .gt_col_heading {
+#zxnjvxofor .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -975,7 +1969,7 @@ Lucy D’Agostino McGowan
   overflow-x: hidden;
 }
 
-#yjeptforgp .gt_column_spanner_outer {
+#zxnjvxofor .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -987,15 +1981,15 @@ Lucy D’Agostino McGowan
   padding-right: 4px;
 }
 
-#yjeptforgp .gt_column_spanner_outer:first-child {
+#zxnjvxofor .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#yjeptforgp .gt_column_spanner_outer:last-child {
+#zxnjvxofor .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#yjeptforgp .gt_column_spanner {
+#zxnjvxofor .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1007,11 +2001,11 @@ Lucy D’Agostino McGowan
   width: 100%;
 }
 
-#yjeptforgp .gt_spanner_row {
+#zxnjvxofor .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#yjeptforgp .gt_group_heading {
+#zxnjvxofor .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1037,7 +2031,7 @@ Lucy D’Agostino McGowan
   text-align: left;
 }
 
-#yjeptforgp .gt_empty_group_heading {
+#zxnjvxofor .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1052,15 +2046,15 @@ Lucy D’Agostino McGowan
   vertical-align: middle;
 }
 
-#yjeptforgp .gt_from_md > :first-child {
+#zxnjvxofor .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#yjeptforgp .gt_from_md > :last-child {
+#zxnjvxofor .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#yjeptforgp .gt_row {
+#zxnjvxofor .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1079,7 +2073,7 @@ Lucy D’Agostino McGowan
   overflow-x: hidden;
 }
 
-#yjeptforgp .gt_stub {
+#zxnjvxofor .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1092,7 +2086,7 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#yjeptforgp .gt_stub_row_group {
+#zxnjvxofor .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1106,15 +2100,15 @@ Lucy D’Agostino McGowan
   vertical-align: top;
 }
 
-#yjeptforgp .gt_row_group_first td {
+#zxnjvxofor .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#yjeptforgp .gt_row_group_first th {
+#zxnjvxofor .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#yjeptforgp .gt_summary_row {
+#zxnjvxofor .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1124,16 +2118,16 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#yjeptforgp .gt_first_summary_row {
+#zxnjvxofor .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#yjeptforgp .gt_first_summary_row.thick {
+#zxnjvxofor .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#yjeptforgp .gt_last_summary_row {
+#zxnjvxofor .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1143,7 +2137,7 @@ Lucy D’Agostino McGowan
   border-bottom-color: #D3D3D3;
 }
 
-#yjeptforgp .gt_grand_summary_row {
+#zxnjvxofor .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1153,7 +2147,7 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#yjeptforgp .gt_first_grand_summary_row {
+#zxnjvxofor .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1163,7 +2157,7 @@ Lucy D’Agostino McGowan
   border-top-color: #D3D3D3;
 }
 
-#yjeptforgp .gt_last_grand_summary_row_top {
+#zxnjvxofor .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1173,11 +2167,11 @@ Lucy D’Agostino McGowan
   border-bottom-color: #D3D3D3;
 }
 
-#yjeptforgp .gt_striped {
+#zxnjvxofor .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#yjeptforgp .gt_table_body {
+#zxnjvxofor .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1186,7 +2180,7 @@ Lucy D’Agostino McGowan
   border-bottom-color: #D3D3D3;
 }
 
-#yjeptforgp .gt_footnotes {
+#zxnjvxofor .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1200,7 +2194,7 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#yjeptforgp .gt_footnote {
+#zxnjvxofor .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1209,7 +2203,7 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#yjeptforgp .gt_sourcenotes {
+#zxnjvxofor .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1223,7 +2217,7 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#yjeptforgp .gt_sourcenote {
+#zxnjvxofor .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1231,77 +2225,77 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#yjeptforgp .gt_left {
+#zxnjvxofor .gt_left {
   text-align: left;
 }
 
-#yjeptforgp .gt_center {
+#zxnjvxofor .gt_center {
   text-align: center;
 }
 
-#yjeptforgp .gt_right {
+#zxnjvxofor .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#yjeptforgp .gt_font_normal {
+#zxnjvxofor .gt_font_normal {
   font-weight: normal;
 }
 
-#yjeptforgp .gt_font_bold {
+#zxnjvxofor .gt_font_bold {
   font-weight: bold;
 }
 
-#yjeptforgp .gt_font_italic {
+#zxnjvxofor .gt_font_italic {
   font-style: italic;
 }
 
-#yjeptforgp .gt_super {
+#zxnjvxofor .gt_super {
   font-size: 65%;
 }
 
-#yjeptforgp .gt_footnote_marks {
+#zxnjvxofor .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#yjeptforgp .gt_asterisk {
+#zxnjvxofor .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#yjeptforgp .gt_indent_1 {
+#zxnjvxofor .gt_indent_1 {
   text-indent: 5px;
 }
 
-#yjeptforgp .gt_indent_2 {
+#zxnjvxofor .gt_indent_2 {
   text-indent: 10px;
 }
 
-#yjeptforgp .gt_indent_3 {
+#zxnjvxofor .gt_indent_3 {
   text-indent: 15px;
 }
 
-#yjeptforgp .gt_indent_4 {
+#zxnjvxofor .gt_indent_4 {
   text-indent: 20px;
 }
 
-#yjeptforgp .gt_indent_5 {
+#zxnjvxofor .gt_indent_5 {
   text-indent: 25px;
 }
 
-#yjeptforgp .katex-display {
+#zxnjvxofor .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#yjeptforgp div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#zxnjvxofor div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
 
-<table class="gt_table caption-top" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_col_headings header">
 <th id="Data-generating-mechanism" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Data generating mechanism</th>
@@ -1337,14 +2331,14 @@ Lucy D’Agostino McGowan
 </div>
 </div>
 <div class="tiny">
-<p>D’Agostino McGowan L, Gerke T, Barrett M (2023). Causal inference is not a statistical problem. Preprint arXiv:2304.02683v1.</p>
+<p>D’Agostino McGowan L, Gerke T, Barrett M (2023). Causal inference is not just a statistics problem. Journal of Statistics and Data Science Education. doi:10.1080/26939169.2023.2276446</p>
 </div>
 </section>
 <section id="the-partial-solution" class="slide level2">
 <h2>The <em>partial</em> solution</h2>
 <div class="small">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a>causal_collider_time</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a>causal_collider_time</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 100 × 6
    exposure_baseline outcome_baseline covariate_baseline
@@ -1372,14 +2366,14 @@ Lucy D’Agostino McGowan
 <section id="time-varying-dag" class="slide level2">
 <h2>Time-varying DAG</h2>
 
-<img data-src="05-quartets_files/figure-revealjs/unnamed-chunk-13-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"><div class="fragment">
+<img data-src="06-quartets_files/figure-revealjs/unnamed-chunk-16-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"><div class="fragment">
 <p><strong>True causal effect</strong>: 1 <strong>Estimated causal effect</strong>: 0.55</p>
 </div>
 </section>
 <section id="time-varying-dag-1" class="slide level2">
 <h2>Time-varying DAG</h2>
 
-<img data-src="05-quartets_files/figure-revealjs/unnamed-chunk-14-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"><div class="fragment">
+<img data-src="06-quartets_files/figure-revealjs/unnamed-chunk-17-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"><div class="fragment">
 <p><strong>True causal effect</strong>: 1 <strong>Estimated causal effect</strong>: 1</p>
 </div>
 </section></section>
@@ -1390,30 +2384,30 @@ Lucy D’Agostino McGowan
 </section>
 <section id="your-turn-2" class="slide level2">
 <h2><em>Your turn 2</em></h2>
-<h3 id="for-each-of-the-following-4-datasets-fit-a-linear-linear-model-examining-the-relationship-between-outcome_followup-and-exposure_baseline-adjusting-for-covariate_baseline-causal_collider_time-causal_confounding_time-causal_mediator_time-causal_m_bias_time">For each of the following 4 datasets, fit a linear linear model examining the relationship between <code>outcome_followup</code> and <code>exposure_baseline</code> adjusting for <code>covariate_baseline</code>: <code>causal_collider_time</code>, <code>causal_confounding_time</code>, <code>causal_mediator_time</code>, <code>causal_m_bias_time</code></h3>
-<p></p><div class="countdown" id="timer_d7384611" data-update-every="1" tabindex="0" style="right:0;bottom:0;"> <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div> <code class="countdown-time"><span class="countdown-digits minutes">06</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code> </div><p></p>
+<h3 id="for-each-of-the-following-4-datasets-fit-a-linear-model-examining-the-relationship-between-outcome_followup-and-exposure_baseline-adjusting-for-covariate_baseline-causal_collider_time-causal_confounding_time-causal_mediator_time-causal_m_bias_time">For each of the following 4 datasets, fit a linear model examining the relationship between <code>outcome_followup</code> and <code>exposure_baseline</code> adjusting for <code>covariate_baseline</code>: <code>causal_collider_time</code>, <code>causal_confounding_time</code>, <code>causal_mediator_time</code>, <code>causal_m_bias_time</code></h3>
+<p><countdown-timer class="countdown" id="timer_869ffe16" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="the-partial-solution-1" class="slide level2">
 <h2>The <em>partial</em> solution</h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="aysrlvvqbt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#aysrlvvqbt table {
+<div id="zbantbqeoq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zbantbqeoq table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#aysrlvvqbt thead, #aysrlvvqbt tbody, #aysrlvvqbt tfoot, #aysrlvvqbt tr, #aysrlvvqbt td, #aysrlvvqbt th {
+#zbantbqeoq thead, #zbantbqeoq tbody, #zbantbqeoq tfoot, #zbantbqeoq tr, #zbantbqeoq td, #zbantbqeoq th {
   border-style: none;
 }
 
-#aysrlvvqbt p {
+#zbantbqeoq p {
   margin: 0;
   padding: 0;
 }
 
-#aysrlvvqbt .gt_table {
+#zbantbqeoq .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1439,12 +2433,12 @@ Lucy D’Agostino McGowan
   border-left-color: #D3D3D3;
 }
 
-#aysrlvvqbt .gt_caption {
+#zbantbqeoq .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#aysrlvvqbt .gt_title {
+#zbantbqeoq .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1456,7 +2450,7 @@ Lucy D’Agostino McGowan
   border-bottom-width: 0;
 }
 
-#aysrlvvqbt .gt_subtitle {
+#zbantbqeoq .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1468,7 +2462,7 @@ Lucy D’Agostino McGowan
   border-top-width: 0;
 }
 
-#aysrlvvqbt .gt_heading {
+#zbantbqeoq .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1480,13 +2474,13 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#aysrlvvqbt .gt_bottom_border {
+#zbantbqeoq .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#aysrlvvqbt .gt_col_headings {
+#zbantbqeoq .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1501,7 +2495,7 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#aysrlvvqbt .gt_col_heading {
+#zbantbqeoq .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1521,7 +2515,7 @@ Lucy D’Agostino McGowan
   overflow-x: hidden;
 }
 
-#aysrlvvqbt .gt_column_spanner_outer {
+#zbantbqeoq .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1533,15 +2527,15 @@ Lucy D’Agostino McGowan
   padding-right: 4px;
 }
 
-#aysrlvvqbt .gt_column_spanner_outer:first-child {
+#zbantbqeoq .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#aysrlvvqbt .gt_column_spanner_outer:last-child {
+#zbantbqeoq .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#aysrlvvqbt .gt_column_spanner {
+#zbantbqeoq .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1553,11 +2547,11 @@ Lucy D’Agostino McGowan
   width: 100%;
 }
 
-#aysrlvvqbt .gt_spanner_row {
+#zbantbqeoq .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#aysrlvvqbt .gt_group_heading {
+#zbantbqeoq .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1583,7 +2577,7 @@ Lucy D’Agostino McGowan
   text-align: left;
 }
 
-#aysrlvvqbt .gt_empty_group_heading {
+#zbantbqeoq .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1598,15 +2592,15 @@ Lucy D’Agostino McGowan
   vertical-align: middle;
 }
 
-#aysrlvvqbt .gt_from_md > :first-child {
+#zbantbqeoq .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#aysrlvvqbt .gt_from_md > :last-child {
+#zbantbqeoq .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#aysrlvvqbt .gt_row {
+#zbantbqeoq .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1625,7 +2619,7 @@ Lucy D’Agostino McGowan
   overflow-x: hidden;
 }
 
-#aysrlvvqbt .gt_stub {
+#zbantbqeoq .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1638,7 +2632,7 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#aysrlvvqbt .gt_stub_row_group {
+#zbantbqeoq .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1652,15 +2646,15 @@ Lucy D’Agostino McGowan
   vertical-align: top;
 }
 
-#aysrlvvqbt .gt_row_group_first td {
+#zbantbqeoq .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#aysrlvvqbt .gt_row_group_first th {
+#zbantbqeoq .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#aysrlvvqbt .gt_summary_row {
+#zbantbqeoq .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1670,16 +2664,16 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#aysrlvvqbt .gt_first_summary_row {
+#zbantbqeoq .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#aysrlvvqbt .gt_first_summary_row.thick {
+#zbantbqeoq .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#aysrlvvqbt .gt_last_summary_row {
+#zbantbqeoq .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1689,7 +2683,7 @@ Lucy D’Agostino McGowan
   border-bottom-color: #D3D3D3;
 }
 
-#aysrlvvqbt .gt_grand_summary_row {
+#zbantbqeoq .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1699,7 +2693,7 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#aysrlvvqbt .gt_first_grand_summary_row {
+#zbantbqeoq .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1709,7 +2703,7 @@ Lucy D’Agostino McGowan
   border-top-color: #D3D3D3;
 }
 
-#aysrlvvqbt .gt_last_grand_summary_row_top {
+#zbantbqeoq .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1719,11 +2713,11 @@ Lucy D’Agostino McGowan
   border-bottom-color: #D3D3D3;
 }
 
-#aysrlvvqbt .gt_striped {
+#zbantbqeoq .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#aysrlvvqbt .gt_table_body {
+#zbantbqeoq .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1732,7 +2726,7 @@ Lucy D’Agostino McGowan
   border-bottom-color: #D3D3D3;
 }
 
-#aysrlvvqbt .gt_footnotes {
+#zbantbqeoq .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1746,7 +2740,7 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#aysrlvvqbt .gt_footnote {
+#zbantbqeoq .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1755,7 +2749,7 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#aysrlvvqbt .gt_sourcenotes {
+#zbantbqeoq .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1769,7 +2763,7 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#aysrlvvqbt .gt_sourcenote {
+#zbantbqeoq .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1777,77 +2771,77 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#aysrlvvqbt .gt_left {
+#zbantbqeoq .gt_left {
   text-align: left;
 }
 
-#aysrlvvqbt .gt_center {
+#zbantbqeoq .gt_center {
   text-align: center;
 }
 
-#aysrlvvqbt .gt_right {
+#zbantbqeoq .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#aysrlvvqbt .gt_font_normal {
+#zbantbqeoq .gt_font_normal {
   font-weight: normal;
 }
 
-#aysrlvvqbt .gt_font_bold {
+#zbantbqeoq .gt_font_bold {
   font-weight: bold;
 }
 
-#aysrlvvqbt .gt_font_italic {
+#zbantbqeoq .gt_font_italic {
   font-style: italic;
 }
 
-#aysrlvvqbt .gt_super {
+#zbantbqeoq .gt_super {
   font-size: 65%;
 }
 
-#aysrlvvqbt .gt_footnote_marks {
+#zbantbqeoq .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#aysrlvvqbt .gt_asterisk {
+#zbantbqeoq .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#aysrlvvqbt .gt_indent_1 {
+#zbantbqeoq .gt_indent_1 {
   text-indent: 5px;
 }
 
-#aysrlvvqbt .gt_indent_2 {
+#zbantbqeoq .gt_indent_2 {
   text-indent: 10px;
 }
 
-#aysrlvvqbt .gt_indent_3 {
+#zbantbqeoq .gt_indent_3 {
   text-indent: 15px;
 }
 
-#aysrlvvqbt .gt_indent_4 {
+#zbantbqeoq .gt_indent_4 {
   text-indent: 20px;
 }
 
-#aysrlvvqbt .gt_indent_5 {
+#zbantbqeoq .gt_indent_5 {
   text-indent: 25px;
 }
 
-#aysrlvvqbt .katex-display {
+#zbantbqeoq .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#aysrlvvqbt div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#zbantbqeoq div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
 
-<table class="gt_table caption-top" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_col_headings header">
 <th id="dataset" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Data generating mechanism</th>
@@ -1888,7 +2882,7 @@ Lucy D’Agostino McGowan
 </div>
 </div>
 <div class="tiny">
-<p>D’Agostino McGowan L, Gerke T, Barrett M (2023). Causal inference is not a statistical problem. Preprint arXiv:2304.02683v1.</p>
+<p>D’Agostino McGowan L, Gerke T, Barrett M (2023). Causal inference is not just a statistics problem. Journal of Statistics and Data Science Education. doi:10.1080/26939169.2023.2276446</p>
 </div>
 </section>
 <section id="on-m-bias" class="slide level2">
@@ -1898,10 +2892,15 @@ Lucy D’Agostino McGowan
 <li class="fragment">The relationship between Z and the unmeasured confounders needs to be really large (Liu et al 2012)</li>
 <li class="fragment">“To obsess about the possibility of [M-bias] generates bad practical advice in all but the most unusual circumstances” (Rubin 2009)</li>
 <li class="fragment">There are (almost) no true zeros (Gelman 2011)</li>
-<li class="fragment">Asymptotic theory shows that induction of M-bias is quite sensitive to various deviations from the exact M-Structure (Ding and Miratrix 2014)</li>
+<li class="fragment">Asymptotic theory shows that induction of M-bias is quite sensitive to various deviations from the exact M-Structure (Ding and Miratrix 2015)</li>
 </ul>
 </div>
+<div class="fragment">
+<div class="small">
+<p><strong>If it is clearly M-bias, do not adjust for the variable. If it is not clear, adjust for it</strong>: confounding bias tends to be worse, and M-structures are sensitive to slight deviations</p>
+</div>
 
+</div>
 </section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
@@ -1911,19 +2910,19 @@ Lucy D’Agostino McGowan
 </div></div>
 
   <script>window.backupDefine = window.define; window.define = undefined;</script>
-  <script src="05-quartets_files/libs/revealjs/dist/reveal.js"></script>
+  <script src="06-quartets_files/libs/revealjs/dist/reveal.js"></script>
   <!-- reveal.js plugins -->
-  <script src="05-quartets_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
-  <script src="05-quartets_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
-  <script src="05-quartets_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
-  <script src="05-quartets_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
-  <script src="05-quartets_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  <script src="06-quartets_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="06-quartets_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="06-quartets_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="06-quartets_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="06-quartets_files/libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
-  <script src="05-quartets_files/libs/revealjs/plugin/notes/notes.js"></script>
-  <script src="05-quartets_files/libs/revealjs/plugin/search/search.js"></script>
-  <script src="05-quartets_files/libs/revealjs/plugin/zoom/zoom.js"></script>
-  <script src="05-quartets_files/libs/revealjs/plugin/math/math.js"></script>
+  <script src="06-quartets_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="06-quartets_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="06-quartets_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="06-quartets_files/libs/revealjs/plugin/math/math.js"></script>
   <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
 
   <script>
@@ -2092,7 +3091,7 @@ Lucy D’Agostino McGowan
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -2204,13 +3203,14 @@ Lucy D’Agostino McGowan
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy
