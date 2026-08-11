@@ -30,7 +30,7 @@ coord_dag <- list(
 labels <- c(
   extra = "Extra Magic Morning",
   x = "Average posted wait ",
-  y = "Average acutal wait",
+  y = "Average actual wait",
   Season = "Ticket Season",
   weather = "Historic high temperature",
   close = "Time park closed"
@@ -107,18 +107,21 @@ First, let’s calculate the propensity score model, which will be the denominat
 
 1. Fit a model using `lm()` with `wait_minutes_posted_avg` as the outcome and the confounders identified in the DAG.
 2. Use `augment()` to add model predictions to the data frame.
-3. In `wt_ate()`, calculate the weights using `wait_minutes_posted_avg`, `.fitted`, and `.sigma`.
+3. In `wt_ate()`, calculate the weights using `.fitted`, `wait_minutes_posted_avg`, and the mean of `.sigma`.
 
 ```{r}
 post_time_model <- lm(
-  __________, 
+  __________,
   data = wait_times
 )
 
 wait_times_wts <- post_time_model |>
   ______(data = wait_times) |>
   mutate(wts = ______(
-    ______, ______, .sigma = ______
+    ______,
+    ______,
+    .sigma = ______,
+    exposure_type = "continuous"
   ))
 ```
 
@@ -142,10 +145,11 @@ Let’s now fit the marginal density to use for stabilized weights:
 ```{r}
 wait_times_swts <- post_time_model |>
   augment(data = wait_times) |>
-    mutate(swts = _____(
-    _____, 
+  mutate(swts = _____(
     _____,
-    .sigma = .sigma,
+    _____,
+    .sigma = mean(.sigma, na.rm = TRUE),
+    exposure_type = "continuous",
     _____ = _____
   ))
 ```
@@ -158,6 +162,12 @@ ggplot(wait_times_swts, aes(swts)) +
   scale_x_log10() + 
   theme_minimal(base_size = 20) + 
   xlab("Stabilized Weights")
+```
+
+Stabilized weights should have a mean close to 1. If the mean is far from 1, we may have issues with model misspecification or positivity violations.
+
+```{r}
+mean(wait_times_swts$swts)
 ```
 
 # Your Turn 3
@@ -203,8 +213,8 @@ boot_estimate
 
 # Take aways
 
-* We can calculate propensity scores for continuous exposures. `wt_ate()` uses `dnorm()` to use the normal density to transform predictions to a propensity-like scale; we need to give `wt_ate()` `.sigma` as to calculate do this. We can also use other approaches like quantile binning of the exposure, calculating probability-based propensity scores using categorical regression models. 
+* We can calculate propensity scores for continuous exposures. `wt_ate()` uses `dnorm()` to use the normal density to transform predictions to a propensity-like scale; we need to give `wt_ate()` `.sigma` to do this. We can also use other approaches like quantile binning of the exposure, calculating probability-based propensity scores using categorical regression models. 
 * Continuous exposures are prone to mispecification and usually need to be stabilized. A simple stabilization is to invert the propensity score by stabilization weights using an intercept-only model such as `lm(exposure ~ 1)`. `wt_ate()` can do this for you automatically with `stabilize = TRUE`. This also applies to other types of exposures.
-* Stabilization is useful for any type of exposure where the weights are unbounded. Weights like the ATO, making them less susceptible to extreme weights.
+* Stabilization is useful for any type of exposure where the weights are unbounded. Bounded weights like the ATO do not have this problem, one of their many benefits.
 * Using propensity scores for continuous exposures in outcome models is identical to using them with binary exposures.
 * Because propensity scores for continuous exposures are prone to positivity violation, check the bootstrap distribution of your estimate for skew and to see if the mean estimate is different from your regression model. If these problems are present, you may need to use another approach like g-computation.

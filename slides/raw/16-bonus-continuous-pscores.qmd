@@ -18,6 +18,7 @@ library(broom)
 library(causaldata)
 library(touringplans)
 library(propensity)
+library(marginaleffects)
 
 set.seed(1000)
 ```
@@ -62,15 +63,16 @@ model <- lm(
 
 ```{r}
 #| eval: false
-#| code-line-numbers: "|3-8"
+#| code-line-numbers: "|3-9"
 model |>
   augment(data = df) |>
-  mutate(wts = wt_ate( 
-    exposure, 
-    .fitted, 
+  mutate(wts = wt_ate(
+    .fitted,
+    exposure,
     # .sigma is from augment()
-    .sigma = .sigma
-  )) 
+    .sigma = mean(.sigma, na.rm = TRUE),
+    exposure_type = "continuous"
+  ))
 ```
 
 ## Does change in smoking intensity (`smkintensity82_71`) affect weight gain among lighter smokers?
@@ -96,14 +98,15 @@ nhefs_model <- lm(
 ## 2. Calculate the weights with `wt_ate()`
 
 ```{r}
-#| code-line-numbers: "|3-7"
-nhefs_wts <- nhefs_model |> 
-  augment(data = nhefs_light_smokers) |> 
+#| code-line-numbers: "|3-8"
+nhefs_wts <- nhefs_model |>
+  augment(data = nhefs_light_smokers) |>
   mutate(wts = wt_ate(
-    smkintensity82_71, 
     .fitted,
-    .sigma = .sigma
-  )) 
+    smkintensity82_71,
+    .sigma = mean(.sigma, na.rm = TRUE),
+    exposure_type = "continuous"
+  ))
 ```
 
 
@@ -147,7 +150,7 @@ coord_dag <- list(
 labels <- c(
   extra = "Extra Magic Morning",
   x = "Average posted wait ",
-  y = "Average acutal wait",
+  y = "Average actual wait",
   Season = "Ticket Season",
   weather = "Historic high temperature",
   close = "Time park closed"
@@ -194,7 +197,7 @@ dagify(
 
 ### Fit a model using `lm()` with `wait_minutes_posted_avg` as the outcome and the confounders identified in the DAG.
 ### Use `augment()` to add model predictions to the data frame
-### In `wt_ate()`, calculate the weights using `wait_minutes_posted_avg`, `.fitted`, and `.sigma`
+### In `wt_ate()`, calculate the weights using `.fitted`, `wait_minutes_posted_avg`, and the mean of `.sigma`
 
 `r countdown::countdown(minutes = 5)`
 
@@ -204,15 +207,15 @@ dagify(
 #| include: false
 eight <- seven_dwarfs_train_2018 |>
   filter(wait_hour == 8) |>
-  select(-wait_minutes_posted_avg)
+  select(-wait_minutes_actual_avg)
 
 nine <- seven_dwarfs_train_2018 |>
   filter(wait_hour == 9) |>
-  select(park_date, wait_minutes_posted_avg)
+  select(park_date, wait_minutes_actual_avg)
 
 wait_times <- eight |>
   left_join(nine, by = "park_date") |>
-  drop_na(wait_minutes_posted_avg)
+  drop_na(wait_minutes_actual_avg)
 ```
 
 ```{r}
@@ -230,7 +233,10 @@ post_time_model <- lm(
 wait_times_wts <- post_time_model |>
   augment(data = wait_times) |>
   mutate(wts = wt_ate(
-    wait_minutes_posted_avg, .fitted, .sigma = .sigma
+    .fitted,
+    wait_minutes_posted_avg,
+    .sigma = mean(.sigma, na.rm = TRUE),
+    exposure_type = "continuous"
   ))
 ```
 
@@ -249,19 +255,20 @@ nhefs_wts |>
 ## Stabilizing extreme weights {background-color="#23373B"}
 
 1. Fit an intercept-only model (e.g. `lm(x ~ 1)`) or use mean and SD of `x`
-2. Calculate weights from this model.
-3. Divide these weights by the propensity score weights. `wt_ate(.., stabilize = TRUE)` does this all!
+2. Calculate the marginal density from this model.
+3. Divide the marginal density by the propensity score density. `wt_ate(.., stabilize = TRUE)` does this all!
 
 ## Calculate stabilized weights 
 
 ```{r}
-#| code-line-numbers: "|7"
+#| code-line-numbers: "|8"
 nhefs_swts <- nhefs_model |>
   augment(data = nhefs_light_smokers) |>
   mutate(swts = wt_ate(
-    smkintensity82_71, 
-    .fitted, 
-    .sigma = .sigma,
+    .fitted,
+    smkintensity82_71,
+    .sigma = mean(.sigma, na.rm = TRUE),
+    exposure_type = "continuous",
     stabilize = TRUE
   ))
 ```
@@ -277,6 +284,14 @@ ggplot(nhefs_swts, aes(swts)) +
   xlab("Stabilized Weights")
 ```
 
+## Stabilized weights should have a mean close to 1
+
+```{r}
+mean(nhefs_swts$swts)
+```
+
+### If the mean is far from 1, we may have issues with model misspecification or positivity violations. A check worth running every time.
+
 ## *Your Turn 2*
 
 ### Re-fit the above using stabilized weights
@@ -289,9 +304,10 @@ ggplot(nhefs_swts, aes(swts)) +
 wait_times_swts <- post_time_model |>
   augment(data = wait_times) |>
   mutate(swts = wt_ate(
-    wait_minutes_posted_avg, 
     .fitted,
-    .sigma = .sigma,
+    wait_minutes_posted_avg,
+    .sigma = mean(.sigma, na.rm = TRUE),
+    exposure_type = "continuous",
     stabilize = TRUE
   ))
 ```
@@ -333,6 +349,77 @@ lm(
   mutate(estimate = estimate * 10)
 ```
 
+## Causal dose-response functions {background-color="#23373B"}
+
+1. Calculate the stabilized weights
+2. Fit the outcome model with a flexible term for the exposure
+3. Use `ipw()` for standard errors that account for the weights
+4. Predict the outcome across the range of the exposure
+
+## 1. Calculate the stabilized weights
+
+```{r}
+nhefs_dose_wts <- nhefs_light_smokers |>
+  mutate(swts = wt_ate(
+    fitted(nhefs_model),
+    smkintensity82_71,
+    # ipw() rebuilds these weights from the model,
+    # so wt_ate() estimates the SD instead of .sigma
+    exposure_type = "continuous",
+    stabilize = TRUE
+  ))
+```
+
+## 2. Fit a flexible outcome model
+
+```{r}
+nhefs_msm <- lm(
+  wt82_71 ~ splines::ns(smkintensity82_71, df = 3),
+  weights = swts,
+  data = nhefs_dose_wts
+)
+```
+
+## 3. Estimate the effects with `ipw()`
+
+```{r}
+nhefs_ipw <- ipw(
+  nhefs_model,
+  nhefs_msm,
+  .data = nhefs_dose_wts
+)
+```
+
+### The standard errors account for the estimated weights.
+
+## 4. Predict across the exposure range
+
+```{r}
+dose_response <- nhefs_ipw |>
+  as_conditional() |>
+  # marginaleffects needs the data to build the grid
+  set_modeldata(nhefs_dose_wts) |>
+  predictions(
+    newdata = datagrid(smkintensity82_71 = -25:25)
+  )
+```
+
+## The causal dose-response function
+
+```{r}
+#| echo: false
+ggplot(dose_response, aes(smkintensity82_71, estimate)) +
+  geom_ribbon(
+    aes(ymin = conf.low, ymax = conf.high),
+    fill = "#E69F0095"
+  ) +
+  geom_line(linewidth = 1, color = "#E69F00") +
+  theme_minimal(base_size = 20) +
+  labs(
+    x = "Change in smoking intensity",
+    y = "Weight gain (kg)"
+  )
+```
 
 ## Diagnosing issues {background-color="#23373B"}
 
@@ -341,5 +428,7 @@ lm(
 3. Bootstrap: estimate different from original model
 
 ## More info {background-color="#23373B"}
+
+### [Causal Inference in R](https://www.r-causal.org/chapters/13-g-comp): g-computation for continuous exposures
 
 ### https://github.com/LucyMcGowan/writing-positivity-continous-ps
