@@ -473,12 +473,12 @@ Lucy D’Agostino McGowan
 </figure>
 </div>
 </div>
-</div></section><section id="three-of-them-do-not-hold" class="slide level2">
-<h2>Three of them do not hold</h2>
+</div></section><section id="four-of-them-do-not-hold" class="slide level2 small">
+<h2>Four of them do not hold</h2>
 <ul>
-<li>The DAG says income and temperature are independent; in the data they correlate at 0.16</li>
-<li>Same for health and temperature, at 0.18</li>
-<li>Adding those arrows leaves the adjustment set unchanged, but report the original DAG if you change it</li>
+<li>The DAG says temperature is independent of income and of health; in the data they correlate at 0.16 and 0.18</li>
+<li>Two weaker failures: <code>eligible</code> and malaria risk, at 0.08 even after conditioning on the adjustment set, and <code>household</code> and insecticide resistance, at 0.05</li>
+<li>Adding arrows for the temperature pairs leaves the adjustment set unchanged, but report the original DAG if you change it</li>
 </ul>
 </section>
 <section id="section-1" class="slide level2 center" data-background-color="#23373B">
@@ -559,7 +559,7 @@ Lucy D’Agostino McGowan
 <tr class="even">
 <td></td>
 <td><code>r2</code></td>
-<td><code>confounder_exposure_r2</code>, <code>outcome_exposure_r2</code></td>
+<td><code>confounder_exposure_r2</code>, <code>confounder_outcome_r2</code></td>
 </tr>
 </tbody>
 </table>
@@ -572,7 +572,7 @@ Lucy D’Agostino McGowan
 <ul>
 <li><strong>Both</strong> the exposure and outcome relationships: <code>adjust_*()</code> functions</li>
 <li><strong>One</strong> of the two: <code>tip_*()</code> functions, or <code>adjust_*()</code> functions in an array</li>
-<li><strong>Neither</strong>: <code>adjust_*()</code> or <code>tip_*()</code> in an array, <code>tip_coef_with_r2()</code> for measured confounders, or summaries like <code>r_value()</code> and <code>e_value()</code></li>
+<li><strong>Neither</strong>: <code>adjust_*()</code> or <code>tip_*()</code> in an array, <code>tip_coef_with_r2()</code> benchmarked against measured confounders, or summaries like <code>r_value()</code> and <code>e_value()</code></li>
 </ul>
 </section>
 <section id="the-observed-exposure-outcome-effect" class="slide level2 small">
@@ -757,8 +757,8 @@ Lucy D’Agostino McGowan
 1                       1.17</code></pre>
 </div>
 </div></section></section>
-<section id="an-unmeasured-confounder-with-an-effect-of--10-on-malaria-risk-would-have-to-differ-by-1.17-standard-deviations-between-net-users-and-non-users-to-tip-our-upper-bound-to-zero.-genetic-resistance-differs-by-about-0.21-so-a-confounder-like-it-cannot-on-its-own-explain-away-this-result." class="title-slide slide level1 tiny center">
-<h1>“An unmeasured confounder with an effect of <em>-10</em> on malaria risk would have to differ by <em>1.17</em> standard deviations between net users and non-users to tip our upper bound to zero. Genetic resistance differs by about <em>0.21</em>, so a confounder like it cannot on its own explain away this result.”</h1>
+<section id="an-unmeasured-confounder-with-an-effect-of--10-on-malaria-risk-would-have-to-differ-by-1.17-standard-deviations-between-net-users-and-non-users-to-tip-our-upper-bound-to-zero.-genetic-resistance-differs-in-prevalence-by-about-0.21-so-a-confounder-like-it-cannot-on-its-own-explain-away-this-result." class="title-slide slide level1 tiny center">
+<h1>“An unmeasured confounder with an effect of <em>-10</em> on malaria risk would have to differ by <em>1.17</em> standard deviations between net users and non-users to tip our upper bound to zero. Genetic resistance differs in prevalence by about <em>0.21</em>, so a confounder like it cannot on its own explain away this result.”</h1>
 
 </section>
 
@@ -849,7 +849,7 @@ Lucy D’Agostino McGowan
 <h2><em>Your turn</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_3410b138" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_ec44f166" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 <h3 id="use-the-tip_coef-function-to-conduct-a-sensitivity-analysis-for-the-estimate-you-calculated-in-exercises10-outcome-model-exercises.qmd.-use-the-lower-bound-of-the-confidence-interval-for-the-effect-and-0.1-for-the-exposure-confounder-effect.">Use the <code>tip_coef()</code> function to conduct a sensitivity analysis for the estimate you calculated in <code>exercises/10-outcome-model-exercises.qmd</code>. Use the lower bound of the confidence interval for the effect and <code>0.1</code> for the exposure-confounder effect.</h3>

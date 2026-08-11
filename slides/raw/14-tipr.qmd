@@ -315,12 +315,12 @@ test_conditional_independence(
   ggdag_conditional_independence()
 ```
 
-## Three of them do not hold
+## Four of them do not hold {.small}
 
 ::: nonincremental
-- The DAG says income and temperature are independent; in the data they correlate at 0.16
-- Same for health and temperature, at 0.18
-- Adding those arrows leaves the adjustment set unchanged, but report the original DAG if you change it
+- The DAG says temperature is independent of income and of health; in the data they correlate at 0.16 and 0.18
+- Two weaker failures: `eligible` and malaria risk, at 0.08 even after conditioning on the adjustment set, and `household` and insecticide resistance, at 0.05
+- Adding arrows for the temperature pairs leaves the adjustment set unchanged, but report the original DAG if you change it
 :::
 
 ## {background-color="#23373B" .center}
@@ -363,7 +363,7 @@ test_conditional_independence(
 | **effect** | `coef`, `rr`, `or`, `hr` | the scale of `effect_observed` |
 | **what** | `continuous` | `exposure_confounder_effect`, `confounder_outcome_effect` |
 | | `binary` | `exposed_confounder_prev`, `unexposed_confounder_prev`, `confounder_outcome_effect` |
-| | `r2` | `confounder_exposure_r2`, `outcome_exposure_r2` |
+| | `r2` | `confounder_exposure_r2`, `confounder_outcome_r2` |
 
 ::: tiny
 [D’Agostino McGowan, L., (2022). tipr: An R package for sensitivity analyses for unmeasured confounders. Journal of Open Source Software, 7(77), 4495](https://doi.org/10.21105/joss.04495)
@@ -374,7 +374,7 @@ test_conditional_independence(
 ::: nonincremental
 - **Both** the exposure and outcome relationships: `adjust_*()` functions
 - **One** of the two: `tip_*()` functions, or `adjust_*()` functions in an array
-- **Neither**: `adjust_*()` or `tip_*()` in an array, `tip_coef_with_r2()` for measured confounders, or summaries like `r_value()` and `e_value()`
+- **Neither**: `adjust_*()` or `tip_*()` in an array, `tip_coef_with_r2()` benchmarked against measured confounders, or summaries like `r_value()` and `e_value()`
 :::
 
 ## 1. The observed exposure-outcome effect {.small}
@@ -529,7 +529,7 @@ tip_coef(
   select(exposure_confounder_effect)
 ```
 
-# “An unmeasured confounder with an effect of *-10* on malaria risk would have to differ by *1.17* standard deviations between net users and non-users to tip our upper bound to zero. Genetic resistance differs by about *0.21*, so a confounder like it cannot on its own explain away this result.” {.tiny}
+# “An unmeasured confounder with an effect of *-10* on malaria risk would have to differ by *1.17* standard deviations between net users and non-users to tip our upper bound to zero. Genetic resistance differs in prevalence by about *0.21*, so a confounder like it cannot on its own explain away this result.” {.tiny}
 
 # The same grammar, in the wild {background-color="#23373B"}
 
