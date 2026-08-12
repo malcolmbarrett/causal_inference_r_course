@@ -25,14 +25,14 @@ Create a function called `fit_ipw` that fits the propensity score model and inco
 ```{r}
 fit_ipw <- function(.split, ...) {
   .df <- ____
-  
+
   # fit propensity score model
-  
+
   # calculate ATE weights
 
-  # fit correctly bootstrapped ipw model 
+  # fit correctly bootstrapped ipw model
   lm(___ ~ ___, data = .df, weights = ___) |>
-    tidy() 
+    tidy()
 }
 ```
 
@@ -42,7 +42,7 @@ Bootstrap this result 1000 times.
 set.seed(1234)
 
 ipw_results <- ____(___, 1000, apparent = TRUE) |>
-  mutate(boot_fits = map(splits, _____)) 
+  mutate(boot_fits = map(splits, _____))
 ```
 
 Check out the distribution of estimates (**no need to change this code**)
@@ -90,9 +90,9 @@ seven_dwarfs_wts <- propensity_model |>
 ipw_model <- lm(___ ~ ___, data = seven_dwarfs_wts, weights = ___)
 ```
 
-Supply both models to `ipw()`, which uses a sandwich estimator that also accounts for the uncertainty in the propensity score model.
+Next, supply both models to `ipw()`, which uses a sandwich estimator that also accounts for the uncertainty in the propensity score model.
 
-It is fast and reports the estimand along with the estimate; the bootstrap is still worth knowing because it is general purpose.
+It is fast and reports the estimand along with the estimate.
 
 ```{r}
 ipw_fit <- ipw(____, ____)
@@ -102,8 +102,7 @@ ipw_fit
 
 Compare the confidence interval from `ipw_fit` to the bootstrap interval in `boot_estimate`: they should roughly agree.
 
-
-Stretch goal: Now estimate the effect using matching. Bootstrapping matched data the same way is not valid: matching induces a dependence between matched pairs, and resampling rows breaks it. There are two valid routes, and both start from a matched data set that we create once and then leave fixed.
+**Stretch goal**: Now estimate the effect using matching.
 
 ```{r}
 library(MatchIt)
@@ -117,8 +116,10 @@ matched_dwarfs <- matchit(
 
 matched_data <- get_matches(matched_dwarfs)
 
-matched_outcome <- lm(___ ~ ___, data = matched_data)
+matched_outcome <- lm(___ ~ ___, data = ____)
 ```
+
+Bootstrapping matched data the same way is not valid: matching induces a dependence between matched pairs, and resampling rows breaks it. There are two valid routes.
 
 The first route is a cluster-robust standard error, clustered within matched pairs. `get_matches()` returns a `subclass` column that identifies each pair; pass it to `vcovCL()` as a formula.
 
@@ -156,6 +157,5 @@ cluster_boots <- ____(
 cluster_results <- cluster_boots |>
   mutate(boot_fits = map(splits, ____))
 
-int_t(cluster_results, boot_fits) |>
-  filter(term == ____)
+int_t(cluster_results, boot_fits)
 ```
