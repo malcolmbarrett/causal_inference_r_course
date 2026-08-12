@@ -168,6 +168,8 @@ Stabilized weights should have a mean close to 1. If the mean is far from 1, we 
 mean(wait_times_swts$swts)
 ```
 
+Here, the mean is somewhat above 1. Propensity score weights for continuous exposures are sensitive to positivity violations, and a mean like this is a signal to look closer. The bootstrap in the stretch goal is one way to do that.
+
 # Your Turn 3
 
 Now, let's fit the outcome model!
