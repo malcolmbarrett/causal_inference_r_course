@@ -418,12 +418,6 @@ test_conditional_independence(
 - The test fits a smooth curve, which cannot follow a sharp cutoff exactly, so a little correlation leaks through at the boundary
 :::
 
-. . .
-
-That is a fact about how the test works, not a missing arrow
-
-## The two household pairs
-
 Both intervals barely exclude zero, which is what we would expect from chance
 
 ## Nothing left that the data can see {background-color="#23373B"}
@@ -504,14 +498,6 @@ test_conditional_independence(
 ::: nonincremental
 - Park close time and ticket season both track the weather, so a missing arrow is a reasonable explanation
 - Chance is another, though we have data for every day of 2018
-:::
-
-## What was never measured
-
-::: nonincremental
-- These data are simulated, so genetic resistance was ours to add to the tests
-- In a real analysis it would never be in our data, and these tests stay silent about what is not there
-- What is left is to quantify what an unmeasured confounder would do to the estimate
 :::
 
 # Quantifying Unmeasured Confounding {background-color="#23373B"}
