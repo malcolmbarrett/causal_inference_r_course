@@ -752,7 +752,7 @@ ipw_model_full <- lm(
 ipw_fit_full <- ipw(propensity_model_full, ipw_model_full)
 ```
 
-## Re-estimate the effect with the confounder measured {.small}
+## Re-estimate the effect with the confounder measured
 
 ```{r}
 tidy(ipw_fit_full, conf.int = TRUE)
