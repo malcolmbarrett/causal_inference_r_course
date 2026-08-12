@@ -227,7 +227,7 @@ Malcolm Barrett
 <p>❌ This will NOT get us the correct confidence intervals</p>
 </div>
 <div class="fragment">
-<p>📦 There are three ways to get them right</p>
+<p>📦 There are three other approaches we will consider</p>
 </div>
 </section>
 <section id="three-ways-to-estimate-the-uncertainty" class="slide level2">
@@ -320,7 +320,7 @@ Malcolm Barrett
 <h2>2. Use {rsample} to bootstrap our causal effect</h2>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a>ipw_results <span class="ot">&lt;-</span> bootstrapped_net_data <span class="sc">|&gt;</span></span>
-<span id="cb7-2"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">boot_fits =</span> <span class="fu">map</span>(splits, fit_ipw)) </span>
+<span id="cb7-2"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">boot_fits =</span> <span class="fu">map</span>(splits, fit_ipw))</span>
 <span id="cb7-3"><a href=""></a></span>
 <span id="cb7-4"><a href=""></a>ipw_results</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -382,27 +382,82 @@ Malcolm Barrett
 <span id="cb11-11"><a href=""></a>ipw_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(malaria_risk <span class="sc">~</span> net, <span class="at">data =</span> net_data_wts, <span class="at">weights =</span> wts)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="robust-standard-errors-are-not-enough" class="slide level2 small">
-<h2>Robust standard errors are not enough</h2>
+<section id="robust-standard-errors" class="slide level2 small">
+<h2>Robust standard errors</h2>
+<p>The sandwich estimator gets its name from the form of the variance it calculates: a “meat” matrix built from the variability of each observation’s residuals, sandwiched between two copies of a “bread” matrix that comes from the design of the model</p>
+<div class="fragment">
+<p>When the model’s assumptions hold, the bread and meat combine to give the usual model-based variance</p>
+</div>
+<div class="fragment">
+<p>When they do not, as with IPW weights, the sandwich form still gives a consistent variance estimate</p>
+</div>
+<div class="fragment">
+<p>That is why these are called “robust” standard errors</p>
+</div>
+</section>
+<section id="robust-standard-errors-1" class="slide level2 small">
+<h2>Robust standard errors</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12" data-code-line-numbers="|1|4|5|6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href=""></a>robust_se <span class="ot">&lt;-</span> <span class="fu">avg_comparisons</span>(ipw_model, <span class="at">variables =</span> <span class="st">"net"</span>, <span class="at">vcov =</span> <span class="st">"HC3"</span>)</span>
-<span id="cb12-2"><a href=""></a></span>
-<span id="cb12-3"><a href=""></a><span class="fu">bind_rows</span>(</span>
-<span id="cb12-4"><a href=""></a>  <span class="st">"lm() default"</span> <span class="ot">=</span> <span class="fu">tidy</span>(ipw_model) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"netTRUE"</span>),</span>
-<span id="cb12-5"><a href=""></a>  <span class="st">"HC3 robust SE"</span> <span class="ot">=</span> <span class="fu">tidy</span>(robust_se),</span>
-<span id="cb12-6"><a href=""></a>  <span class="st">"ipw()"</span> <span class="ot">=</span> <span class="fu">tidy</span>(<span class="fu">ipw</span>(propensity_model, ipw_model)),</span>
-<span id="cb12-7"><a href=""></a>  <span class="at">.id =</span> <span class="st">"method"</span></span>
-<span id="cb12-8"><a href=""></a>) <span class="sc">|&gt;</span></span>
-<span id="cb12-9"><a href=""></a>  <span class="fu">select</span>(method, estimate, std.error)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href=""></a><span class="fu">vcov</span>(ipw_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell fragment" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 × 3
-  method        estimate std.error
-  &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;
-1 lm() default     -12.5     0.624
-2 HC3 robust SE    -12.5     0.758
-3 ipw()            -12.5     0.437</code></pre>
+<pre><code>            (Intercept)    netTRUE
+(Intercept)   0.1953735 -0.1953735
+netTRUE      -0.1953735  0.3896912</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p><code>vcov()</code> returns the variance-covariance matrix that <code>tidy()</code> and <code>summary()</code> use under the hood; it treats the weights as fixed, which they are not</p>
+</div>
+</section>
+<section id="robust-standard-errors-2" class="slide level2 small">
+<h2>Robust standard errors</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a><span class="fu">library</span>(sandwich)</span>
+<span id="cb14-2"><a href=""></a></span>
+<span id="cb14-3"><a href=""></a><span class="fu">sandwich</span>(ipw_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>            (Intercept)    netTRUE
+(Intercept)    0.157519 -0.1575190
+netTRUE       -0.157519  0.5720561</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>For the treatment coefficient, the sandwich variance is about 1.5 times the model-based one, so the model-based SE understates the uncertainty; for the intercept, it is smaller</p>
+</div>
+</section>
+<section id="robust-standard-errors-3" class="slide level2 small">
+<h2>Robust standard errors</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href=""></a>robust_se <span class="ot">&lt;-</span> <span class="fu">avg_comparisons</span>(ipw_model, <span class="at">variables =</span> <span class="st">"net"</span>, <span class="at">vcov =</span> <span class="st">"HC3"</span>)</span>
+<span id="cb16-2"><a href=""></a></span>
+<span id="cb16-3"><a href=""></a>robust_se</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ Estimate Std. Error     z Pr(&gt;|z|)     S 2.5 % 97.5 %
+    -12.5      0.758 -16.5   &lt;0.001 201.7   -14  -11.1
+
+Term: net
+Type: response
+Comparison: TRUE - FALSE</code></pre>
+</div>
+</div>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p><code>avg_comparisons()</code> returns a marginal effect: the average of the predicted outcome difference across the observed covariate distribution. <code>vcov = "HC3"</code> requests the HC3 variant of the sandwich. We will see more of marginaleffects when we get to g-computation.</p>
+</div>
 </div>
 </div>
 <div class="fragment">
@@ -417,14 +472,14 @@ Malcolm Barrett
 </ul>
 <div class="fragment">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a>ipw_fit <span class="ot">&lt;-</span> <span class="fu">ipw</span>(propensity_model, ipw_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href=""></a>ipw_fit <span class="ot">&lt;-</span> <span class="fu">ipw</span>(propensity_model, ipw_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </section>
 <section id="ipw-correct-and-fast-1" class="slide level2 small">
 <h2>ipw(): correct and fast</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a>ipw_fit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href=""></a>ipw_fit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Inverse Probability Weight Estimator
 Estimand: ATE 
@@ -448,15 +503,16 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <p><code>ipw()</code> reports the estimand along with the estimate</p>
 </div>
 </section>
-<section id="the-bootstrap-and-ipw-agree" class="slide level2">
-<h2>The bootstrap and ipw() agree</h2>
+<section id="comparing-the-three-approaches" class="slide level2">
+<h2>Comparing the three approaches</h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 × 4
-  method    estimate conf.low conf.high
-  &lt;chr&gt;        &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
-1 bootstrap    -12.5    -13.4     -11.6
-2 ipw()        -12.5    -13.4     -11.7</code></pre>
+<pre><code># A tibble: 3 × 4
+  method        estimate conf.low conf.high
+  &lt;chr&gt;            &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 bootstrap        -12.5    -13.4     -11.6
+2 HC3 robust SE    -12.5    -14.0     -11.1
+3 ipw()            -12.5    -13.4     -11.7</code></pre>
 </div>
 </div>
 <div class="fragment">
@@ -465,55 +521,45 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </section>
 <section id="your-turn" class="slide level2 small">
 <h2><em>Your Turn</em></h2>
-<p><countdown-timer class="countdown" id="timer_f0dd158e" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_fbbec2d7" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 <h3 id="create-a-function-called-fit_ipw-that-fits-the-propensity-score-model-and-the-weighted-outcome-model-for-the-effect-between-park_extra_magic_morning-and-wait_minutes_posted_avg">Create a function called <code>fit_ipw</code> that fits the propensity score model and the weighted outcome model for the effect between <code>park_extra_magic_morning</code> and <code>wait_minutes_posted_avg</code></h3>
 <h3 id="using-the-bootstraps-and-int_t-functions-to-estimate-the-final-effect.">Using the <code>bootstraps()</code> and <code>int_t()</code> functions to estimate the final effect.</h3>
 <h3 id="fitting-both-models-on-the-full-data-and-using-ipw-to-compare-the-two-intervals.">Fitting both models on the full data and using <code>ipw()</code> to compare the two intervals.</h3>
 </section>
-<section id="binary-outcomes-an-odds-ratio" class="slide level2 small">
-<h2>Binary outcomes: an odds ratio</h2>
+<section id="binary-outcomes" class="slide level2 small">
+<h2>Binary outcomes</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18" data-code-line-numbers="|1-2|9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href=""></a>net_data_wts <span class="ot">&lt;-</span> net_data_wts <span class="sc">|&gt;</span></span>
-<span id="cb18-2"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">risk_over_50 =</span> malaria_risk <span class="sc">&gt;</span> <span class="dv">50</span>)</span>
-<span id="cb18-3"><a href=""></a></span>
-<span id="cb18-4"><a href=""></a><span class="fu">glm</span>(</span>
-<span id="cb18-5"><a href=""></a>  risk_over_50 <span class="sc">~</span> net,</span>
-<span id="cb18-6"><a href=""></a>  <span class="at">data =</span> net_data_wts,</span>
-<span id="cb18-7"><a href=""></a>  <span class="at">weights =</span> wts,</span>
-<span id="cb18-8"><a href=""></a>  <span class="co"># quasibinomial() avoids a warning about non-integer successes</span></span>
-<span id="cb18-9"><a href=""></a>  <span class="at">family =</span> <span class="fu">quasibinomial</span>()</span>
-<span id="cb18-10"><a href=""></a>) <span class="sc">|&gt;</span></span>
-<span id="cb18-11"><a href=""></a>  <span class="fu">tidy</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb18-12"><a href=""></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"netTRUE"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb18-13"><a href=""></a>  <span class="fu">select</span>(estimate, conf.low, conf.high)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="cell fragment" data-layout-align="center">
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 3
-  estimate conf.low conf.high
-     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
-1    0.225    0.169     0.296</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22" data-code-line-numbers="|1-2|4-11|9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href=""></a>net_data_wts <span class="ot">&lt;-</span> net_data_wts <span class="sc">|&gt;</span></span>
+<span id="cb22-2"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">risk_over_50 =</span> malaria_risk <span class="sc">&gt;</span> <span class="dv">50</span>)</span>
+<span id="cb22-3"><a href=""></a></span>
+<span id="cb22-4"><a href=""></a>binary_outcome_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb22-5"><a href=""></a>  risk_over_50 <span class="sc">~</span> net,</span>
+<span id="cb22-6"><a href=""></a>  <span class="at">data =</span> net_data_wts,</span>
+<span id="cb22-7"><a href=""></a>  <span class="at">weights =</span> wts,</span>
+<span id="cb22-8"><a href=""></a>  <span class="co"># quasibinomial() avoids a warning about non-integer successes</span></span>
+<span id="cb22-9"><a href=""></a>  <span class="at">family =</span> <span class="fu">quasibinomial</span>()</span>
+<span id="cb22-10"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="binary-outcomes-a-risk-difference" class="slide level2 small">
-<h2>Binary outcomes: a risk difference</h2>
+<section id="binary-outcomes-all-three-effects" class="slide level2 small">
+<h2>Binary outcomes: all three effects</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href=""></a><span class="fu">lm</span>(risk_over_50 <span class="sc">~</span> net, <span class="at">data =</span> net_data_wts, <span class="at">weights =</span> wts) <span class="sc">|&gt;</span></span>
-<span id="cb20-2"><a href=""></a>  <span class="fu">tidy</span>(<span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb20-3"><a href=""></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"netTRUE"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb20-4"><a href=""></a>  <span class="fu">select</span>(estimate, conf.low, conf.high)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href=""></a><span class="fu">ipw</span>(propensity_model, binary_outcome_model) <span class="sc">|&gt;</span></span>
+<span id="cb23-2"><a href=""></a>  <span class="fu">tidy</span>(<span class="at">conf.int =</span> <span class="cn">TRUE</span>, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb23-3"><a href=""></a>  <span class="fu">select</span>(term, estimate, conf.low, conf.high)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell fragment" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 3
-  estimate conf.low conf.high
-     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
-1   -0.205   -0.240    -0.169</code></pre>
+<pre><code># A tibble: 3 × 4
+  term  estimate conf.low conf.high
+  &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 rd      -0.205   -0.240    -0.169
+2 rr       0.289    0.202     0.415
+3 or       0.225    0.152     0.334</code></pre>
 </div>
 </div>
 <div class="fragment">
-<p>The default standard errors still do not account for the propensity score model; the same bootstrap and sandwich approaches apply here</p>
+<p><code>ipw()</code> reports the risk difference, risk ratio, and odds ratio, with standard errors that account for the propensity score model</p>
 
 </div>
 </section>

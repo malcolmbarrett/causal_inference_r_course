@@ -9,7 +9,7 @@ format: "kakashi-revealjs"
 #| label: setup
 #| include: false
 options(
-  tibble.max_extra_cols = 6, 
+  tibble.max_extra_cols = 6,
   tibble.width = 60
 )
 library(tidyverse)
@@ -33,7 +33,7 @@ lm(outcome ~ exposure, data = df, weights = wts) |>
 
 . . .
 
-✅ This will get us the point estimate  
+✅ This will get us the point estimate
 
 . . .
 
@@ -41,7 +41,7 @@ lm(outcome ~ exposure, data = df, weights = wts) |>
 
 . . .
 
-📦 There are three ways to get them right
+📦 There are three other approaches we will consider
 
 ## Three ways to estimate the uncertainty
 
@@ -115,7 +115,7 @@ fit_ipw(bootstrapped_net_data$splits[[1]])
 #| output-location: slide
 #| code-line-numbers: "|2"
 ipw_results <- bootstrapped_net_data |>
-  mutate(boot_fits = map(splits, fit_ipw)) 
+  mutate(boot_fits = map(splits, fit_ipw))
 
 ipw_results
 ```
@@ -171,21 +171,58 @@ net_data_wts <- propensity_model |>
 ipw_model <- lm(malaria_risk ~ net, data = net_data_wts, weights = wts)
 ```
 
-## Robust standard errors are not enough {.small}
+## Robust standard errors {.small}
+
+The sandwich estimator gets its name from the form of the variance it calculates: a "meat" matrix built from the variability of each observation's residuals, sandwiched between two copies of a "bread" matrix that comes from the design of the model
+
+. . .
+
+When the model's assumptions hold, the bread and meat combine to give the usual model-based variance
+
+. . .
+
+When they do not, as with IPW weights, the sandwich form still gives a consistent variance estimate
+
+. . .
+
+That is why these are called "robust" standard errors
+
+## Robust standard errors {.small}
 
 ```{r}
-#| code-line-numbers: "|1|4|5|6"
+#| output-location: fragment
+vcov(ipw_model)
+```
+
+. . .
+
+`vcov()` returns the variance-covariance matrix that `tidy()` and `summary()` use under the hood; it treats the weights as fixed, which they are not
+
+## Robust standard errors {.small}
+
+```{r}
+#| output-location: fragment
+library(sandwich)
+
+sandwich(ipw_model)
+```
+
+. . .
+
+For the treatment coefficient, the sandwich variance is about 1.5 times the model-based one, so the model-based SE understates the uncertainty; for the intercept, it is smaller
+
+## Robust standard errors {.small}
+
+```{r}
 #| output-location: fragment
 robust_se <- avg_comparisons(ipw_model, variables = "net", vcov = "HC3")
 
-bind_rows(
-  "lm() default" = tidy(ipw_model) |> filter(term == "netTRUE"),
-  "HC3 robust SE" = tidy(robust_se),
-  "ipw()" = tidy(ipw(propensity_model, ipw_model)),
-  .id = "method"
-) |>
-  select(method, estimate, std.error)
+robust_se
 ```
+
+::: {.callout-note}
+`avg_comparisons()` returns a marginal effect: the average of the predicted outcome difference across the observed covariate distribution. `vcov = "HC3"` requests the HC3 variant of the sandwich. We will see more of marginaleffects when we get to g-computation.
+:::
 
 . . .
 
@@ -216,13 +253,16 @@ ipw_fit
 
 `ipw()` reports the estimand along with the estimate
 
-## The bootstrap and ipw() agree
+## Comparing the three approaches
 
 ```{r}
 #| echo: false
 bind_rows(
   "bootstrap" = boot_estimate |>
     select(estimate = .estimate, conf.low = .lower, conf.high = .upper),
+  "HC3 robust SE" = robust_se |>
+    tidy() |>
+    select(estimate, conf.low, conf.high),
   "ipw()" = ipw_fit |>
     tidy(conf.int = TRUE) |>
     select(estimate, conf.low, conf.high),
@@ -244,36 +284,31 @@ bind_rows(
 
 ### Fitting both models on the full data and using `ipw()` to compare the two intervals.
 
-## Binary outcomes: an odds ratio {.small}
+## Binary outcomes {.small}
 
 ```{r}
-#| code-line-numbers: "|1-2|9"
-#| output-location: fragment
+#| code-line-numbers: "|1-2|4-11|9"
 net_data_wts <- net_data_wts |>
   mutate(risk_over_50 = malaria_risk > 50)
 
-glm(
+binary_outcome_model <- glm(
   risk_over_50 ~ net,
   data = net_data_wts,
   weights = wts,
   # quasibinomial() avoids a warning about non-integer successes
   family = quasibinomial()
-) |>
-  tidy(exponentiate = TRUE, conf.int = TRUE) |>
-  filter(term == "netTRUE") |>
-  select(estimate, conf.low, conf.high)
+)
 ```
 
-## Binary outcomes: a risk difference {.small}
+## Binary outcomes: all three effects {.small}
 
 ```{r}
 #| output-location: fragment
-lm(risk_over_50 ~ net, data = net_data_wts, weights = wts) |>
-  tidy(conf.int = TRUE) |>
-  filter(term == "netTRUE") |>
-  select(estimate, conf.low, conf.high)
+ipw(propensity_model, binary_outcome_model) |>
+  tidy(conf.int = TRUE, exponentiate = TRUE) |>
+  select(term, estimate, conf.low, conf.high)
 ```
 
 . . .
 
-The default standard errors still do not account for the propensity score model; the same bootstrap and sandwich approaches apply here
+`ipw()` reports the risk difference, risk ratio, and odds ratio, with standard errors that account for the propensity score model
