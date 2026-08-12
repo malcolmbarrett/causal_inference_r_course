@@ -152,7 +152,7 @@ plot_mosquito_dag <- function(.dag) {
     geom_dag_point() +
     geom_dag_label_repel(
       aes(x, y, label = label),
-      box.padding = 3.5,
+      box.padding = 2,
       inherit.aes = FALSE,
       max.overlaps = Inf,
       seed = 10,
@@ -266,7 +266,13 @@ mosquito_dag |>
 #| fig-width: 9
 
 mosquito_dag |>
-  ggdag_adjustment_set(use_text = FALSE, use_labels = TRUE, node_size = 10, shadow = TRUE) +
+  ggdag_adjustment_set(
+    use_text = FALSE,
+    use_labels = TRUE,
+    node_size = 10,
+    shadow = TRUE,
+    edge_cap = 12
+  ) +
   theme_dag() +
   facet_wrap(
     vars(set),
@@ -550,7 +556,7 @@ ipw_fit <- ipw(propensity_model, ipw_model)
 ## Let's fix our confidence intervals with ipw()! {.small}
 
 ```{r}
-ipw_fit
+tidy(ipw_fit, conf.int = TRUE)
 ```
 
 ## {.center}
@@ -596,7 +602,7 @@ bind_rows(
 ## How much confounding would tip our estimate?
 
 ```{r}
-#| code-line-numbers: "|2|3"
+#| code-line-numbers: "|2|3|4"
 #| output-location: slide
 
 library(tipr)
@@ -717,45 +723,39 @@ mosquito_dag_full <- dagify(
 plot_mosquito_dag(mosquito_dag_full)
 ```
 
-## {.small}
+## Re-estimate the effect with the confounder measured
 
 ```{r}
-fit_ipw_full <- function(.split, ...) {
-  # get bootstrapped data frame
-  .df <- as.data.frame(.split)
+#| code-line-numbers: "|3|8-10"
 
-  # add genetic resistance to the propensity score model
-  propensity_model <- glm(
-    net ~ income + health + temperature + genetic_resistance,
-    family = binomial(),
-    data = .df
-  )
+# add genetic resistance to the propensity score model
+propensity_model_full <- glm(
+  net ~ income + health + temperature + genetic_resistance,
+  family = binomial(),
+  data = net_data_full
+)
 
-  # calculate inverse probability weights
-  .df <- propensity_model |>
-    augment(type.predict = "response", data = .df) |>
-    mutate(wts = wt_ate(.fitted, net))
-
-  # fit correctly bootstrapped ipw model
-  lm(malaria_risk ~ net, data = .df, weights = wts) |>
-    tidy()
-}
+net_data_full_wts <- propensity_model_full |>
+  augment(type.predict = "response", data = net_data_full) |>
+  mutate(wts = wt_ate(.fitted, net))
 ```
 
 ## Re-estimate the effect with the confounder measured
 
 ```{r}
-#| label: boot_cache_full
-#| code-line-numbers: "|1-2|4-5"
-#| output-location: slide
+ipw_model_full <- lm(
+  malaria_risk ~ net,
+  data = net_data_full_wts,
+  weights = wts
+)
 
-ipw_results_full <- bootstraps(net_data_full, times = 1000, apparent = TRUE) |>
-  mutate(results = map(splits, fit_ipw_full))
+ipw_fit_full <- ipw(propensity_model_full, ipw_model_full)
+```
 
-boot_estimate_full <- int_t(ipw_results_full, results) |>
-  filter(term == "netTRUE")
+## Re-estimate the effect with the confounder measured {.small}
 
-boot_estimate_full
+```{r}
+tidy(ipw_fit_full, conf.int = TRUE)
 ```
 
 ## {.center background-color="#23373B"}
@@ -764,7 +764,7 @@ boot_estimate_full
 
 ## {.center background-color="#23373B"}
 
-### *Our causal effect estimate: **-10.3 (95% CI -11.1, -9.3)***
+### *Our causal effect estimate: **-10.2 (95% CI -11.2, -9.3)***
 
 ## {.center background-color="#23373B"}
 
