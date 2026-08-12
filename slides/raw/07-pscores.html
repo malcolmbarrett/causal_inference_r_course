@@ -232,20 +232,25 @@ Lucy D’Agostino McGowan
 <h2>Confounding</h2>
 
 <img data-src="img/conf-3.png" class="r-stretch"></section>
-<section id="which-relationship-should-we-model" class="slide level2">
-<h2>Which relationship should we model?</h2>
+<section id="what-part-of-the-dag-do-we-want-to-try-to-deal-with" class="slide level2">
+<h2>What part of the DAG do we want to try to deal with?</h2>
 
-<img data-src="07-pscores_files/figure-revealjs/unnamed-chunk-2-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:100.0%"></section>
-<section id="which-relationship-should-we-model-1" class="slide level2">
+<img data-src="07-pscores_files/figure-revealjs/unnamed-chunk-2-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<section id="what-part-of-the-dag-do-we-want-to-try-to-deal-with-1" class="slide level2">
+<h2>What part of the DAG do we want to try to deal with?</h2>
+
+<img data-src="07-pscores_files/figure-revealjs/unnamed-chunk-3-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<section id="what-part-of-the-dag-do-we-want-to-try-to-deal-with-2" class="slide level2">
+<h2>What part of the DAG do we want to try to deal with?</h2>
+
+<img data-src="07-pscores_files/figure-revealjs/unnamed-chunk-4-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<section id="which-relationship-should-we-model" class="slide level2">
 <h2>Which relationship should we model?</h2>
 <ul>
 <li class="fragment">Paths into the exposure: <strong>propensity scores</strong></li>
 <li class="fragment">Paths into the outcome: <strong>outcome models</strong></li>
 <li class="fragment">Both: <strong>doubly robust</strong> estimators</li>
 </ul>
-<div class="fragment">
-<p>All three can get us the right answer, given the right DAG and well-modeled relationships. We’ll start with propensity scores, fit outcome models later, and combine both at the end.</p>
-</div>
 </section>
 <section id="the-hidden-experiment" class="slide level2">
 <h2>The hidden experiment</h2>
@@ -267,7 +272,7 @@ Lucy D’Agostino McGowan
 <h2>The hidden experiment</h2>
 <ul>
 <li class="fragment">In observational data, these probabilities are not known</li>
-<li class="fragment">But <em>someone</em> decided who was exposed: what was that decision process?</li>
+<li class="fragment">But <em>something</em> determined who was exposed: what was that decision process?</li>
 <li class="fragment">Domain knowledge and statistics can estimate it: the <strong>propensity score</strong></li>
 </ul>
 </section>
@@ -304,7 +309,7 @@ Lucy D’Agostino McGowan
 <h2>Propensity scores</h2>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="fu">glm</span>(</span>
-<span id="cb2-2"><a href=""></a>  exposure <span class="sc">~</span> confounder_1 <span class="sc">+</span> confounder_2 <span class="sc">+</span> confounder_3 <span class="sc">+</span> ..., </span>
+<span id="cb2-2"><a href=""></a>  exposure <span class="sc">~</span> confounder_1 <span class="sc">+</span> confounder_2 <span class="sc">+</span> confounder_3 <span class="sc">+</span> ...,</span>
 <span id="cb2-3"><a href=""></a>  <span class="at">data =</span> df,</span>
 <span id="cb2-4"><a href=""></a>  <span class="at">family =</span> <span class="fu">binomial</span>()</span>
 <span id="cb2-5"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -314,11 +319,11 @@ Lucy D’Agostino McGowan
 <h2>Propensity scores</h2>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" data-code-line-numbers="|6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">glm</span>(</span>
-<span id="cb3-2"><a href=""></a>  exposure <span class="sc">~</span> confounder_1 <span class="sc">+</span> confounder_2 <span class="sc">+</span> confounder_3 <span class="sc">+</span> ..., </span>
+<span id="cb3-2"><a href=""></a>  exposure <span class="sc">~</span> confounder_1 <span class="sc">+</span> confounder_2 <span class="sc">+</span> confounder_3 <span class="sc">+</span> ...,</span>
 <span id="cb3-3"><a href=""></a>  <span class="at">data =</span> df,</span>
 <span id="cb3-4"><a href=""></a>  <span class="at">family =</span> <span class="fu">binomial</span>()</span>
 <span id="cb3-5"><a href=""></a>) <span class="sc">|&gt;</span></span>
-<span id="cb3-6"><a href=""></a>  <span class="fu">augment</span>(<span class="at">type.predict =</span> <span class="st">"response"</span>, <span class="at">data =</span> df) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-6"><a href=""></a>  <span class="fu">augment</span>(<span class="at">type.predict =</span> <span class="st">"response"</span>, <span class="at">data =</span> df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="propensity-scores-5" class="slide level2" data-background-color="#23373B">
@@ -355,7 +360,7 @@ Lucy D’Agostino McGowan
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="07-pscores_files/figure-revealjs/unnamed-chunk-7-1.png" class="quarto-figure quarto-figure-center" style="width:80.0%"></p>
+<p><img data-src="07-pscores_files/figure-revealjs/unnamed-chunk-9-1.png" class="quarto-figure quarto-figure-center" style="width:80.0%"></p>
 </figure>
 </div>
 </div>
@@ -374,7 +379,7 @@ Lucy D’Agostino McGowan
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="07-pscores_files/figure-revealjs/unnamed-chunk-8-1.png" class="quarto-figure quarto-figure-center" style="width:80.0%"></p>
+<p><img data-src="07-pscores_files/figure-revealjs/unnamed-chunk-10-1.png" class="quarto-figure quarto-figure-center" style="width:80.0%"></p>
 </figure>
 </div>
 </div>
@@ -421,10 +426,10 @@ Lucy D’Agostino McGowan
 <section class="slide level2">
 
 
-<img data-src="07-pscores_files/figure-revealjs/unnamed-chunk-10-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="07-pscores_files/figure-revealjs/unnamed-chunk-12-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="your-turn" class="slide level2">
 <h2><em>Your turn</em></h2>
-<p><countdown-timer class="countdown" id="timer_d0dfc5af" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_1c6a485a" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 <h3 id="using-the-confounders-identified-in-the-previous-dag-fit-a-propensity-score-model-for-park_extra_magic_morning">Using the confounders identified in the previous DAG, fit a propensity score model for <code>park_extra_magic_morning</code></h3>
 <h3 id="check-the-calibration-roc-curve-and-auc-of-your-model">Check the calibration, ROC curve, and AUC of your model</h3>
 <h3 id="stretch-create-two-histograms-one-of-the-propensity-scores-for-days-with-extra-morning-magic-hours-and-one-for-those-without"><em>Stretch</em>: Create two histograms, one of the propensity scores for days with extra morning magic hours and one for those without</h3>

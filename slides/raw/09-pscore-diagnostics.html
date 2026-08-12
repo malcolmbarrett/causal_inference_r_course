@@ -218,7 +218,6 @@ Lucy D’Agostino McGowan
 <li class="fragment">Model-level diagnostics</li>
 <li class="fragment">Variable-level diagnostics</li>
 <li class="fragment">Balance across the joint distribution</li>
-<li class="fragment">What not to do</li>
 </ul>
 </section>
 <section id="model-level-diagnostics" class="slide level2" data-background-color="#23373B">
@@ -228,7 +227,7 @@ Lucy D’Agostino McGowan
 </section>
 <section id="weighted-roc-curve" class="slide level2">
 <h2>Weighted ROC curve <img data-src="img/hex/halfmoon.png" class="absolute" style="top: 0px; right: 0px; width: 140px; "></h2>
-<p><br></p>
+<p><br> <br></p>
 <p>If the weights did their job, the model should no longer discriminate between the exposure groups</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a>net_data_wts <span class="sc">|&gt;</span></span>
@@ -278,7 +277,7 @@ Lucy D’Agostino McGowan
 <p>The approximate number of independent observations after weighting</p>
 </section>
 <section id="effective-sample-size-in-r" class="slide level2">
-<h2>Effective sample size in R <img data-src="img/hex/halfmoon.png" class="absolute" style="top: 0px; right: 0px; width: 140px; "></h2>
+<h2>Effective sample size in R</h2>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a>net_data_wts <span class="sc">|&gt;</span></span>
 <span id="cb4-2"><a href=""></a>  <span class="fu">summarize</span>(</span>
@@ -336,7 +335,7 @@ Lucy D’Agostino McGowan
 </ul>
 </section>
 <section id="comparing-weights-with-ess" class="slide level2">
-<h2>Comparing weights with ESS <img data-src="img/hex/halfmoon.png" class="absolute" style="top: 0px; right: 0px; width: 140px; "></h2>
+<h2>Comparing weights with ESS</h2>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" data-code-line-numbers="|1-7|9-10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href=""></a>net_data_wts <span class="ot">&lt;-</span> net_data_wts <span class="sc">|&gt;</span></span>
 <span id="cb8-2"><a href=""></a>  <span class="fu">mutate</span>(</span>
@@ -354,7 +353,7 @@ Lucy D’Agostino McGowan
 <p>When several sets of weights answer your question, all else being equal, pick the one with the highest ESS</p>
 </div>
 </section>
-<section id="comparing-weights-with-ess-output" class="slide level2 output-location-slide"><h2>Comparing weights with ESS <img data-src="img/hex/halfmoon.png" class="absolute" style="top: 0px; right: 0px; width: 140px; "></h2><div class="cell output-location-slide" data-layout-align="center">
+<section id="comparing-weights-with-ess-output" class="slide level2 output-location-slide"><h2>Comparing weights with ESS</h2><div class="cell output-location-slide" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -373,7 +372,7 @@ Lucy D’Agostino McGowan
 </section>
 <section id="balance-in-r" class="slide level2">
 <h2>Balance in R <img data-src="img/hex/halfmoon.png" class="absolute" style="top: 0px; right: 0px; width: 140px; "></h2>
-<p><br></p>
+<p><br> <br></p>
 <p>Calculate standardized mean differences and other balance metrics</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" data-code-line-numbers="|4|6|7|8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href=""></a><span class="fu">library</span>(halfmoon)</span>
@@ -460,7 +459,7 @@ Lucy D’Agostino McGowan
 
 <img data-src="09-pscore-diagnostics_files/figure-revealjs/unnamed-chunk-13-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="variance-ratios" class="slide level2">
-<h2>Variance ratios <img data-src="img/hex/halfmoon.png" class="absolute" style="top: 0px; right: 0px; width: 140px; "></h2>
+<h2>Variance ratios</h2>
 <p>The ratio of the within-group variances, ideally as close to 1 as possible</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15" data-code-line-numbers="|2|8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a>vrs <span class="ot">&lt;-</span> balance_metrics <span class="sc">|&gt;</span></span>
@@ -474,7 +473,7 @@ Lucy D’Agostino McGowan
 </div>
 
 </section>
-<section id="variance-ratios-output" class="slide level2 output-location-slide"><h2>Variance ratios <img data-src="img/hex/halfmoon.png" class="absolute" style="top: 0px; right: 0px; width: 140px; "></h2><div class="cell output-location-slide" data-layout-align="center">
+<section id="variance-ratios-output" class="slide level2 output-location-slide"><h2>Variance ratios</h2><div class="cell output-location-slide" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -482,17 +481,9 @@ Lucy D’Agostino McGowan
 </figure>
 </div>
 </div>
-</div></section><section id="variance-ratios-1" class="slide level2">
-<h2>Variance ratios</h2>
-<ul>
-<li class="fragment">The variance ratios improve much less than the SMDs</li>
-<li class="fragment">Balance on the mean does not mean balance across the distribution</li>
-<li class="fragment">Look at the whole distribution before you move on</li>
-</ul>
-</section>
-<section id="your-turn-1" class="slide level2">
+</div></section><section id="your-turn-1" class="slide level2">
 <h2>Your turn 1</h2>
-<p><countdown-timer class="countdown" id="timer_2b623e37" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_27e7f6bf" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 <h3 id="create-a-love-plot-for-the-propensity-score-weighting-you-created-in-the-previous-exercise">Create a Love Plot for the propensity score weighting you created in the previous exercise</h3>
 </section>
 <section id="unweighted-boxplot" class="slide level2">
@@ -679,7 +670,7 @@ Lucy D’Agostino McGowan
 </div>
 </div></section><section id="your-turn-2" class="slide level2">
 <h2><em>Your turn 2</em></h2>
-<p><countdown-timer class="countdown" id="timer_ede0ec6c" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_77f23eac" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 <h3 id="create-an-unweighted-ecdf-examining-the-park_temperature_high-confounder-by-whether-or-not-the-day-had-extra-magic-hours.">Create an unweighted ECDF examining the <code>park_temperature_high</code> confounder by whether or not the day had Extra Magic Hours.</h3>
 <h3 id="create-a-weighted-ecdf-examining-the-park_temperature_high-confounder">Create a weighted ECDF examining the <code>park_temperature_high</code> confounder</h3>
 </section>
@@ -689,7 +680,7 @@ Lucy D’Agostino McGowan
 <p>That includes interactions between variables and higher moments</p>
 </section>
 <section id="interactions-and-squares" class="slide level2">
-<h2>Interactions and squares <img data-src="img/hex/halfmoon.png" class="absolute" style="top: 0px; right: 0px; width: 140px; "></h2>
+<h2>Interactions and squares</h2>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24" data-code-line-numbers="|6-7|10-12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href=""></a>balance_metrics_joint <span class="ot">&lt;-</span> <span class="fu">check_balance</span>(</span>
 <span id="cb24-2"><a href=""></a>  net_data_ns,</span>
@@ -706,7 +697,7 @@ Lucy D’Agostino McGowan
 </div>
 
 </section>
-<section id="interactions-and-squares-output" class="slide level2 output-location-slide"><h2>Interactions and squares <img data-src="img/hex/halfmoon.png" class="absolute" style="top: 0px; right: 0px; width: 140px; "></h2><div class="cell output-location-slide" data-layout-align="center">
+<section id="interactions-and-squares-output" class="slide level2 output-location-slide"><h2>Interactions and squares</h2><div class="cell output-location-slide" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -715,7 +706,7 @@ Lucy D’Agostino McGowan
 </div>
 </div>
 </div></section><section id="energy" class="slide level2">
-<h2>Energy <img data-src="img/hex/halfmoon.png" class="absolute" style="top: 0px; right: 0px; width: 140px; "></h2>
+<h2>Energy</h2>
 <p>The average distance across the joint ECDFs: one number for the whole covariate space</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href=""></a>balance_metrics_joint <span class="sc">|&gt;</span></span>
@@ -775,23 +766,23 @@ Lucy D’Agostino McGowan
 <h2></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="ztlozakofo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ztlozakofo table {
+<div id="vblpmfhkkm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#vblpmfhkkm table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ztlozakofo thead, #ztlozakofo tbody, #ztlozakofo tfoot, #ztlozakofo tr, #ztlozakofo td, #ztlozakofo th {
+#vblpmfhkkm thead, #vblpmfhkkm tbody, #vblpmfhkkm tfoot, #vblpmfhkkm tr, #vblpmfhkkm td, #vblpmfhkkm th {
   border-style: none;
 }
 
-#ztlozakofo p {
+#vblpmfhkkm p {
   margin: 0;
   padding: 0;
 }
 
-#ztlozakofo .gt_table {
+#vblpmfhkkm .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -817,12 +808,12 @@ Lucy D’Agostino McGowan
   border-left-color: #D3D3D3;
 }
 
-#ztlozakofo .gt_caption {
+#vblpmfhkkm .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ztlozakofo .gt_title {
+#vblpmfhkkm .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -834,7 +825,7 @@ Lucy D’Agostino McGowan
   border-bottom-width: 0;
 }
 
-#ztlozakofo .gt_subtitle {
+#vblpmfhkkm .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -846,7 +837,7 @@ Lucy D’Agostino McGowan
   border-top-width: 0;
 }
 
-#ztlozakofo .gt_heading {
+#vblpmfhkkm .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -858,13 +849,13 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#ztlozakofo .gt_bottom_border {
+#vblpmfhkkm .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ztlozakofo .gt_col_headings {
+#vblpmfhkkm .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -879,7 +870,7 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#ztlozakofo .gt_col_heading {
+#vblpmfhkkm .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -899,7 +890,7 @@ Lucy D’Agostino McGowan
   overflow-x: hidden;
 }
 
-#ztlozakofo .gt_column_spanner_outer {
+#vblpmfhkkm .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -911,15 +902,15 @@ Lucy D’Agostino McGowan
   padding-right: 4px;
 }
 
-#ztlozakofo .gt_column_spanner_outer:first-child {
+#vblpmfhkkm .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ztlozakofo .gt_column_spanner_outer:last-child {
+#vblpmfhkkm .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ztlozakofo .gt_column_spanner {
+#vblpmfhkkm .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -931,11 +922,11 @@ Lucy D’Agostino McGowan
   width: 100%;
 }
 
-#ztlozakofo .gt_spanner_row {
+#vblpmfhkkm .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ztlozakofo .gt_group_heading {
+#vblpmfhkkm .gt_group_heading {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -961,7 +952,7 @@ Lucy D’Agostino McGowan
   text-align: left;
 }
 
-#ztlozakofo .gt_empty_group_heading {
+#vblpmfhkkm .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -976,15 +967,15 @@ Lucy D’Agostino McGowan
   vertical-align: middle;
 }
 
-#ztlozakofo .gt_from_md > :first-child {
+#vblpmfhkkm .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ztlozakofo .gt_from_md > :last-child {
+#vblpmfhkkm .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ztlozakofo .gt_row {
+#vblpmfhkkm .gt_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -1003,7 +994,7 @@ Lucy D’Agostino McGowan
   overflow-x: hidden;
 }
 
-#ztlozakofo .gt_stub {
+#vblpmfhkkm .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1016,7 +1007,7 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#ztlozakofo .gt_stub_row_group {
+#vblpmfhkkm .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1030,15 +1021,15 @@ Lucy D’Agostino McGowan
   vertical-align: top;
 }
 
-#ztlozakofo .gt_row_group_first td {
+#vblpmfhkkm .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ztlozakofo .gt_row_group_first th {
+#vblpmfhkkm .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ztlozakofo .gt_summary_row {
+#vblpmfhkkm .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1048,16 +1039,16 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#ztlozakofo .gt_first_summary_row {
+#vblpmfhkkm .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ztlozakofo .gt_first_summary_row.thick {
+#vblpmfhkkm .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ztlozakofo .gt_last_summary_row {
+#vblpmfhkkm .gt_last_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -1067,7 +1058,7 @@ Lucy D’Agostino McGowan
   border-bottom-color: #D3D3D3;
 }
 
-#ztlozakofo .gt_grand_summary_row {
+#vblpmfhkkm .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1077,7 +1068,7 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#ztlozakofo .gt_first_grand_summary_row {
+#vblpmfhkkm .gt_first_grand_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -1087,7 +1078,7 @@ Lucy D’Agostino McGowan
   border-top-color: #D3D3D3;
 }
 
-#ztlozakofo .gt_last_grand_summary_row_top {
+#vblpmfhkkm .gt_last_grand_summary_row_top {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -1097,11 +1088,11 @@ Lucy D’Agostino McGowan
   border-bottom-color: #D3D3D3;
 }
 
-#ztlozakofo .gt_striped {
+#vblpmfhkkm .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ztlozakofo .gt_table_body {
+#vblpmfhkkm .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1110,7 +1101,7 @@ Lucy D’Agostino McGowan
   border-bottom-color: #D3D3D3;
 }
 
-#ztlozakofo .gt_footnotes {
+#vblpmfhkkm .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1124,7 +1115,7 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#ztlozakofo .gt_footnote {
+#vblpmfhkkm .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 1px;
@@ -1133,7 +1124,7 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#ztlozakofo .gt_sourcenotes {
+#vblpmfhkkm .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1147,7 +1138,7 @@ Lucy D’Agostino McGowan
   border-right-color: #D3D3D3;
 }
 
-#ztlozakofo .gt_sourcenote {
+#vblpmfhkkm .gt_sourcenote {
   font-size: 90%;
   padding-top: 1px;
   padding-bottom: 1px;
@@ -1155,72 +1146,72 @@ Lucy D’Agostino McGowan
   padding-right: 5px;
 }
 
-#ztlozakofo .gt_left {
+#vblpmfhkkm .gt_left {
   text-align: left;
 }
 
-#ztlozakofo .gt_center {
+#vblpmfhkkm .gt_center {
   text-align: center;
 }
 
-#ztlozakofo .gt_right {
+#vblpmfhkkm .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ztlozakofo .gt_font_normal {
+#vblpmfhkkm .gt_font_normal {
   font-weight: normal;
 }
 
-#ztlozakofo .gt_font_bold {
+#vblpmfhkkm .gt_font_bold {
   font-weight: bold;
 }
 
-#ztlozakofo .gt_font_italic {
+#vblpmfhkkm .gt_font_italic {
   font-style: italic;
 }
 
-#ztlozakofo .gt_super {
+#vblpmfhkkm .gt_super {
   font-size: 65%;
 }
 
-#ztlozakofo .gt_footnote_marks {
+#vblpmfhkkm .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ztlozakofo .gt_asterisk {
+#vblpmfhkkm .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ztlozakofo .gt_indent_1 {
+#vblpmfhkkm .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ztlozakofo .gt_indent_2 {
+#vblpmfhkkm .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ztlozakofo .gt_indent_3 {
+#vblpmfhkkm .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ztlozakofo .gt_indent_4 {
+#vblpmfhkkm .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ztlozakofo .gt_indent_5 {
+#vblpmfhkkm .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ztlozakofo .katex-display {
+#vblpmfhkkm .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ztlozakofo div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#vblpmfhkkm div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
