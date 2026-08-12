@@ -18,7 +18,7 @@ seven_dwarfs <- seven_dwarfs_train_2018 |>
 
 We are interested in examining the relationship between whether there were "Extra Magic Hours" in the morning (the **exposure**) and the average wait time for the Seven Dwarfs Mine Train the same day between 9am and 10am (the **outcome**).
 
-## Your turn
+## Your turn 1
 
 Create a function called `fit_ipw` that fits the propensity score model and incorporates the ATE weights (as calculated in the previous exercises), then uses the weights in a weighted outcome model.
 
@@ -71,6 +71,36 @@ boot_estimate <- ____(____, ____) |>
 
 boot_estimate
 ```
+
+## Your turn 2
+
+Fit both models on the full data: the same propensity score model and weighted outcome model you wrote inside `fit_ipw()`, fit once on `seven_dwarfs` rather than on a bootstrap sample.
+
+```{r}
+propensity_model <- glm(
+  ____ ~ park_ticket_season + park_close + park_temperature_high,
+  data = seven_dwarfs,
+  family = binomial()
+)
+
+seven_dwarfs_wts <- propensity_model |>
+  augment(type.predict = "response", data = seven_dwarfs) |>
+  mutate(wts = wt_ate(.fitted, ____, exposure_type = "binary"))
+
+ipw_model <- lm(___ ~ ___, data = seven_dwarfs_wts, weights = ___)
+```
+
+Supply both models to `ipw()`, which uses a sandwich estimator that also accounts for the uncertainty in the propensity score model.
+
+It is fast and reports the estimand along with the estimate; the bootstrap is still worth knowing because it is general purpose.
+
+```{r}
+ipw_fit <- ipw(____, ____)
+
+ipw_fit
+```
+
+Compare the confidence interval from `ipw_fit` to the bootstrap interval in `boot_estimate`: they should roughly agree.
 
 
 Stretch goal: Now estimate the effect using matching. Bootstrapping matched data the same way is not valid: matching induces a dependence between matched pairs, and resampling rows breaks it. There are two valid routes, and both start from a matched data set that we create once and then leave fixed.
