@@ -3443,11 +3443,11 @@ Malcolm Barrett
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" data-code-line-numbers="|3,7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="co">#  set all participants to have a = 0</span></span>
 <span id="cb2-2"><a href=""></a>untreated_data <span class="ot">&lt;-</span> greek_data <span class="sc">|&gt;</span></span>
-<span id="cb2-3"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">a =</span> <span class="dv">0</span>) </span>
+<span id="cb2-3"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">a =</span> <span class="dv">0</span>)</span>
 <span id="cb2-4"><a href=""></a></span>
 <span id="cb2-5"><a href=""></a><span class="co">#  set all participants to have a = 1</span></span>
 <span id="cb2-6"><a href=""></a>treated_data <span class="ot">&lt;-</span> greek_data <span class="sc">|&gt;</span></span>
-<span id="cb2-7"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">a =</span> <span class="dv">1</span>) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-7"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">a =</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="make-predictions-using-the-model-on-the-cloned-data-sets" class="slide level2">
@@ -3464,9 +3464,9 @@ Malcolm Barrett
 <span id="cb3-9"><a href=""></a>  <span class="fu">select</span>(<span class="at">treated =</span> .fitted)</span>
 <span id="cb3-10"><a href=""></a></span>
 <span id="cb3-11"><a href=""></a>predictions <span class="ot">&lt;-</span> <span class="fu">bind_cols</span>(</span>
-<span id="cb3-12"><a href=""></a>  predicted_untreated, </span>
+<span id="cb3-12"><a href=""></a>  predicted_untreated,</span>
 <span id="cb3-13"><a href=""></a>  predicted_treated</span>
-<span id="cb3-14"><a href=""></a>) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-14"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="calculate-the-estimate-you-want" class="slide level2">
@@ -3490,11 +3490,6 @@ Malcolm Barrett
 1          0.5            0.5          0</code></pre>
 </div>
 </div>
-</section>
-<section id="marginalizing-over-the-covariates" class="slide level2">
-<h2>Marginalizing over the covariates</h2>
-
-<img data-src="11-continuous-g-comp_files/figure-revealjs/unnamed-chunk-12-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"><p><strong>Predict at every observation’s actual covariates, then average</strong></p>
 </section>
 <section id="avg_comparisons-does-all-five-steps" class="slide level2">
 <h2><code>avg_comparisons()</code> does all five steps</h2>
@@ -3550,7 +3545,7 @@ Malcolm Barrett
 <h2>Tilting toward a target population</h2>
 <p>The ATO and ATM populations are not subsets of the rows, so weight the average by the tilting function instead</p>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href=""></a><span class="fu">library</span>(propensity)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10" data-code-line-numbers="|3-4,9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href=""></a><span class="fu">library</span>(propensity)</span>
 <span id="cb10-2"><a href=""></a></span>
 <span id="cb10-3"><a href=""></a>greek_ps <span class="ot">&lt;-</span> <span class="fu">glm</span>(a <span class="sc">~</span> l, <span class="at">data =</span> greek_data, <span class="at">family =</span> <span class="fu">binomial</span>()) <span class="sc">|&gt;</span></span>
 <span id="cb10-4"><a href=""></a>  <span class="fu">predict</span>(<span class="at">type =</span> <span class="st">"response"</span>)</span>
@@ -3560,6 +3555,15 @@ Malcolm Barrett
 <span id="cb10-8"><a href=""></a>  <span class="at">variables =</span> <span class="st">"a"</span>,</span>
 <span id="cb10-9"><a href=""></a>  <span class="at">wts =</span> <span class="fu">ps_tilt</span>(greek_ps, <span class="st">"ato"</span>)</span>
 <span id="cb10-10"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  Estimate Std. Error         z Pr(&gt;|z|)    S  2.5 % 97.5 %
+ -1.31e-17       0.24 -5.44e-17        1 -0.0 -0.471  0.471
+
+Term: a
+Type: response
+Comparison: 1 - 0</code></pre>
+</div>
 </div>
 </section>
 <section id="section-1" class="slide level2 huge center" data-background-color="#23373B">
@@ -3570,21 +3574,14 @@ Malcolm Barrett
 <h2></h2>
 <p><strong>We recommend g-computation over propensity scores for continuous exposures because of stability issues</strong></p>
 </section>
-<section id="section-3" class="slide level2 center" data-background-color="#23373B">
-<h2></h2>
-<p>When overlap is poor, IPW makes its reliance on overlap explicit: the weights blow up and we are forced to confront the problem.</p>
-<div class="fragment">
-<p>G-computation absorbs the problem silently, producing a stable estimate that may nonetheless be wrong.</p>
-</div>
-</section>
 <section id="do-posted-wait-times-at-8-am-affect-actual-wait-times-at-9-am" class="slide level2">
 <h2>Do <em>posted</em> wait times at 8 am affect <em>actual</em> wait times at 9 am?</h2>
 
-<img data-src="11-continuous-g-comp_files/figure-revealjs/unnamed-chunk-18-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="11-continuous-g-comp_files/figure-revealjs/unnamed-chunk-17-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="your-turn" class="slide level2">
 <h2><em>Your Turn</em></h2>
 <h3 id="work-through-your-turns-1-4-in-11-continuous-g-computation-exercises.qmd">Work through Your Turns 1-4 in <code>11-continuous-g-computation-exercises.qmd</code></h3>
-<p><countdown-timer class="countdown" id="timer_c52d270d" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_eaf379ff" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 
 </section>
     </div>

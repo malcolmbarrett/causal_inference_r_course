@@ -9,7 +9,7 @@ format: "kakashi-revealjs"
 #| label: setup
 #| include: false
 options(
-  tibble.max_extra_cols = 6, 
+  tibble.max_extra_cols = 6,
   tibble.width = 60
 )
 
@@ -28,7 +28,7 @@ Normal regression estimates associations. But we want *causal* estimates: what w
 ## G-Computation/G-Formula {background-color="#23373B"}
 
 1. Fit a model for `y ~ x + z` where z is all covariates
-2. Create a duplicate of your data set for each level of `x` 
+2. Create a duplicate of your data set for each level of `x`
 3. Set the value of x to a single value for each cloned data set (e.g `x = 1` for one, `x = 0` for the other)
 
 ## G-Computation/G-Formula {background-color="#23373B"}
@@ -67,14 +67,14 @@ gt(head(greek_data, 10))
 greek_model <- lm(y ~ a + l, data = greek_data)
 ```
 
-## 2. Create a duplicate of your data set for each level of `a` 
+## 2. Create a duplicate of your data set for each level of `a`
 
 ```{r}
 #| echo: false
 gt(head(greek_data, 10))
 ```
 
-## 2. Create a duplicate of your data set for each level of `a` 
+## 2. Create a duplicate of your data set for each level of `a`
 
 :::: {.columns}
 
@@ -134,11 +134,11 @@ gt(head(greek_data |> mutate(a = 1), 10)) |>
 #| code-line-numbers: "|3,7"
 #  set all participants to have a = 0
 untreated_data <- greek_data |>
-  mutate(a = 0) 
+  mutate(a = 0)
 
 #  set all participants to have a = 1
 treated_data <- greek_data |>
-  mutate(a = 1) 
+  mutate(a = 1)
 ```
 
 ## 4. Make predictions using the model on the cloned data sets
@@ -156,9 +156,9 @@ predicted_treated <- greek_model |>
   select(treated = .fitted)
 
 predictions <- bind_cols(
-  predicted_untreated, 
+  predicted_untreated,
   predicted_treated
-) 
+)
 ```
 
 ---
@@ -187,42 +187,6 @@ predictions |>
   ) |>
   mutate(across(everything(), \(x) round(x, digits = 1)))
 ```
-
-## Marginalizing over the covariates
-
-```{r}
-#| echo: false
-bind_cols(greek_data, predictions) |>
-  pivot_longer(
-    c(untreated, treated),
-    names_to = "scenario",
-    values_to = "predicted"
-  ) |>
-  ggplot(aes(x = factor(l), y = predicted, color = scenario)) +
-  geom_hline(
-    yintercept = mean(predictions$treated),
-    linetype = "dashed",
-    color = "grey40"
-  ) +
-  geom_point(
-    position = position_jitterdodge(
-      jitter.width = 0.25,
-      dodge.width = 0.6,
-      seed = 10
-    ),
-    size = 3,
-    alpha = 0.8
-  ) +
-  annotate(
-    "label",
-    x = 1.5,
-    y = mean(predictions$treated),
-    label = "average prediction"
-  ) +
-  labs(x = "l", y = "predicted y", color = NULL)
-```
-
-**Predict at every observation's actual covariates, then average**
 
 ## `avg_comparisons()` does all five steps
 
@@ -294,7 +258,7 @@ Without an exposure-covariate interaction, the three coincide: the model assumes
 The ATO and ATM populations are not subsets of the rows, so weight the average by the tilting function instead
 
 ```{r}
-#| eval: false
+#| code-line-numbers: "|3-4,9"
 library(propensity)
 
 greek_ps <- glm(a ~ l, data = greek_data, family = binomial()) |>
@@ -307,20 +271,12 @@ avg_comparisons(
 )
 ```
 
-## {background-color="#23373B" .huge .center} 
+## {background-color="#23373B" .huge .center}
 **Continuous exposures**
 
-## {background-color="#23373B" .huge .center} 
+## {background-color="#23373B" .huge .center}
 
 **We recommend g-computation over propensity scores for continuous exposures because of stability issues**
-
-## {background-color="#23373B" .center}
-
-When overlap is poor, IPW makes its reliance on overlap explicit: the weights blow up and we are forced to confront the problem.
-
-. . .
-
-G-computation absorbs the problem silently, producing a stable estimate that may nonetheless be wrong.
 
 ## Do *posted* wait times at 8 am affect *actual* wait times at 9 am?
 
@@ -336,16 +292,16 @@ library(ggokabeito)
 geom_dag_label_repel <- function(..., seed = 10) {
   ggdag::geom_dag_label_repel(
     aes(x, y, label = label),
-    box.padding = 1.25, 
+    box.padding = 1.25,
     inherit.aes = FALSE,
-    max.overlaps = Inf, 
+    max.overlaps = Inf,
     family = "sans",
     seed = seed,
-    label.size = NA, 
+    label.size = NA,
     label.padding = 0.1,
     size = 14 / 3,
     ...
-  ) 
+  )
 }
 
 coord_dag <- list(
@@ -378,7 +334,7 @@ dagify(
     ) +
     geom_dag_edges_arc(curvature = c(rep(0, 7), .2, 0, .2, .2, 0), edge_colour = "grey70") +
     geom_dag_point() +
-    geom_dag_label_repel(seed = 1602) + 
+    geom_dag_label_repel(seed = 1602) +
     scale_color_okabe_ito(na.value = "grey90") +
     theme_dag() +
     theme(
@@ -405,5 +361,3 @@ dagify(
 ### Work through Your Turns 1-4 in `11-continuous-g-computation-exercises.qmd`
 
 `r countdown::countdown(minutes = 10)`
-
-
