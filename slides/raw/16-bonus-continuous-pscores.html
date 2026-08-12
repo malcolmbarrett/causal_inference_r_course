@@ -332,7 +332,7 @@ Malcolm Barrett
 <h3 id="fit-a-model-using-lm-with-wait_minutes_posted_avg-as-the-outcome-and-the-confounders-identified-in-the-dag.">Fit a model using <code>lm()</code> with <code>wait_minutes_posted_avg</code> as the outcome and the confounders identified in the DAG.</h3>
 <h3 id="use-augment-to-add-model-predictions-to-the-data-frame">Use <code>augment()</code> to add model predictions to the data frame</h3>
 <h3 id="in-wt_ate-calculate-the-weights-using-.fitted-wait_minutes_posted_avg-and-the-mean-of-.sigma">In <code>wt_ate()</code>, calculate the weights using <code>.fitted</code>, <code>wait_minutes_posted_avg</code>, and the mean of <code>.sigma</code></h3>
-<p><countdown-timer class="countdown" id="timer_f4604455" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_c5730189" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-1-1" class="slide level2">
 <h2><em>Your Turn 1</em></h2>
@@ -401,7 +401,7 @@ Malcolm Barrett
 <section id="your-turn-2" class="slide level2">
 <h2><em>Your Turn 2</em></h2>
 <h3 id="re-fit-the-above-using-stabilized-weights">Re-fit the above using stabilized weights</h3>
-<p><countdown-timer class="countdown" id="timer_bdde5487" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_7a50127d" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-2-1" class="slide level2">
 <h2><em>Your Turn 2</em></h2>
@@ -421,6 +421,7 @@ Malcolm Barrett
 <h2>Fitting the outcome model</h2>
 <ol type="1">
 <li class="fragment">Use the stabilized weights in the outcome model. Nothing new here!</li>
+<li class="fragment">Use <code>ipw()</code> for standard errors that account for the weights</li>
 </ol>
 </section>
 <section class="slide level2">
@@ -442,27 +443,138 @@ Malcolm Barrett
 </div>
 </div>
 </section>
-<section id="your-turn-3" class="slide level2">
+<section id="rebuild-the-weights-for-ipw" class="slide level2">
+<h2>Rebuild the weights for <code>ipw()</code></h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href=""></a>nhefs_ipw_wts <span class="ot">&lt;-</span> nhefs_light_smokers <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">swts =</span> <span class="fu">wt_ate</span>(</span>
+<span id="cb16-3"><a href=""></a>    <span class="fu">fitted</span>(nhefs_model),</span>
+<span id="cb16-4"><a href=""></a>    smkintensity82_71,</span>
+<span id="cb16-5"><a href=""></a>    <span class="co"># ipw() rebuilds these weights from the model,</span></span>
+<span id="cb16-6"><a href=""></a>    <span class="co"># so wt_ate() estimates the SD instead of .sigma</span></span>
+<span id="cb16-7"><a href=""></a>    <span class="at">exposure_type =</span> <span class="st">"continuous"</span>,</span>
+<span id="cb16-8"><a href=""></a>    <span class="at">stabilize =</span> <span class="cn">TRUE</span></span>
+<span id="cb16-9"><a href=""></a>  ))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="fit-the-outcome-model" class="slide level2">
+<h2>Fit the outcome model</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href=""></a>nhefs_ipw_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb17-2"><a href=""></a>  wt82_71 <span class="sc">~</span> smkintensity82_71,</span>
+<span id="cb17-3"><a href=""></a>  <span class="at">weights =</span> swts,</span>
+<span id="cb17-4"><a href=""></a>  <span class="at">data =</span> nhefs_ipw_wts</span>
+<span id="cb17-5"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="estimate-the-effect-with-ipw" class="slide level2">
+<h2>Estimate the effect with <code>ipw()</code></h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href=""></a>nhefs_ipw_fit <span class="ot">&lt;-</span> <span class="fu">ipw</span>(nhefs_model, nhefs_ipw_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<h3 id="ipw-uses-a-sandwich-estimator-that-also-accounts-for-the-uncertainty-in-the-propensity-score-model"><code>ipw()</code> uses a sandwich estimator that also accounts for the uncertainty in the propensity score model</h3>
+</section>
+<section id="estimate-the-effect-with-ipw-1" class="slide level2 small">
+<h2>Estimate the effect with <code>ipw()</code></h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href=""></a>nhefs_ipw_fit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Inverse Probability Weight Estimator
+Estimand: ATE 
+Effects: marginal (population-averaged) 
+
+Weight Estimator:
+  Call: lm(formula = smkintensity82_71 ~ sex + race + age + I(age^2) + 
+    education + smokeintensity + I(smokeintensity^2) + smokeyrs + 
+    I(smokeyrs^2) + exercise + active + wt71 + I(wt71^2), data = nhefs_light_smokers) 
+
+Outcome Model:
+  Call: lm(formula = wt82_71 ~ smkintensity82_71, data = nhefs_ipw_wts, 
+    weights = swts) 
+
+Marginal estimates:
+       estimate   std.err       z ci.lower  ci.upper conf.level  p.value   
+slope -0.096497  0.036518 -2.6424 -0.16807 -0.024923       0.95 0.008231 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</section>
+<section id="your-turn-3" class="slide level2 small">
 <h2><em>Your Turn 3</em></h2>
 <h3 id="estimate-the-relationship-between-posted-wait-times-and-actual-wait-times-using-the-stabilized-weights-we-just-created.">Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created.</h3>
-<p><countdown-timer class="countdown" id="timer_d1118e52" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<h3 id="rebuild-the-weights-without-.sigma-and-fit-the-outcome-model-with-them">Rebuild the weights without <code>.sigma</code> and fit the outcome model with them</h3>
+<h3 id="use-ipw-to-estimate-the-effect-with-standard-errors-that-account-for-the-weights">Use <code>ipw()</code> to estimate the effect with standard errors that account for the weights</h3>
+<p><countdown-timer class="countdown" id="timer_6820b495" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-3-1" class="slide level2">
 <h2><em>Your Turn 3</em></h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href=""></a><span class="fu">lm</span>(</span>
-<span id="cb16-2"><a href=""></a>  wait_minutes_actual_avg <span class="sc">~</span> wait_minutes_posted_avg, </span>
-<span id="cb16-3"><a href=""></a>  <span class="at">weights =</span> swts, </span>
-<span id="cb16-4"><a href=""></a>  <span class="at">data =</span> wait_times_swts</span>
-<span id="cb16-5"><a href=""></a>) <span class="sc">|&gt;</span></span>
-<span id="cb16-6"><a href=""></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span></span>
-<span id="cb16-7"><a href=""></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"wait_minutes_posted_avg"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb16-8"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">estimate =</span> estimate <span class="sc">*</span> <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href=""></a><span class="fu">lm</span>(</span>
+<span id="cb21-2"><a href=""></a>  wait_minutes_actual_avg <span class="sc">~</span> wait_minutes_posted_avg, </span>
+<span id="cb21-3"><a href=""></a>  <span class="at">weights =</span> swts, </span>
+<span id="cb21-4"><a href=""></a>  <span class="at">data =</span> wait_times_swts</span>
+<span id="cb21-5"><a href=""></a>) <span class="sc">|&gt;</span></span>
+<span id="cb21-6"><a href=""></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span></span>
+<span id="cb21-7"><a href=""></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"wait_minutes_posted_avg"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb21-8"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">estimate =</span> estimate <span class="sc">*</span> <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 5
   term                  estimate std.error statistic p.value
   &lt;chr&gt;                    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
 1 wait_minutes_posted_…    -2.64    0.0803     -3.28 0.00151</code></pre>
+</div>
+</div>
+</section>
+<section id="your-turn-3-2" class="slide level2">
+<h2><em>Your Turn 3</em></h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href=""></a>wait_times_ipw_wts <span class="ot">&lt;-</span> wait_times <span class="sc">|&gt;</span></span>
+<span id="cb23-2"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">swts =</span> <span class="fu">wt_ate</span>(</span>
+<span id="cb23-3"><a href=""></a>    <span class="fu">fitted</span>(post_time_model),</span>
+<span id="cb23-4"><a href=""></a>    wait_minutes_posted_avg,</span>
+<span id="cb23-5"><a href=""></a>    <span class="co"># ipw() rebuilds these weights from the model,</span></span>
+<span id="cb23-6"><a href=""></a>    <span class="co"># so wt_ate() estimates the SD instead of .sigma</span></span>
+<span id="cb23-7"><a href=""></a>    <span class="at">exposure_type =</span> <span class="st">"continuous"</span>,</span>
+<span id="cb23-8"><a href=""></a>    <span class="at">stabilize =</span> <span class="cn">TRUE</span></span>
+<span id="cb23-9"><a href=""></a>  ))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="your-turn-3-3" class="slide level2">
+<h2><em>Your Turn 3</em></h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href=""></a>ipw_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb24-2"><a href=""></a>  wait_minutes_actual_avg <span class="sc">~</span> wait_minutes_posted_avg,</span>
+<span id="cb24-3"><a href=""></a>  <span class="at">weights =</span> swts,</span>
+<span id="cb24-4"><a href=""></a>  <span class="at">data =</span> wait_times_ipw_wts</span>
+<span id="cb24-5"><a href=""></a>)</span>
+<span id="cb24-6"><a href=""></a></span>
+<span id="cb24-7"><a href=""></a>ipw_fit <span class="ot">&lt;-</span> <span class="fu">ipw</span>(post_time_model, ipw_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<h3 id="ipw-reports-the-effect-of-one-more-minute-so-multiply-by-10-to-compare"><code>ipw()</code> reports the effect of one more minute, so multiply by 10 to compare</h3>
+</section>
+<section id="your-turn-3-4" class="slide level2 small">
+<h2><em>Your Turn 3</em></h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href=""></a>ipw_fit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Inverse Probability Weight Estimator
+Estimand: ATE 
+Effects: marginal (population-averaged) 
+
+Weight Estimator:
+  Call: lm(formula = wait_minutes_posted_avg ~ park_close + park_extra_magic_morning + 
+    park_temperature_high + park_ticket_season, data = wait_times) 
+
+Outcome Model:
+  Call: lm(formula = wait_minutes_actual_avg ~ wait_minutes_posted_avg, 
+    data = wait_times_ipw_wts, weights = swts) 
+
+Marginal estimates:
+      estimate  std.err       z ci.lower ci.upper conf.level  p.value   
+slope -0.29116  0.10992 -2.6489 -0.50659 -0.07573       0.95 0.008074 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 </section>
@@ -477,55 +589,45 @@ Malcolm Barrett
 </section>
 <section id="calculate-the-stabilized-weights" class="slide level2">
 <h2>1. Calculate the stabilized weights</h2>
-<div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href=""></a>nhefs_dose_wts <span class="ot">&lt;-</span> nhefs_light_smokers <span class="sc">|&gt;</span></span>
-<span id="cb18-2"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">swts =</span> <span class="fu">wt_ate</span>(</span>
-<span id="cb18-3"><a href=""></a>    <span class="fu">fitted</span>(nhefs_model),</span>
-<span id="cb18-4"><a href=""></a>    smkintensity82_71,</span>
-<span id="cb18-5"><a href=""></a>    <span class="co"># ipw() rebuilds these weights from the model,</span></span>
-<span id="cb18-6"><a href=""></a>    <span class="co"># so wt_ate() estimates the SD instead of .sigma</span></span>
-<span id="cb18-7"><a href=""></a>    <span class="at">exposure_type =</span> <span class="st">"continuous"</span>,</span>
-<span id="cb18-8"><a href=""></a>    <span class="at">stabilize =</span> <span class="cn">TRUE</span></span>
-<span id="cb18-9"><a href=""></a>  ))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+<h3 id="nhefs_ipw_wts-already-has-the-weights-that-ipw-can-rebuild-from-nhefs_model"><code>nhefs_ipw_wts</code> already has the weights that <code>ipw()</code> can rebuild from <code>nhefs_model</code></h3>
 </section>
 <section id="fit-a-flexible-outcome-model" class="slide level2">
 <h2>2. Fit a flexible outcome model</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href=""></a>nhefs_msm <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
-<span id="cb19-2"><a href=""></a>  wt82_71 <span class="sc">~</span> splines<span class="sc">::</span><span class="fu">ns</span>(smkintensity82_71, <span class="at">df =</span> <span class="dv">3</span>),</span>
-<span id="cb19-3"><a href=""></a>  <span class="at">weights =</span> swts,</span>
-<span id="cb19-4"><a href=""></a>  <span class="at">data =</span> nhefs_dose_wts</span>
-<span id="cb19-5"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href=""></a>nhefs_msm <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb27-2"><a href=""></a>  wt82_71 <span class="sc">~</span> splines<span class="sc">::</span><span class="fu">ns</span>(smkintensity82_71, <span class="at">df =</span> <span class="dv">3</span>),</span>
+<span id="cb27-3"><a href=""></a>  <span class="at">weights =</span> swts,</span>
+<span id="cb27-4"><a href=""></a>  <span class="at">data =</span> nhefs_ipw_wts</span>
+<span id="cb27-5"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="estimate-the-effects-with-ipw" class="slide level2">
 <h2>3. Estimate the effects with <code>ipw()</code></h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href=""></a>nhefs_ipw <span class="ot">&lt;-</span> <span class="fu">ipw</span>(</span>
-<span id="cb20-2"><a href=""></a>  nhefs_model,</span>
-<span id="cb20-3"><a href=""></a>  nhefs_msm,</span>
-<span id="cb20-4"><a href=""></a>  <span class="at">.data =</span> nhefs_dose_wts</span>
-<span id="cb20-5"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href=""></a>nhefs_ipw <span class="ot">&lt;-</span> <span class="fu">ipw</span>(</span>
+<span id="cb28-2"><a href=""></a>  nhefs_model,</span>
+<span id="cb28-3"><a href=""></a>  nhefs_msm,</span>
+<span id="cb28-4"><a href=""></a>  <span class="at">.data =</span> nhefs_ipw_wts</span>
+<span id="cb28-5"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <h3 id="the-standard-errors-account-for-the-estimated-weights.">The standard errors account for the estimated weights.</h3>
 </section>
 <section id="predict-across-the-exposure-range" class="slide level2">
 <h2>4. Predict across the exposure range</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href=""></a>dose_response <span class="ot">&lt;-</span> nhefs_ipw <span class="sc">|&gt;</span></span>
-<span id="cb21-2"><a href=""></a>  <span class="fu">as_conditional</span>() <span class="sc">|&gt;</span></span>
-<span id="cb21-3"><a href=""></a>  <span class="co"># marginaleffects needs the data to build the grid</span></span>
-<span id="cb21-4"><a href=""></a>  <span class="fu">set_modeldata</span>(nhefs_dose_wts) <span class="sc">|&gt;</span></span>
-<span id="cb21-5"><a href=""></a>  <span class="fu">predictions</span>(</span>
-<span id="cb21-6"><a href=""></a>    <span class="at">newdata =</span> <span class="fu">datagrid</span>(<span class="at">smkintensity82_71 =</span> <span class="sc">-</span><span class="dv">25</span><span class="sc">:</span><span class="dv">25</span>)</span>
-<span id="cb21-7"><a href=""></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href=""></a>dose_response <span class="ot">&lt;-</span> nhefs_ipw <span class="sc">|&gt;</span></span>
+<span id="cb29-2"><a href=""></a>  <span class="fu">as_conditional</span>() <span class="sc">|&gt;</span></span>
+<span id="cb29-3"><a href=""></a>  <span class="co"># marginaleffects needs the data to build the grid</span></span>
+<span id="cb29-4"><a href=""></a>  <span class="fu">set_modeldata</span>(nhefs_ipw_wts) <span class="sc">|&gt;</span></span>
+<span id="cb29-5"><a href=""></a>  <span class="fu">predictions</span>(</span>
+<span id="cb29-6"><a href=""></a>    <span class="at">newdata =</span> <span class="fu">datagrid</span>(<span class="at">smkintensity82_71 =</span> <span class="sc">-</span><span class="dv">25</span><span class="sc">:</span><span class="dv">25</span>)</span>
+<span id="cb29-7"><a href=""></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="the-causal-dose-response-function" class="slide level2">
 <h2>The causal dose-response function</h2>
 
-<img data-src="16-bonus-continuous-pscores_files/figure-revealjs/unnamed-chunk-22-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="16-bonus-continuous-pscores_files/figure-revealjs/unnamed-chunk-28-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="diagnosing-issues" class="slide level2" data-background-color="#23373B">
 <h2>Diagnosing issues</h2>
 <ol type="1">

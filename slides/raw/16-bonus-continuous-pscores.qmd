@@ -315,6 +315,7 @@ wait_times_swts <- post_time_model |>
 ## Fitting the outcome model {background-color="#23373B"}
 
 1. Use the stabilized weights in the outcome model. Nothing new here!
+2. Use `ipw()` for standard errors that account for the weights
 
 ---
 
@@ -330,11 +331,53 @@ lm(
   mutate(estimate = estimate * -10) 
 ```
 
-## *Your Turn 3*
+## Rebuild the weights for `ipw()`
+
+```{r}
+nhefs_ipw_wts <- nhefs_light_smokers |>
+  mutate(swts = wt_ate(
+    fitted(nhefs_model),
+    smkintensity82_71,
+    # ipw() rebuilds these weights from the model,
+    # so wt_ate() estimates the SD instead of .sigma
+    exposure_type = "continuous",
+    stabilize = TRUE
+  ))
+```
+
+## Fit the outcome model
+
+```{r}
+nhefs_ipw_model <- lm(
+  wt82_71 ~ smkintensity82_71,
+  weights = swts,
+  data = nhefs_ipw_wts
+)
+```
+
+## Estimate the effect with `ipw()`
+
+```{r}
+nhefs_ipw_fit <- ipw(nhefs_model, nhefs_ipw_model)
+```
+
+### `ipw()` uses a sandwich estimator that also accounts for the uncertainty in the propensity score model
+
+## Estimate the effect with `ipw()` {.small}
+
+```{r}
+nhefs_ipw_fit
+```
+
+## *Your Turn 3* {.small}
 
 ### Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created. 
 
-`r countdown::countdown(minutes = 3)`
+### Rebuild the weights without `.sigma` and fit the outcome model with them
+
+### Use `ipw()` to estimate the effect with standard errors that account for the weights
+
+`r countdown::countdown(minutes = 5)`
 
 ## *Your Turn 3*
 
@@ -349,6 +392,40 @@ lm(
   mutate(estimate = estimate * 10)
 ```
 
+## *Your Turn 3*
+
+```{r}
+wait_times_ipw_wts <- wait_times |>
+  mutate(swts = wt_ate(
+    fitted(post_time_model),
+    wait_minutes_posted_avg,
+    # ipw() rebuilds these weights from the model,
+    # so wt_ate() estimates the SD instead of .sigma
+    exposure_type = "continuous",
+    stabilize = TRUE
+  ))
+```
+
+## *Your Turn 3*
+
+```{r}
+ipw_model <- lm(
+  wait_minutes_actual_avg ~ wait_minutes_posted_avg,
+  weights = swts,
+  data = wait_times_ipw_wts
+)
+
+ipw_fit <- ipw(post_time_model, ipw_model)
+```
+
+### `ipw()` reports the effect of one more minute, so multiply by 10 to compare
+
+## *Your Turn 3* {.small}
+
+```{r}
+ipw_fit
+```
+
 ## Causal dose-response functions {background-color="#23373B"}
 
 1. Calculate the stabilized weights
@@ -358,17 +435,7 @@ lm(
 
 ## 1. Calculate the stabilized weights
 
-```{r}
-nhefs_dose_wts <- nhefs_light_smokers |>
-  mutate(swts = wt_ate(
-    fitted(nhefs_model),
-    smkintensity82_71,
-    # ipw() rebuilds these weights from the model,
-    # so wt_ate() estimates the SD instead of .sigma
-    exposure_type = "continuous",
-    stabilize = TRUE
-  ))
-```
+### `nhefs_ipw_wts` already has the weights that `ipw()` can rebuild from `nhefs_model`
 
 ## 2. Fit a flexible outcome model
 
@@ -376,7 +443,7 @@ nhefs_dose_wts <- nhefs_light_smokers |>
 nhefs_msm <- lm(
   wt82_71 ~ splines::ns(smkintensity82_71, df = 3),
   weights = swts,
-  data = nhefs_dose_wts
+  data = nhefs_ipw_wts
 )
 ```
 
@@ -386,7 +453,7 @@ nhefs_msm <- lm(
 nhefs_ipw <- ipw(
   nhefs_model,
   nhefs_msm,
-  .data = nhefs_dose_wts
+  .data = nhefs_ipw_wts
 )
 ```
 
@@ -398,7 +465,7 @@ nhefs_ipw <- ipw(
 dose_response <- nhefs_ipw |>
   as_conditional() |>
   # marginaleffects needs the data to build the grid
-  set_modeldata(nhefs_dose_wts) |>
+  set_modeldata(nhefs_ipw_wts) |>
   predictions(
     newdata = datagrid(smkintensity82_71 = -25:25)
   )
