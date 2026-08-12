@@ -70,6 +70,46 @@ mosquito_dag <- dagify(
     household = "Number in the household"
   )
 )
+
+dgm_coords <- list(
+  x = c(
+    malaria_risk = 7,
+    net = 3,
+    income = 4,
+    health = 5,
+    temperature = 6,
+    insecticide_resistance = 8.5,
+    genetic_resistance = 5,
+    eligible = 2,
+    household = 1,
+    U = 5
+  ),
+  y = c(
+    malaria_risk = 2,
+    net = 2,
+    income = 3,
+    health = 1,
+    temperature = 3,
+    insecticide_resistance = 2,
+    genetic_resistance = -0.5,
+    eligible = 3,
+    household = 2,
+    U = 4.5
+  )
+)
+
+dgm_labels <- c(
+  malaria_risk = "Risk of malaria",
+  net = "Mosquito net",
+  income = "Income",
+  health = "Health",
+  temperature = "Nighttime temperatures",
+  insecticide_resistance = "Insecticide resistance",
+  genetic_resistance = "Genetic resistance",
+  eligible = "Eligible for program",
+  household = "Number in the household",
+  U = "Unknown"
+)
 ```
 
 ## Recall: Propensity scores {background-color="#23373B"}
@@ -88,7 +128,7 @@ Rosenbaum and Rubin showed in observational studies, conditioning on **propensit
 ## Two ways to probe a result
 
 ::: nonincremental
-1. Explore the **logical implications** of the causal question and the DAG: does the data contradict what we assumed?
+1. Explore the **logical implications** of the DAG: does the data contradict what we assumed?
 2. Use **mathematical techniques** to quantify how different the result would be under unmeasured confounding
 :::
 
@@ -169,115 +209,6 @@ Leaving out a confounder moves the estimate well outside the spread of the valid
 
 A DAG can be right about every variable it contains and still be missing one entirely
 
-# Negative controls {background-color="#23373B"}
-
-## Negative controls
-
-An exposure or outcome similar to your question in as many ways as possible, except that there **should not** be a causal effect
-
-::: nonincremental
-1. Leave out an essential ingredient
-2. Inactivate the hypothesized active ingredient
-3. Check for an effect impossible by the hypothesized mechanism
-:::
-
-## A lagged negative exposure
-
-`net_data` is a single cross-section, so we'll use the Seven Dwarfs data, which is also the data for your turn
-
-. . .
-
-If Extra Magic Mornings raise wait times, that effect should not still be there nine weeks later
-
-## Lag the exposure and its confounders
-
-```{r}
-#| eval: true
-lag_seven_dwarfs <- function(n_days_lag) {
-  seven_dwarfs |>
-    arrange(park_date) |>
-    transmute(
-      park_date,
-      prev_emm = lag(park_extra_magic_morning, n_days_lag),
-      prev_temperature = lag(park_temperature_high, n_days_lag),
-      prev_close = lag(park_close, n_days_lag),
-      prev_season = lag(park_ticket_season, n_days_lag)
-    ) |>
-    left_join(seven_dwarfs, by = "park_date") |>
-    drop_na(prev_emm)
-}
-```
-
-## Fit the effect 63 days back {.small}
-
-```{r}
-#| eval: true
-#| output-location: slide
-fit_lagged_effect <- function(n_days_lag) {
-  lagged <- lag_seven_dwarfs(n_days_lag)
-
-  propensity_model <- glm(
-    prev_emm ~ prev_temperature + prev_close + prev_season,
-    data = lagged,
-    family = binomial()
-  )
-
-  propensity_model |>
-    augment(type.predict = "response", data = lagged) |>
-    mutate(wts = wt_ate(.fitted, prev_emm, exposure_type = "binary")) |>
-    lm(
-      # day i's exposure inactivates the indirect effect
-      wait_minutes_posted_avg ~ prev_emm + park_extra_magic_morning,
-      data = _,
-      weights = wts
-    ) |>
-    tidy() |>
-    filter(term == "prev_emm") |>
-    pull(estimate)
-}
-
-fit_lagged_effect(63)
-```
-
-## The effect should decay to null
-
-```{r}
-#| eval: true
-#| echo: false
-#| fig-asp: 0.55
-tibble(lag = 1:63, coef = map_dbl(1:63, fit_lagged_effect)) |>
-  ggplot(aes(lag, coef)) +
-  geom_hline(yintercept = 0) +
-  geom_point(color = "#0172B1") +
-  geom_smooth(
-    se = FALSE,
-    color = "#E69F00",
-    method = "loess",
-    formula = y ~ x
-  ) +
-  theme_minimal(base_size = 20) +
-  labs(
-    x = "day (i - n)",
-    y = "difference in\nwait times"
-  )
-```
-
-## A lingering effect
-
-In the outcome model exercises, the effect on day *i* was about 6 minutes
-
-. . .
-
-The lagged effect eventually approaches null, but it hovers above null for far longer than any real effect of Extra Magic Mornings could, which implies residual confounding
-
-## Negative outcomes {.small}
-
-::: nonincremental
-- Wait times at Universal Studios share Orlando's weather and crowds, but Extra Magic Mornings cannot cause them
-- Simulated Universal wait times with no shared confounder give a null effect
-- Adding a confounder that drives wait times at both parks makes them non-null too
-:::
-
 # DAG-data consistency {background-color="#23373B"}
 
 ## What does the DAG say should be null?
@@ -295,6 +226,8 @@ query_conditional_independence(mosquito_dag) |>
 #| eval: true
 #| output-location: slide
 #| fig-asp: 0.7
+set.seed(1234)
+
 test_conditional_independence(
   mosquito_dag,
   data = net_data |>
@@ -326,9 +259,260 @@ test_conditional_independence(
 
 Adding arrows for the temperature pairs leaves the adjustment set unchanged, but report the original DAG if you change it
 
+## Add genetic resistance to the DAG
+
+```{r}
+#| eval: true
+#| code-line-numbers: "|7,13"
+full_dag <- dagify(
+  malaria_risk ~ net +
+    income +
+    health +
+    temperature +
+    insecticide_resistance +
+    genetic_resistance,
+  net ~ income +
+    health +
+    temperature +
+    eligible +
+    household +
+    genetic_resistance,
+  eligible ~ income + household,
+  health ~ income,
+  exposure = "net",
+  outcome = "malaria_risk"
+)
+```
+
+## Test it against the full dataset {.small}
+
+```{r}
+#| eval: true
+#| output-location: slide
+#| fig-asp: 0.7
+set.seed(1234)
+
+test_conditional_independence(
+  full_dag,
+  data = net_data_full |>
+    transmute(
+      net = as.numeric(net),
+      malaria_risk,
+      income,
+      health,
+      temperature,
+      insecticide_resistance,
+      eligible = as.numeric(eligible),
+      household,
+      genetic_resistance = as.numeric(genetic_resistance)
+    ) |>
+    as.data.frame(),
+  R = 200
+) |>
+  ggdag_conditional_independence()
+```
+
+## The same four disagreements
+
+::: nonincremental
+- Genetic resistance brings six new implied independencies, and all six hold
+- The four failures are still there: temperature with income and with health, at 0.16 and 0.18, and the two weaker ones at 0.05 and 0.06
+:::
+
+. . .
+
+Adding genetic resistance does not resolve them, so they come from somewhere else
+
+## One unknown cause, not three arrows
+
+::: nonincremental
+- The simulation draws income, temperature, and health together from a single correlated distribution
+- One unmeasured node stands in for that joint draw, in place of the arrow from income to health
+:::
+
+## The DAG that generated the data {.small}
+
+```{r}
+#| eval: true
+#| code-line-numbers: "|15-17|18"
+dgm_dag <- dagify(
+  malaria_risk ~ net +
+    income +
+    health +
+    temperature +
+    insecticide_resistance +
+    genetic_resistance,
+  net ~ income +
+    health +
+    temperature +
+    eligible +
+    household +
+    genetic_resistance,
+  eligible ~ income + household,
+  health ~ U,
+  income ~ U,
+  temperature ~ U,
+  latent = "U",
+  exposure = "net",
+  outcome = "malaria_risk",
+  coords = dgm_coords,
+  labels = dgm_labels
+)
+```
+
+## The unknown common cause
+
+```{r}
+#| eval: true
+#| echo: false
+#| fig-width: 9
+ggdag_adjustment_set(
+  dgm_dag,
+  use_labels = TRUE,
+  use_text = FALSE,
+  node_size = 10
+) +
+  theme_dag()
+```
+
+## Test the data-generating DAG {.small}
+
+```{r}
+#| eval: true
+#| output-location: slide
+#| fig-asp: 0.7
+set.seed(1234)
+
+test_conditional_independence(
+  dgm_dag,
+  data = net_data_full |>
+    transmute(
+      net = as.numeric(net),
+      malaria_risk,
+      income,
+      health,
+      temperature,
+      insecticide_resistance,
+      eligible = as.numeric(eligible),
+      household,
+      genetic_resistance = as.numeric(genetic_resistance)
+    ) |>
+    as.data.frame(),
+  R = 200
+) |>
+  ggdag_conditional_independence()
+```
+
+## Three small disagreements remain
+
+::: nonincremental
+- The temperature relationships are no longer implied nulls, so they are no longer disagreements
+- Eligibility and malaria risk, at 0.06
+- Household size with insecticide resistance, and with malaria risk, both about 0.05
+:::
+
+## Why eligibility disagrees
+
+::: nonincremental
+- Eligibility is decided by a sharp cutoff: more than four in the household and income under 700
+- The test fits a smooth curve, which cannot follow a sharp cutoff exactly, so a little correlation leaks through at the boundary
+:::
+
+. . .
+
+That is a fact about how the test works, not a missing arrow
+
+## The two household pairs
+
+Both intervals barely exclude zero, which is what we would expect from chance
+
+## Nothing left that the data can see {background-color="#23373B"}
+
+The data no longer disagrees with this DAG about any relationship it can measure
+
 ## {background-color="#23373B" .center}
 
 ### **These tests cannot prove a DAG right or wrong; they tell us where the data disagrees with our assumptions**
+
+## *Your turn 1*
+
+```{r}
+#| eval: true
+#| echo: false
+countdown::countdown(minutes = 8)
+```
+
+### Ask the Extra Magic Morning DAG which relationships should be null, then test those implied nulls against the data.
+
+## *Your turn 1*
+
+```{r}
+#| eval: true
+emm_wait_dag <- dagify(
+  wait_minutes_posted_avg ~ park_extra_magic_morning +
+    park_close +
+    park_ticket_season +
+    park_temperature_high,
+  park_extra_magic_morning ~ park_close +
+    park_ticket_season +
+    park_temperature_high,
+  exposure = "park_extra_magic_morning",
+  outcome = "wait_minutes_posted_avg"
+)
+```
+
+## *Your turn 1*
+
+```{r}
+#| eval: true
+#| output-location: slide
+query_conditional_independence(emm_wait_dag) |>
+  unnest(conditioned_on)
+```
+
+## *Your turn 1* {.small}
+
+```{r}
+#| eval: true
+#| output-location: slide
+#| fig-asp: 0.7
+set.seed(1234)
+
+test_conditional_independence(
+  emm_wait_dag,
+  data = seven_dwarfs |>
+    mutate(
+      across(where(is.character), factor),
+      park_close = as.numeric(park_close)
+    ) |>
+    as.data.frame(),
+  type = "cis.loess",
+  R = 200
+) |>
+  ggdag_conditional_independence()
+```
+
+## Park close time and ticket season
+
+::: nonincremental
+- Three relationships should be null: park close time with temperature, park close time with ticket season, and temperature with ticket season
+- Two of them hold, but park close time and ticket season correlate at -0.47
+:::
+
+## Why might we see a relationship?
+
+::: nonincremental
+- Park close time and ticket season both track the weather, so a missing arrow is a reasonable explanation
+- Chance is another, though we have data for every day of 2018
+:::
+
+## What was never measured
+
+::: nonincremental
+- These data are simulated, so genetic resistance was ours to add to the tests
+- In a real analysis it would never be in our data, and these tests stay silent about what is not there
+- What is left is to quantify what an unmeasured confounder would do to the estimate
+:::
 
 # Quantifying Unmeasured Confounding {background-color="#23373B"}
 
@@ -519,7 +703,7 @@ ggplot(
 
 ### **What will tip our confidence bound to cross zero?**
 
-## `tip_coef()` solves for the crossing
+## `tip_coef()` finds the tipping point
 
 ```{r}
 #| eval: true
@@ -534,7 +718,7 @@ tip_coef(
 
 # “An unmeasured confounder with an effect of *-10* on malaria risk would have to differ by *1.17* standard deviations between net users and non-users to tip our upper bound to zero. Genetic resistance differs in prevalence by about *0.21*, so a confounder like it cannot on its own explain away this result.” {.small}
 
-# The same grammar, in the wild {background-color="#23373B"}
+# A real-life example {background-color="#23373B"}
 
 ##
 
@@ -596,7 +780,7 @@ tip_hr_with_binary(
 e_value(0.96)
 ```
 
-## *Your turn*
+## *Your turn 2*
 
 ```{r}
 #| eval: true
