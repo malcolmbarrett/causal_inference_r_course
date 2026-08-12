@@ -194,17 +194,6 @@ tibble(
 )
 ```
 
-## Now suppose income had not been measured
-
-```{r}
-#| eval: true
-fit_ipw_effect(net ~ health + temperature)
-```
-
-. . .
-
-Leaving out a confounder moves the estimate well outside the spread of the valid sets
-
 ## Agreement is evidence, not proof {background-color="#23373B"}
 
 A DAG can be right about every variable it contains and still be missing one entirely
@@ -254,10 +243,6 @@ test_conditional_independence(
 - The DAG says temperature is independent of income and of health; in the data they correlate at 0.16 and 0.18
 - Two weaker failures: `eligible` and malaria risk, at 0.08 even after conditioning on the adjustment set, and `household` and insecticide resistance, at 0.05
 :::
-
-## What to do about it
-
-Adding arrows for the temperature pairs leaves the adjustment set unchanged, but report the original DAG if you change it
 
 ## Add genetic resistance to the DAG
 
@@ -419,10 +404,6 @@ test_conditional_independence(
 :::
 
 Both intervals barely exclude zero, which is what we would expect from chance
-
-## Nothing left that the data can see {background-color="#23373B"}
-
-The data no longer disagrees with this DAG about any relationship it can measure
 
 ## {background-color="#23373B" .center}
 
