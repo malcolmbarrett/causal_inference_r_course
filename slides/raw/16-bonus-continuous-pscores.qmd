@@ -369,7 +369,7 @@ nhefs_ipw_fit <- ipw(nhefs_model, nhefs_ipw_model)
 nhefs_ipw_fit
 ```
 
-## *Your Turn 3* {.small}
+## *Your Turn 3*
 
 ### Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created. 
 
