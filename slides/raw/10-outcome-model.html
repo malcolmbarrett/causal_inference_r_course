@@ -382,7 +382,7 @@ Malcolm Barrett
 <span id="cb11-11"><a href=""></a>ipw_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(malaria_risk <span class="sc">~</span> net, <span class="at">data =</span> net_data_wts, <span class="at">weights =</span> wts)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="robust-standard-errors" class="slide level2 small">
+<section id="robust-standard-errors" class="slide level2">
 <h2>Robust standard errors</h2>
 <p>The sandwich estimator gets its name from the form of the variance it calculates: a “meat” matrix built from the variability of each observation’s residuals, sandwiched between two copies of a “bread” matrix that comes from the design of the model</p>
 <div class="fragment">
@@ -395,7 +395,7 @@ Malcolm Barrett
 <p>That is why these are called “robust” standard errors</p>
 </div>
 </section>
-<section id="robust-standard-errors-1" class="slide level2 small">
+<section id="robust-standard-errors-1" class="slide level2">
 <h2>Robust standard errors</h2>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href=""></a><span class="fu">vcov</span>(ipw_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -411,7 +411,7 @@ netTRUE      -0.1953735  0.3896912</code></pre>
 <p><code>vcov()</code> returns the variance-covariance matrix that <code>tidy()</code> and <code>summary()</code> use under the hood; it treats the weights as fixed, which they are not</p>
 </div>
 </section>
-<section id="robust-standard-errors-2" class="slide level2 small">
+<section id="robust-standard-errors-2" class="slide level2">
 <h2>Robust standard errors</h2>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a><span class="fu">library</span>(sandwich)</span>
@@ -429,7 +429,7 @@ netTRUE       -0.157519  0.5720561</code></pre>
 <p>For the treatment coefficient, the sandwich variance is about 1.5 times the model-based one, so the model-based SE understates the uncertainty; for the intercept, it is smaller</p>
 </div>
 </section>
-<section id="robust-standard-errors-3" class="slide level2 small">
+<section id="robust-standard-errors-3" class="slide level2">
 <h2>Robust standard errors</h2>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href=""></a>robust_se <span class="ot">&lt;-</span> <span class="fu">avg_comparisons</span>(ipw_model, <span class="at">variables =</span> <span class="st">"net"</span>, <span class="at">vcov =</span> <span class="st">"HC3"</span>)</span>
@@ -519,14 +519,14 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <p><code>ipw()</code> fits each model once and takes a fraction of a second; the bootstrap fits 1,001 pairs of models</p>
 </div>
 </section>
-<section id="your-turn" class="slide level2 small">
+<section id="your-turn" class="slide level2">
 <h2><em>Your Turn</em></h2>
-<p><countdown-timer class="countdown" id="timer_fbbec2d7" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_1ec294cf" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 <h3 id="create-a-function-called-fit_ipw-that-fits-the-propensity-score-model-and-the-weighted-outcome-model-for-the-effect-between-park_extra_magic_morning-and-wait_minutes_posted_avg">Create a function called <code>fit_ipw</code> that fits the propensity score model and the weighted outcome model for the effect between <code>park_extra_magic_morning</code> and <code>wait_minutes_posted_avg</code></h3>
 <h3 id="using-the-bootstraps-and-int_t-functions-to-estimate-the-final-effect.">Using the <code>bootstraps()</code> and <code>int_t()</code> functions to estimate the final effect.</h3>
 <h3 id="fitting-both-models-on-the-full-data-and-using-ipw-to-compare-the-two-intervals.">Fitting both models on the full data and using <code>ipw()</code> to compare the two intervals.</h3>
 </section>
-<section id="binary-outcomes" class="slide level2 small">
+<section id="binary-outcomes" class="slide level2">
 <h2>Binary outcomes</h2>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22" data-code-line-numbers="|1-2|4-11|9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href=""></a>net_data_wts <span class="ot">&lt;-</span> net_data_wts <span class="sc">|&gt;</span></span>
@@ -541,7 +541,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <span id="cb22-10"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="binary-outcomes-all-three-effects" class="slide level2 small">
+<section id="binary-outcomes-all-three-effects" class="slide level2">
 <h2>Binary outcomes: all three effects</h2>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href=""></a><span class="fu">ipw</span>(propensity_model, binary_outcome_model) <span class="sc">|&gt;</span></span>
