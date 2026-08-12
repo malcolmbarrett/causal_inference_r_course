@@ -118,7 +118,7 @@ library(dagitty)
 adjustmentSets(mosquito_dag, type = "all")
 ```
 
-## Estimate the effect for one adjustment set {.small}
+## Estimate the effect for one adjustment set
 
 ```{r}
 #| eval: true
@@ -135,7 +135,7 @@ fit_ipw_effect <- function(.fmla, .data = net_data) {
 }
 ```
 
-## Estimate the effect for four of them {.small}
+## Estimate the effect for four of them
 
 ```{r}
 #| eval: true
@@ -189,7 +189,7 @@ An exposure or outcome similar to your question in as many ways as possible, exc
 
 If Extra Magic Mornings raise wait times, that effect should not still be there nine weeks later
 
-## Lag the exposure and its confounders {.small}
+## Lag the exposure and its confounders
 
 ```{r}
 #| eval: true
@@ -315,13 +315,16 @@ test_conditional_independence(
   ggdag_conditional_independence()
 ```
 
-## Four of them do not hold {.small}
+## Four of them do not hold
 
 ::: nonincremental
 - The DAG says temperature is independent of income and of health; in the data they correlate at 0.16 and 0.18
 - Two weaker failures: `eligible` and malaria risk, at 0.08 even after conditioning on the adjustment set, and `household` and insecticide resistance, at 0.05
-- Adding arrows for the temperature pairs leaves the adjustment set unchanged, but report the original DAG if you change it
 :::
+
+## What to do about it
+
+Adding arrows for the temperature pairs leaves the adjustment set unchanged, but report the original DAG if you change it
 
 ## {background-color="#23373B" .center}
 
@@ -354,7 +357,7 @@ test_conditional_independence(
 
 ### **tipr**
 
-## The grammar of tipr: `{action}_{effect}_with_{what}` {.tiny}
+## The grammar of tipr: `{action}_{effect}_with_{what}` {.small}
 
 | part | term | what it means |
 |------|------|---------------|
@@ -377,7 +380,7 @@ test_conditional_independence(
 - **Neither**: `adjust_*()` or `tip_*()` in an array, `tip_coef_with_r2()` benchmarked against measured confounders, or summaries like `r_value()` and `e_value()`
 :::
 
-## 1. The observed exposure-outcome effect {.small}
+## 1. The observed exposure-outcome effect
 
 ```{r}
 #| eval: true
@@ -402,7 +405,7 @@ observed_effect |>
   select(estimate, conf.low, conf.high)
 ```
 
-## 2. The confounder-exposure relationship {.small}
+## 2. The confounder-exposure relationship
 
 ::: nonincremental
 - **Binary** confounder: its prevalence in the exposed and in the unexposed
@@ -410,7 +413,7 @@ observed_effect |>
 - **Distribution-agnostic**: the partial R^2^ for the exposure
 :::
 
-## What "unit variance" means {.small}
+## What "unit variance" means
 
 ```{r}
 #| eval: true
@@ -450,7 +453,7 @@ net_data |>
 3. About 5% of people who don't use nets have this genetic resistance
 :::
 
-## Adjust the estimate for genetic resistance {.small}
+## Adjust the estimate for genetic resistance
 
 ```{r}
 #| eval: true
@@ -480,7 +483,7 @@ observed_effect |>
 - The truth: **-10**
 :::
 
-## Vary both parameters at once {.small}
+## Vary both parameters at once
 
 ```{r}
 #| eval: true
@@ -492,7 +495,7 @@ sens <- adjust_coef(
 )
 ```
 
-## Vary both parameters at once {.small}
+## Vary both parameters at once
 
 ```{r}
 #| eval: true
@@ -529,7 +532,7 @@ tip_coef(
   select(exposure_confounder_effect)
 ```
 
-# “An unmeasured confounder with an effect of *-10* on malaria risk would have to differ by *1.17* standard deviations between net users and non-users to tip our upper bound to zero. Genetic resistance differs in prevalence by about *0.21*, so a confounder like it cannot on its own explain away this result.” {.tiny}
+# “An unmeasured confounder with an effect of *-10* on malaria risk would have to differ by *1.17* standard deviations between net users and non-users to tip our upper bound to zero. Genetic resistance differs in prevalence by about *0.21*, so a confounder like it cannot on its own explain away this result.” {.small}
 
 # The same grammar, in the wild {background-color="#23373B"}
 
@@ -553,7 +556,7 @@ Hawes-Dawson J, et al. 2015 health related behaviors survey:
 Substance use among US active-duty service members. RAND; 2018.
 :::
 
-## `tipr` Example {.small}
+## `tipr` Example
 
 *What if we assume the effect of alcohol consumption on lung cancer after adjusting for other confounders is 2?*
 
@@ -569,7 +572,7 @@ adjust_hr_with_binary(
 )
 ```
 
-## `tipr` Example {.small}
+## `tipr` Example
 
 ```{r}
 #| eval: true
