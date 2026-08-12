@@ -174,7 +174,7 @@ mean(wait_times_swts$swts)
 
 Now, let's fit the outcome model!
 
-1. Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created. 
+1. Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created.
 
 ```{r}
 lm(___ ~ ___, weights = ___, data = wait_times_swts) |>
@@ -182,6 +182,36 @@ lm(___ ~ ___, weights = ___, data = wait_times_swts) |>
   filter(term == "wait_minutes_posted_avg") |>
   mutate(estimate = estimate * 10)
 ```
+
+`ipw()` rebuilds the weights from the propensity score model, so we need to calculate them once more without `.sigma`. You don't need to update any code here, so just run this.
+
+```{r}
+wait_times_ipw_wts <- wait_times |>
+  mutate(swts = wt_ate(
+    fitted(post_time_model),
+    wait_minutes_posted_avg,
+    # ipw() rebuilds these weights from the model,
+    # so wt_ate() estimates the SD instead of .sigma
+    exposure_type = "continuous",
+    stabilize = TRUE
+  ))
+```
+
+2. Fit the same outcome model with these weights.
+
+```{r}
+ipw_model <- lm(___ ~ ___, weights = ___, data = wait_times_ipw_wts)
+```
+
+3. Supply the propensity score model and the outcome model to `ipw()`, which uses a sandwich estimator that also accounts for the uncertainty in the propensity score model.
+
+```{r}
+ipw_fit <- ipw(____, ____)
+
+ipw_fit
+```
+
+`ipw()` reports the estimate for one more minute of posted wait time, so multiply it by 10 to compare it to the estimate above. It is a little further from zero than the first estimate because these weights use a single pooled standard deviation rather than the mean of `.sigma`.
 
 ## Stretch goal: Boostrapped intervals
 
