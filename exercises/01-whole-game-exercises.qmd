@@ -643,37 +643,28 @@ The unmeasured confounder is available in `net_data_full` as
 the IPW estimate.
 
 ```{r}
-fit_ipw_full <- function(.split, ...) {
-  # get bootstrapped data frame
-  .df <- as.data.frame(.split)
+# add genetic resistance to the propensity score model
+propensity_model_full <- glm(
+  net ~ income + health + temperature + genetic_resistance,
+  family = binomial(),
+  data = net_data_full
+)
 
-  # add genetic resistance to the propensity score model
-  propensity_model <- glm(
-    net ~ income + health + temperature + genetic_resistance,
-    family = binomial(),
-    data = .df
-  )
+net_data_full_wts <- propensity_model_full |>
+  augment(type.predict = "response", data = net_data_full) |>
+  mutate(wts = wt_ate(.fitted, net))
 
-  # calculate inverse probability weights
-  .df <- propensity_model |>
-    augment(type.predict = "response", data = .df) |>
-    mutate(wts = wt_ate(.fitted, net))
+ipw_model_full <- lm(
+  malaria_risk ~ net,
+  data = net_data_full_wts,
+  weights = wts
+)
 
-  # fit correctly bootstrapped ipw model
-  lm(malaria_risk ~ net, data = .df, weights = wts) |>
-    tidy()
-}
-
-ipw_results_full <- bootstraps(net_data_full, times = 1000, apparent = TRUE) |>
-  mutate(results = map(splits, fit_ipw_full))
-
-boot_estimate_full <- int_t(ipw_results_full, results) |>
-  filter(term == "netTRUE")
-
-boot_estimate_full
+ipw_fit_full <- ipw(propensity_model_full, ipw_model_full)
+tidy(ipw_fit_full, conf.int = TRUE)
 ```
 
-With the confounder measured, the estimate is -10.3 (95% CI -11.1, -9.3).
+With the confounder measured, the estimate is -10.2 (95% CI -11.2, -9.3).
 Because these data are simulated, we know the true effect of net use on malaria
 risk is about -10, so our corrected estimate is close.
 
