@@ -29,7 +29,7 @@
 - [11 Continuous Exposures and
   G-Computation](https://causal-inference-r-workshop.netlify.app/11-continuous-g-comp.html)
 - [14 Tipping Point Sensitivity
-  Analyses](https://causal-inference-r-workshop.netlify.app/14-tipr.html)
+  Analyses](https://causal-inference-r-workshop.netlify.app/12-tipr.html)
 - [15 Bonus: Selection
   Bias](https://causal-inference-r-workshop.netlify.app/15-bonus-selection-bias.html)
 - [16 Bonus: Continuous Exposures with Propensity

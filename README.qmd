@@ -26,7 +26,7 @@ knitr::opts_chunk$set(
 * [09 Checking Propensity Scores](https://causal-inference-r-workshop.netlify.app/09-pscore-diagnostics.html)
 * [10 Fitting the outcome model](https://causal-inference-r-workshop.netlify.app/10-outcome-model.html)
 * [11 Continuous Exposures and G-Computation](https://causal-inference-r-workshop.netlify.app/11-continuous-g-comp.html)
-* [14 Tipping Point Sensitivity Analyses](https://causal-inference-r-workshop.netlify.app/14-tipr.html)
+* [12 Tipping Point Sensitivity Analyses](https://causal-inference-r-workshop.netlify.app/12-tipr.html)
 * [15 Bonus: Selection Bias](https://causal-inference-r-workshop.netlify.app/15-bonus-selection-bias.html)
 * [16 Bonus: Continuous Exposures with Propensity Scores](https://causal-inference-r-workshop.netlify.app/16-bonus-continuous-pscores.html)
 * [17 Bonus: Machine Learning for Causal Inference](https://causal-inference-r-workshop.netlify.app/17-bonus-ml-for-causal.html)
