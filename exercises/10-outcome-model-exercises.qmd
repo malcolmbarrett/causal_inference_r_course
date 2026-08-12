@@ -23,7 +23,7 @@ We are interested in examining the relationship between whether there were "Extr
 Create a function called `fit_ipw` that fits the propensity score model and incorporates the ATE weights (as calculated in the previous exercises), then uses the weights in a weighted outcome model.
 
 ```{r}
-fit_ipw <- function(split, ...) { 
+fit_ipw <- function(.split, ...) {
   .df <- ____
   
   # fit propensity score model
@@ -59,7 +59,7 @@ ipw_results |>
     )
   ) |>
   ggplot(aes(estimate)) +
-  geom_histogram(fill = "#D55E00FF", color = "white", alpha = 0.8) + 
+  geom_histogram(bins = 30, fill = "#D55E00FF", color = "white", alpha = 0.8) +
   theme_minimal()
 ```
 

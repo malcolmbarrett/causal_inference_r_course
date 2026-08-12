@@ -234,13 +234,15 @@ bind_rows(
 
 `ipw()` fits each model once and takes a fraction of a second; the bootstrap fits 1,001 pairs of models
 
-## *Your Turn*
+## *Your Turn* {.small}
 
-`r countdown::countdown(minutes = 8)`
+`r countdown::countdown(minutes = 10)`
 
 ### Create a function called `fit_ipw` that fits the propensity score model and the weighted outcome model for the effect between `park_extra_magic_morning` and `wait_minutes_posted_avg`
 
 ### Using the `bootstraps()` and `int_t()` functions to estimate the final effect.
+
+### Fitting both models on the full data and using `ipw()` to compare the two intervals.
 
 ## Binary outcomes: an odds ratio {.small}
 
