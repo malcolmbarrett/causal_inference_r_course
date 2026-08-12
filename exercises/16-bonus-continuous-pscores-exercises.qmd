@@ -213,7 +213,7 @@ ipw_fit
 
 `ipw()` reports the estimate for one more minute of posted wait time, so multiply it by 10 to compare it to the estimate above. It is a little further from zero than the first estimate because these weights use a single pooled standard deviation rather than the mean of `.sigma`.
 
-## Stretch goal: Boostrapped intervals
+## Stretch goal: Bootstrapped intervals
 
 Bootstrap confidence intervals for our estimate.
 
