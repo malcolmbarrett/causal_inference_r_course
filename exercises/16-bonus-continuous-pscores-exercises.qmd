@@ -103,11 +103,11 @@ wait_times <- eight |>
 
 # Your Turn 1
 
-First, let’s calculate the propensity score model, which will be the denominator in our stabilized weights (more to come on that soon). We’ll fit a model using `lm()` for `wait_minutes_posted_avg` with our covariates, then use the fitted predictions of `wait_minutes_posted_avg` (`.fitted`, `.sigma`) to calculate the density using `dnorm()`.
+First, let’s calculate the propensity score model, which will be the denominator in our stabilized weights (more to come on that soon). We’ll fit a model using `lm()` for `wait_minutes_posted_avg` with our covariates, then use the fitted predictions of `wait_minutes_posted_avg` (`.fitted`) to calculate the density using `dnorm()`.
 
 1. Fit a model using `lm()` with `wait_minutes_posted_avg` as the outcome and the confounders identified in the DAG.
 2. Use `augment()` to add model predictions to the data frame.
-3. In `wt_ate()`, calculate the weights using `.fitted`, `wait_minutes_posted_avg`, and the mean of `.sigma`.
+3. In `wt_ate()`, calculate the weights using `.fitted` and `wait_minutes_posted_avg`.
 
 ```{r}
 post_time_model <- lm(
@@ -120,7 +120,6 @@ wait_times_wts <- post_time_model |>
   mutate(wts = ______(
     ______,
     ______,
-    .sigma = ______,
     exposure_type = "continuous"
   ))
 ```
@@ -148,7 +147,6 @@ wait_times_swts <- post_time_model |>
   mutate(swts = _____(
     _____,
     _____,
-    .sigma = mean(.sigma, na.rm = TRUE),
     exposure_type = "continuous",
     _____ = _____
   ))
@@ -183,24 +181,10 @@ lm(___ ~ ___, weights = ___, data = wait_times_swts) |>
   mutate(estimate = estimate * 10)
 ```
 
-`ipw()` rebuilds the weights from the propensity score model, so we need to calculate them once more without `.sigma`. You don't need to update any code here, so just run this.
+2. Fit the same outcome model again, saving it to an object so we can pass it to `ipw()`.
 
 ```{r}
-wait_times_ipw_wts <- wait_times |>
-  mutate(swts = wt_ate(
-    fitted(post_time_model),
-    wait_minutes_posted_avg,
-    # ipw() rebuilds these weights from the model,
-    # so wt_ate() estimates the SD instead of .sigma
-    exposure_type = "continuous",
-    stabilize = TRUE
-  ))
-```
-
-2. Fit the same outcome model with these weights.
-
-```{r}
-ipw_model <- lm(___ ~ ___, weights = ___, data = wait_times_ipw_wts)
+ipw_model <- lm(___ ~ ___, weights = ___, data = wait_times_swts)
 ```
 
 3. Supply the propensity score model and the outcome model to `ipw()`, which uses a sandwich estimator that also accounts for the uncertainty in the propensity score model.
@@ -211,7 +195,7 @@ ipw_fit <- ipw(____, ____)
 ipw_fit
 ```
 
-`ipw()` reports the estimate for one more minute of posted wait time, so multiply it by 10 to compare it to the estimate above. It is a little further from zero than the first estimate because these weights use a single pooled standard deviation rather than the mean of `.sigma`.
+`ipw()` reports the estimate for one more minute of posted wait time, so multiply it by 10 to compare it to the estimate above. The point estimate matches the weighted regression; what `ipw()` adds is a standard error that accounts for having estimated the weights.
 
 ## Stretch goal: Bootstrapped intervals
 
@@ -243,7 +227,7 @@ boot_estimate
 
 # Take aways
 
-* We can calculate propensity scores for continuous exposures. `wt_ate()` uses `dnorm()` to use the normal density to transform predictions to a propensity-like scale; we need to give `wt_ate()` `.sigma` to do this. We can also use other approaches like quantile binning of the exposure, calculating probability-based propensity scores using categorical regression models. 
+* We can calculate propensity scores for continuous exposures. `wt_ate()` uses `dnorm()` to use the normal density to transform predictions to a propensity-like scale, estimating the standard deviation from the model predictions with the pooled residual standard deviation. We can also use other approaches like quantile binning of the exposure, calculating probability-based propensity scores using categorical regression models. 
 * Continuous exposures are prone to mispecification and usually need to be stabilized. A simple stabilization is to invert the propensity score by stabilization weights using an intercept-only model such as `lm(exposure ~ 1)`. `wt_ate()` can do this for you automatically with `stabilize = TRUE`. This also applies to other types of exposures.
 * Stabilization is useful for any type of exposure where the weights are unbounded. Bounded weights like the ATO do not have this problem, one of their many benefits.
 * Using propensity scores for continuous exposures in outcome models is identical to using them with binary exposures.
