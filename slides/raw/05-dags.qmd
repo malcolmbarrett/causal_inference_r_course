@@ -11,7 +11,7 @@ format: "kakashi-revealjs"
 #| label: setup
 #| include: false
 options(
-  tibble.max_extra_cols = 6, 
+  tibble.max_extra_cols = 6,
   tibble.width = 60
 )
 
@@ -125,7 +125,7 @@ knitr::include_graphics("img/ggdagitty_plots.png")
 knitr::include_graphics("img/tidy_ggdagitty.png")
 ```
 
-## Step 1: Specify your DAG 
+## Step 1: Specify your DAG
 
 . . .
 
@@ -134,7 +134,7 @@ knitr::include_graphics("img/tidy_ggdagitty.png")
 #| code-line-numbers: "|2|3"
 library(ggdag)
 dagify(
-  cancer ~ smoking, 
+  cancer ~ smoking,
   coffee ~ smoking
 )
 ```
@@ -145,8 +145,8 @@ dagify(
 ```{r}
 #| output-location: slide
 dagify(
-  cancer ~ smoking, 
-  coffee ~ smoking 
+  cancer ~ smoking,
+  coffee ~ smoking
 ) |> ggdag()
 ```
 
@@ -156,14 +156,14 @@ dagify(
 ```{r}
 #| output-location: slide
 dagify(
-  cancer ~ smoking + coffee, 
-  coffee ~ smoking 
+  cancer ~ smoking + coffee,
+  coffee ~ smoking
 ) |> ggdag()
 ```
 
 ## *Your Turn 1* (**`05-dags-exercises.qmd`**) {.small}
 
-### Specify a DAG with `dagify()`. Write your assumption that `smoking` causes `cancer` as a formula. 
+### Specify a DAG with `dagify()`. Write your assumption that `smoking` causes `cancer` as a formula.
 ### We're going to assume that coffee does not cause cancer, so there's no formula for that. But we still need to declare our causal question. Specify "coffee" as the exposure and "cancer" as the outcome (both in quotations marks).
 ### Plot the DAG using `ggdag()`
 ### Finish early? Try the *stretch goals*
@@ -180,9 +180,9 @@ coffee_cancer_dag <- dagify(
   exposure = "coffee",
   outcome = "cancer",
   labels = c(
-    "coffee" = "Coffee", 
-    "cancer" = "Lung Cancer", 
-    "smoking" = "Smoking", 
+    "coffee" = "Coffee",
+    "cancer" = "Lung Cancer",
+    "smoking" = "Smoking",
     "addictive" = "Addictive \nBehavior"
   )
 )
@@ -231,24 +231,24 @@ mosquito_dag |>
   ggplot(aes(x = x, y = y, xend = xend, yend = yend, col = path, alpha = path)) +
   geom_dag_edges_link(
     aes(
-      edge_alpha = path, 
+      edge_alpha = path,
       edge_colour = path,
-      start_cap = ggraph::circle(3, 'mm'), 
+      start_cap = ggraph::circle(3, 'mm'),
       end_cap = ggraph::circle(3, 'mm')
     )
   ) +
-  geom_dag_point(size = 4) + 
+  geom_dag_point(size = 4) +
   facet_wrap(~forcats::fct_inorder(as.factor(set), ordered = TRUE), nrow = 2) +
   scale_alpha_manual(
-    drop = FALSE, 
-    values = c("open path" = 1), 
-    na.value = .35, 
+    drop = FALSE,
+    values = c("open path" = 1),
+    na.value = .35,
     breaks = "open path"
   ) +
   ggraph::scale_edge_alpha_manual(
-    drop = FALSE, 
-    values = c("open path" = 1), 
-    na.value = .35, 
+    drop = FALSE,
+    values = c("open path" = 1),
+    na.value = .35,
     breaks = "open path"
   ) +
   ggraph::scale_edge_colour_hue(drop = FALSE, breaks = "open path") +
@@ -264,7 +264,7 @@ mosquito_dag |>
 ## *Your Turn 2* {.small}
 
 ### Call `tidy_dagitty()` on `coffee_cancer_dag` to create a tidy DAG, then pass the results to `dag_paths()`. What's different about these data?
-### Plot the open paths with `ggdag_paths()`. (Just give it `coffee_cancer_dag` rather than using `dag_paths()`; the quick plot function will do that for you.) Remember, since we assume there is *no* causal path from coffee to lung cancer, any open paths must be confounding pathways. 
+### Plot the open paths with `ggdag_paths()`. (Just give it `coffee_cancer_dag` rather than using `dag_paths()`; the quick plot function will do that for you.) Remember, since we assume there is *no* causal path from coffee to lung cancer, any open paths must be confounding pathways.
 ### Finish early? Try the *stretch goals*
 
 `r countdown::countdown(minutes = 4)`
@@ -314,16 +314,16 @@ collider <- dagify(
   coords = coords
 )
 
-dag_flows <- map(list(fork = fork, chain = chain, collider = collider), tidy_dagitty) |> 
-  map("data") |> 
-  list_rbind(names_to = "dag") |> 
+dag_flows <- map(list(fork = fork, chain = chain, collider = collider), tidy_dagitty) |>
+  map("data") |>
+  list_rbind(names_to = "dag") |>
   mutate(dag = factor(dag, levels = c("fork", "chain", "collider")))
 
-dag_flows |> 
+dag_flows |>
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
-  geom_dag_edges(edge_width = 1) + 
-  geom_dag_point() + 
-  geom_dag_text() + 
+  geom_dag_edges(edge_width = 1) +
+  geom_dag_point() +
+  geom_dag_text() +
   facet_wrap(~ dag) +
   expand_plot(
     expand_x = expansion(c(0.2, 0.2)),
@@ -338,17 +338,17 @@ dag_flows |>
 #| echo: false
 #| fig.width: 6.5
 
-dag_flows |> 
+dag_flows |>
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
-  geom_dag_edges(aes(edge_color = dag), edge_width = 1, show.legend = FALSE) + 
-  geom_dag_point(color = "grey85") + 
-  geom_dag_text() + 
+  geom_dag_edges(aes(edge_color = dag), edge_width = 1, show.legend = FALSE) +
+  geom_dag_point(color = "grey85") +
+  geom_dag_text() +
   facet_wrap(~ dag) +
   expand_plot(
     expand_x = expansion(c(0.2, 0.2)),
     expand_y = expansion(c(0.2, 0.2))
   ) +
-  theme_dag() + 
+  theme_dag() +
   ggraph::scale_edge_color_manual(values = c("steelblue", "forestgreen", "firebrick"))
 ```
 
@@ -358,11 +358,11 @@ dag_flows |>
 #| echo: false
 #| fig.width: 6.5
 
-dag_flows |> 
+dag_flows |>
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
-  geom_dag_edges(aes(edge_color = dag), edge_width = 1, show.legend = FALSE) + 
-  geom_dag_point(color = "grey85") + 
-  geom_dag_text() + 
+  geom_dag_edges(aes(edge_color = dag), edge_width = 1, show.legend = FALSE) +
+  geom_dag_point(color = "grey85") +
+  geom_dag_text() +
   facet_wrap(~ dag) +
   expand_plot(
     expand_x = expansion(c(0.2, 0.2)),
@@ -378,11 +378,11 @@ dag_flows |>
 #| echo: false
 #| fig.width: 6.5
 
-dag_flows |> 
+dag_flows |>
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
-  geom_dag_edges(aes(edge_color = dag != "fork"), edge_width = 1, show.legend = FALSE) + 
-  geom_dag_point(color = "grey85") + 
-  geom_dag_text() + 
+  geom_dag_edges(aes(edge_color = dag != "fork"), edge_width = 1, show.legend = FALSE) +
+  geom_dag_point(color = "grey85") +
+  geom_dag_text() +
   facet_wrap(~ dag) +
   expand_plot(
     expand_x = expansion(c(0.2, 0.2)),
@@ -398,11 +398,11 @@ dag_flows |>
 #| echo: false
 #| fig.width: 6.5
 
-dag_flows |> 
+dag_flows |>
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
-  geom_dag_edges(aes(edge_color = dag != "chain"), edge_width = 1, show.legend = FALSE) + 
-  geom_dag_point(color = "grey85") + 
-  geom_dag_text() + 
+  geom_dag_edges(aes(edge_color = dag != "chain"), edge_width = 1, show.legend = FALSE) +
+  geom_dag_point(color = "grey85") +
+  geom_dag_text() +
   facet_wrap(~ dag) +
   expand_plot(
     expand_x = expansion(c(0.2, 0.2)),
@@ -419,11 +419,11 @@ dag_flows |>
 #| echo: false
 #| fig.width: 6.5
 
-dag_flows |> 
+dag_flows |>
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
-  geom_dag_edges(aes(edge_color = dag != "collider"), edge_width = 1, show.legend = FALSE) + 
-  geom_dag_point(color = "grey85") + 
-  geom_dag_text() + 
+  geom_dag_edges(aes(edge_color = dag != "collider"), edge_width = 1, show.legend = FALSE) +
+  geom_dag_point(color = "grey85") +
+  geom_dag_text() +
   facet_wrap(~ dag) +
   expand_plot(
     expand_x = expansion(c(0.2, 0.2)),
@@ -482,8 +482,8 @@ adjustmentSets(mosquito_dag)
 ```{r}
 #| output-location: slide
 ggdag_adjustment_set(
-  coffee_cancer_dag, 
-  use_labels = TRUE, 
+  coffee_cancer_dag,
+  use_labels = TRUE,
   use_text = FALSE
 )
 ```
@@ -496,6 +496,49 @@ ggdag_adjustment_set(
 cancer ~ coffee + addictive
 cancer ~ coffee + smoking
 ```
+
+## Let's prove it!
+
+```{r}
+set.seed(1234)
+dag_data <- coffee_cancer_dag |>
+  simulate_data(-.6)
+```
+
+## Let's prove it!
+
+```{r}
+dag_data
+```
+
+## Let's prove it!
+
+```{r}
+#| echo: false
+
+fit_model <- function(fmla) {
+  lm(fmla, data = dag_data) |>
+    broom::tidy(conf.int = TRUE) |>
+    dplyr::filter(term == "coffee") |>
+    dplyr::mutate(formula = as.character(fmla)[3]) |>
+    dplyr::select(formula, estimate, conf.low, conf.high)
+}
+
+bind_rows(
+  fit_model(cancer ~ coffee),
+  fit_model(cancer ~ coffee + smoking),
+  fit_model(cancer ~ coffee + addictive)
+) |>
+  ggplot(aes(x = estimate, y = formula, xmin = conf.low, xmax = conf.high)) +
+  geom_vline(xintercept = 0, linewidth = 1, color = "grey80") +
+  geom_pointrange(color = "steelblue", size = 0.75) +
+  theme_minimal(18) +
+  labs(
+    y = NULL,
+    caption = "correct effect size: 0"
+  )
+```
+
 
 ## Which adjustment set? {.large}
 
@@ -523,68 +566,18 @@ cancer ~ coffee + smoking
 adjustmentSets(coffee_cancer_dag, type = "all")
 ```
 
-## Canonical adjustment sets
-
-**Ancestors of the exposure and outcome, minus any likely descendants**
-
-```{r}
-adjustmentSets(coffee_cancer_dag, type = "canonical")
-```
-
-## Let's prove it!
-
-```{r}
-set.seed(1234)
-dag_data <- coffee_cancer_dag |> 
-  simulate_data(-.6)
-```
-
-## Let's prove it!
-
-```{r}
-dag_data
-```
-
-## Let's prove it!
-
-```{r}
-#| echo: false
-
-fit_model <- function(fmla) {
-  lm(fmla, data = dag_data) |> 
-    broom::tidy(conf.int = TRUE) |> 
-    dplyr::filter(term == "coffee") |> 
-    dplyr::mutate(formula = as.character(fmla)[3]) |> 
-    dplyr::select(formula, estimate, conf.low, conf.high)
-}
-
-bind_rows(
-  fit_model(cancer ~ coffee),
-  fit_model(cancer ~ coffee + smoking),
-  fit_model(cancer ~ coffee + addictive)
-) |> 
-  ggplot(aes(x = estimate, y = formula, xmin = conf.low, xmax = conf.high)) +
-  geom_vline(xintercept = 0, linewidth = 1, color = "grey80") + 
-  geom_pointrange(color = "steelblue", size = 0.75) +
-  theme_minimal(18) +
-  labs(
-    y = NULL,
-    caption = "correct effect size: 0"
-  )
-```
-
 ## Time-ordering
 
 ```{r}
 #| echo: false
 #| fig.width: 10
-map(list(fork = fork, chain = chain, collider = collider), tidy_dagitty, layout = "time_ordered") |> 
-    map("data") |> 
-    list_rbind(names_to = "dag") |> 
+map(list(fork = fork, chain = chain, collider = collider), tidy_dagitty, layout = "time_ordered") |>
+    map("data") |>
+    list_rbind(names_to = "dag") |>
     mutate(dag = factor(dag, levels = c("fork", "chain", "collider"))) |> ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
-    geom_dag_edges(edge_width = 1) + 
-    geom_dag_point() + 
-    geom_dag_text() + 
+    geom_dag_edges(edge_width = 1) +
+    geom_dag_point() +
+    geom_dag_text() +
     facet_wrap(~ dag) +
     expand_plot(
         expand_x = expansion(c(.1, .1)),
@@ -681,9 +674,9 @@ coffee_cancer_dag_to <- dagify(
   outcome = "cancer",
   coords = time_ordered_coords(),
   labels = c(
-    "coffee" = "Coffee", 
-    "cancer" = "Lung Cancer", 
-    "smoking" = "Smoking", 
+    "coffee" = "Coffee",
+    "cancer" = "Lung Cancer",
+    "smoking" = "Smoking",
     "addictive" = "Addictive \nBehavior"
   )
 )

@@ -404,7 +404,7 @@ Exposed (treated) observations
 </section>
 <section id="target-estimands-4" class="slide level2">
 <h2>Target estimands</h2>
-<h3 id="average-treatment-effect-among-the-unexposed-atu-atc"><em>Average Treatment Effect among the Unexposed (ATU / ATC)</em></h3>
+<h3 id="average-treatment-effect-among-the-unexposed-controls-atu-atc"><em>Average Treatment Effect among the Unexposed / Controls (ATU / ATC)</em></h3>
 <p><span class="math display">\[\tau = E[Y(1) - Y(0) | Z = 0]\]</span></p>
 
 <img data-src="08-using-pscores_files/figure-revealjs/unnamed-chunk-8-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
@@ -602,7 +602,7 @@ Evenly matchable
 <h2><em>Your Turn 1</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_1111d022" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_e7088b68" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 <h3 id="using-the-propensity-scores-you-created-in-the-previous-exercise-create-a-matched-data-set-using-the-atm-method-with-a-caliper-of-0.2.">Using the propensity scores you created in the previous exercise, create a “matched” data set using the ATM method with a caliper of 0.2.</h3>
@@ -620,19 +620,12 @@ Evenly matchable
 <ul>
 <li class="fragment">Weighting is statistically more efficient; we recommend it when possible</li>
 <li class="fragment">Matching has a distinct advantage: it’s easy to understand</li>
-<li class="fragment">Not everyone will follow a pseudo-population or a non-integer sample size</li>
 </ul>
 </section>
 <section id="histogram-of-propensity-scores" class="slide level2">
 <h2>Histogram of propensity scores</h2>
 
 <img data-src="08-using-pscores_files/figure-revealjs/unnamed-chunk-15-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
-<section id="tilting-functions" class="slide level2" data-background-color="#23373B">
-<h2>Tilting functions</h2>
-<p>Every weight is the ATE weight times a <strong>tilting function</strong>, <span class="math inline">\(h(p_i)\)</span></p>
-<p><span class="math display">\[\Large w_i = \frac{h(p_i)Z_i}{p_i} + \frac{h(p_i)(1-Z_i)}{1 - p_i}\]</span></p>
-<p>The tilting function reshapes the population we are targeting</p>
-</section>
 <section id="target-estimands-ate" class="slide level2" data-background-color="#23373B">
 <h2>Target estimands: ATE</h2>
 <p>Average Treatment Effect (ATE)</p>
@@ -640,7 +633,15 @@ Evenly matchable
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href=""></a>(Z <span class="sc">/</span> p) <span class="sc">+</span> ((<span class="dv">1</span> <span class="sc">-</span> Z) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> p))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+<section id="tilting-functions" class="slide level2" data-background-color="#23373B">
+<h2>Tilting functions</h2>
+<p>Every weight is the ATE weight times a <strong>tilting function</strong>, <span class="math inline">\(h(p_i)\)</span></p>
+<p><span class="math display">\[\Large w_i = \frac{h(p_i)Z_i}{p_i} + \frac{h(p_i)(1-Z_i)}{1 - p_i}\]</span></p>
+<p>The tilting function reshapes the population we are targeting</p>
+<div class="fragment">
 <p>The tilting function is <span class="math inline">\(h(p_i) = 1\)</span>: the population is unchanged and the weights are unbounded</p>
+</div>
 </section>
 <section id="ate-tilting-function" class="slide level2">
 <h2>ATE tilting function</h2>
@@ -686,6 +687,10 @@ Evenly matchable
 <p>The tilting function is <span class="math inline">\(h(p_i) = \min \{p_i, 1-p_i\}\)</span>: a triangle peaking at 0.5</p>
 </div>
 </section>
+<section id="atm-tilting-function" class="slide level2">
+<h2>ATM tilting function</h2>
+
+<img data-src="08-using-pscores_files/figure-revealjs/unnamed-chunk-25-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="target-estimands-atm-ato-1" class="slide level2" data-background-color="#23373B">
 <h2>Target estimands: ATM &amp; ATO</h2>
 <p>Average Treatment Effect Among the Overlap Population <span class="math display">\[\Large w_{ATO} = (1-p_i)Z_i + p_i(1-Z_i)\]</span></p>
@@ -697,7 +702,7 @@ Evenly matchable
 <section id="ato-tilting-function" class="slide level2">
 <h2>ATO tilting function</h2>
 
-<img data-src="08-using-pscores_files/figure-revealjs/unnamed-chunk-26-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="08-using-pscores_files/figure-revealjs/unnamed-chunk-27-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="target-estimands-8" class="slide level2">
 <h2>Target estimands</h2>
 <table class="caption-top">
@@ -721,11 +726,11 @@ Evenly matchable
 <section id="atm" class="slide level2">
 <h2>ATM</h2>
 
-<img data-src="08-using-pscores_files/figure-revealjs/unnamed-chunk-27-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="08-using-pscores_files/figure-revealjs/unnamed-chunk-28-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="ato" class="slide level2">
 <h2>ATO</h2>
 
-<img data-src="08-using-pscores_files/figure-revealjs/unnamed-chunk-28-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="08-using-pscores_files/figure-revealjs/unnamed-chunk-29-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="ate-in-r" class="slide level2">
 <h2>ATE in R <img data-src="img/hex/propensity.png" class="absolute" style="top: 0px; right: 0px; width: 140px; "></h2>
 <p><br></p>
@@ -839,7 +844,7 @@ Evenly matchable
 <h2><em>Your Turn 2</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_646056f2" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_c2288eb2" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 <h3 id="using-the-propensity-scores-you-created-in-the-previous-exercise-add-the-ate-weights-to-your-data-frame">Using the propensity scores you created in the previous exercise, add the ATE weights to your data frame</h3>

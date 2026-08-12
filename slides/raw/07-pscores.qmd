@@ -10,7 +10,7 @@ format: "kakashi-revealjs"
 ```{r}
 #| include: false
 options(
-  tibble.max_extra_cols = 6, 
+  tibble.max_extra_cols = 6,
   tibble.width = 60
 )
 ```
@@ -35,66 +35,80 @@ options(
 
 ![](img/conf-3.png)
 
-## Which relationship should we model?
+
+## What part of the DAG do we want to try to deal with?
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| fig-width: 7
-#| fig-asp: 0.35
-#| out-width: 100%
+
 library(tidyverse)
 library(ggdag)
 library(ggokabeito)
 
-roadmap_dag <- dagify(
+coord_dag <- list(
+  x = c(z = 0, x = 1, y = 2),
+  y = c(z = 0.5, x = 0, y = 0)
+)
+
+labels <- c(
+  x = "Exposure",
+  y = "Outcome",
+  z = "Confounder"
+)
+
+dag <- dagify(
   y ~ x + z,
   x ~ z,
-  coords = list(
-    x = c(z = 0, x = 1, y = 2),
-    y = c(z = 0.5, x = 0, y = 0)
-  ),
-  labels = c(x = "Exposure", y = "Outcome", z = "Confounder"),
+  coords = coord_dag,
+  labels = labels,
   exposure = "x",
   outcome = "y"
 ) |>
   tidy_dagitty() |>
-  node_status() |>
-  pull_dag_data()
+  node_status()
 
-routes <- c(
-  "Paths into the exposure",
-  "Paths into the outcome",
-  "Both"
-)
-
-modeled <- bind_rows(
-  filter(roadmap_dag, to == "x") |> mutate(route = routes[1]),
-  filter(roadmap_dag, name == "z", to == "y") |> mutate(route = routes[2]),
-  filter(roadmap_dag, name == "z") |> mutate(route = routes[3])
-) |>
-  mutate(route = factor(route, levels = routes))
-
-routes |>
-  map(\(.route) mutate(roadmap_dag, route = .route)) |>
-  list_rbind() |>
-  mutate(route = factor(route, levels = routes)) |>
-  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
-  geom_dag_edges(edge_color = "grey80") +
-  geom_dag_edges(data_directed = modeled, edge_width = 1.1) +
-  geom_dag_point(aes(color = status)) +
-  geom_text(
-    aes(x = x, y = y, label = label, vjust = ifelse(name == "z", -1.5, 2.5)),
-    data = \(.x) distinct(.x, route, name, x, y, label),
-    inherit.aes = FALSE,
-    size = 3
+dag_base <- dag |>
+  ggplot(
+    aes(x, y, xend = xend, yend = yend, color = status)
   ) +
-  facet_wrap(~route) +
+  geom_dag_point() +
   scale_color_okabe_ito(na.value = "grey90") +
   theme_dag() +
-  theme(legend.position = "none") +
-  expand_limits(x = c(-0.6, 2.6), y = c(-0.2, 0.7))
+  theme(legend.position = "none")
+
+dag_base + geom_dag_edges()
+```
+
+## What part of the DAG do we want to try to deal with?
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+# Propensity score approach - highlight z -> x
+dag_base +
+  geom_dag_edges(edge_color = "grey80") +
+  geom_dag_edges(
+    data_directed = \(.x) filter(.x, to == "x"),
+    edge_width = 1.1
+  )
+```
+
+## What part of the DAG do we want to try to deal with?
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+# Outcome model approach - highlight z -> y
+dag_base +
+  geom_dag_edges(edge_color = "grey80") +
+  geom_dag_edges(
+    data_directed = \(.x) filter(.x, name == "z", to == "y"),
+    edge_width = 1.1
+  )
 ```
 
 ## Which relationship should we model?
@@ -102,10 +116,6 @@ routes |>
 * Paths into the exposure: **propensity scores**
 * Paths into the outcome: **outcome models**
 * Both: **doubly robust** estimators
-
-::: {.fragment}
-All three can get us the right answer, given the right DAG and well-modeled relationships. We'll start with propensity scores, fit outcome models later, and combine both at the end.
-:::
 
 ## The hidden experiment
 
@@ -122,7 +132,7 @@ All three can get us the right answer, given the right DAG and well-modeled rela
 ## The hidden experiment
 
 * In observational data, these probabilities are not known
-* But *someone* decided who was exposed: what was that decision process?
+* But *something* determined who was exposed: what was that decision process?
 * Domain knowledge and statistics can estimate it: the **propensity score**
 
 ## Propensity scores
@@ -158,7 +168,7 @@ library(halfmoon)
 ```{r}
 #| eval: false
 glm(
-  exposure ~ confounder_1 + confounder_2 + confounder_3 + ..., 
+  exposure ~ confounder_1 + confounder_2 + confounder_3 + ...,
   data = df,
   family = binomial()
 )
@@ -172,11 +182,11 @@ glm(
 #| eval: false
 #| code-line-numbers: "|6"
 glm(
-  exposure ~ confounder_1 + confounder_2 + confounder_3 + ..., 
+  exposure ~ confounder_1 + confounder_2 + confounder_3 + ...,
   data = df,
   family = binomial()
 ) |>
-  augment(type.predict = "response", data = df) 
+  augment(type.predict = "response", data = df)
 ```
 
 ## Propensity scores {background-color="#23373B"}
@@ -254,7 +264,7 @@ Photo by Anna [CC-BY-SA-4.0](https://creativecommons.org/licenses/by-sa/4.0/deed
 ::: {.column width="50%"}
 Historically, guests who stayed in a Walt Disney World resort hotel were able to access the park during "Extra Magic Hours" during which the park was closed to all other guests.
 
-These extra hours could be in the morning or evening.  
+These extra hours could be in the morning or evening.
 
 The Seven Dwarfs Mine Train is a ride at Walt Disney World's Magic Kingdom. Typically, each day Magic Kingdom may or may not be selected to have these "Extra Magic Hours".
 :::
@@ -279,16 +289,16 @@ library(ggokabeito)
 geom_dag_label_repel <- function(..., seed = 10) {
   ggdag::geom_dag_label_repel(
     aes(x, y, label = label),
-    box.padding = 1.25, 
+    box.padding = 1.25,
     inherit.aes = FALSE,
-    max.overlaps = Inf, 
+    max.overlaps = Inf,
     family = "sans",
     seed = seed,
-    label.size = NA, 
+    label.size = NA,
     label.padding = 0.1,
     size = 14 / 3,
     ...
-  ) 
+  )
 }
 
 coord_dag <- list(
@@ -348,6 +358,3 @@ dagify(
 ### Check the calibration, ROC curve, and AUC of your model
 
 ### *Stretch*: Create two histograms, one of the propensity scores for days with extra morning magic hours and one for those without
-
-
-

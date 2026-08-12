@@ -24,7 +24,6 @@ options(
 * Model-level diagnostics
 * Variable-level diagnostics
 * Balance across the joint distribution
-* What not to do
 
 ## Model-level diagnostics {background-color="#23373B"}
 
@@ -55,6 +54,7 @@ net_data_wts <- propensity_model |>
 
 ## Weighted ROC curve ![](img/hex/halfmoon.png){.absolute top=0 right=0 width=140}
 
+<br />
 <br />
 
 If the weights did their job, the model should no longer discriminate between the exposure groups
@@ -92,7 +92,7 @@ $$\LARGE ESS = \frac{(\sum_{i=1}^{n} w_i)^2}{\sum_{i=1}^{n} w_i^2}$$
 
 The approximate number of independent observations after weighting
 
-## Effective sample size in R ![](img/hex/halfmoon.png){.absolute top=0 right=0 width=140}
+## Effective sample size in R
 
 ```{r}
 #| eval: true
@@ -146,7 +146,7 @@ ggplot(net_data_wts, aes(x = as.numeric(w_ate), fill = factor(net))) +
 * The more variable the weights, the lower the ESS
 * If the ESS is too small: different weights, or trimming and truncation
 
-## Comparing weights with ESS ![](img/hex/halfmoon.png){.absolute top=0 right=0 width=140}
+## Comparing weights with ESS
 
 ```{r}
 #| eval: true
@@ -180,6 +180,7 @@ $$\LARGE d = \frac{\bar{x}_{treatment}-\bar{x}_{control}}{\sqrt{\frac{s^2_{treat
 
 ## Balance in R ![](img/hex/halfmoon.png){.absolute top=0 right=0 width=140}
 
+<br />
 <br />
 
 Calculate standardized mean differences and other balance metrics
@@ -263,7 +264,7 @@ ggplot(
   geom_love()
 ```
 
-## Variance ratios ![](img/hex/halfmoon.png){.absolute top=0 right=0 width=140}
+## Variance ratios
 
 The ratio of the within-group variances, ideally as close to 1 as possible
 
@@ -280,12 +281,6 @@ ggplot(
 ) +
   geom_love(vline_xintercept = 1)
 ```
-
-## Variance ratios
-
-* The variance ratios improve much less than the SMDs
-* Balance on the mean does not mean balance across the distribution
-* Look at the whole distribution before you move on
 
 ## Your turn 1
 
@@ -477,7 +472,7 @@ Exchangeability requires balance across the *joint* distribution of the confound
 
 That includes interactions between variables and higher moments
 
-## Interactions and squares ![](img/hex/halfmoon.png){.absolute top=0 right=0 width=140}
+## Interactions and squares
 
 ```{r}
 #| eval: true
@@ -497,7 +492,7 @@ balance_metrics_joint |>
   plot_balance(facet_scales = "free_x")
 ```
 
-## Energy ![](img/hex/halfmoon.png){.absolute top=0 right=0 width=140}
+## Energy
 
 The average distance across the joint ECDFs: one number for the whole covariate space
 
@@ -582,4 +577,3 @@ tbl_svysummary(svy_des, by = net, include = c(income, health, temperature)) |>
 ## {background-color="#23373B" .center .huge}
 
 ### *Bonus Your Turn*: Weighted Tables
-
