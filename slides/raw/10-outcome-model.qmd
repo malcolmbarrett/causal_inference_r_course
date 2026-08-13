@@ -253,6 +253,30 @@ ipw_fit
 
 `ipw()` reports the estimand along with the estimate
 
+## Marginal and conditional
+
+The marginal reading reports the population-averaged causal contrast: what would happen if everyone used a net versus if no one did
+
+. . .
+
+The conditional reading reports the outcome model's coefficients, with standard errors from the same jointly estimated sandwich
+
+. . .
+
+Both are computed either way; `as_conditional()` and `as_marginal()` change which one the result presents
+
+## The conditional reading
+
+```{r}
+#| output-location: fragment
+tidy(as_conditional(ipw_fit), conf.int = TRUE) |>
+  select(term, estimate, std.error, conf.low, conf.high)
+```
+
+. . .
+
+`netTRUE` matches the marginal `diff` here because the outcome model is linear in the exposure with an identity link
+
 ## Comparing the three approaches
 
 ```{r}
@@ -282,7 +306,7 @@ bind_rows(
 
 ### Using the `bootstraps()` and `int_t()` functions to estimate the final effect.
 
-### Fitting both models on the full data and using `ipw()` to compare the two intervals.
+### Fitting both models on the full data and using `ipw()` to compare the two intervals, then `as_conditional()` to switch readings.
 
 ## Binary outcomes
 
@@ -312,3 +336,7 @@ ipw(propensity_model, binary_outcome_model) |>
 . . .
 
 `ipw()` reports the risk difference, risk ratio, and odds ratio, with standard errors that account for the propensity score model
+
+. . .
+
+`as_conditional()` returns the model's log-odds coefficient, which exponentiated is the `or` row; only the marginal reading has the risk difference and risk ratio

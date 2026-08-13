@@ -503,6 +503,35 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <p><code>ipw()</code> reports the estimand along with the estimate</p>
 </div>
 </section>
+<section id="marginal-and-conditional" class="slide level2">
+<h2>Marginal and conditional</h2>
+<p>The marginal reading reports the population-averaged causal contrast: what would happen if everyone used a net versus if no one did</p>
+<div class="fragment">
+<p>The conditional reading reports the outcome model’s coefficients, with standard errors from the same jointly estimated sandwich</p>
+</div>
+<div class="fragment">
+<p>Both are computed either way; <code>as_conditional()</code> and <code>as_marginal()</code> change which one the result presents</p>
+</div>
+</section>
+<section id="the-conditional-reading" class="slide level2">
+<h2>The conditional reading</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href=""></a><span class="fu">tidy</span>(<span class="fu">as_conditional</span>(ipw_fit), <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb21-2"><a href=""></a>  <span class="fu">select</span>(term, estimate, std.error, conf.low, conf.high)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 5
+  term        estimate std.error conf.low conf.high
+  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 (Intercept)     42.7     0.354     42.0      43.4
+2 netTRUE        -12.5     0.437    -13.4     -11.7</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p><code>netTRUE</code> matches the marginal <code>diff</code> here because the outcome model is linear in the exposure with an identity link</p>
+</div>
+</section>
 <section id="comparing-the-three-approaches" class="slide level2">
 <h2>Comparing the three approaches</h2>
 <div class="cell" data-layout-align="center">
@@ -521,32 +550,32 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </section>
 <section id="your-turn" class="slide level2">
 <h2><em>Your Turn</em></h2>
-<p><countdown-timer class="countdown" id="timer_1ec294cf" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_39f4f569" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 <h3 id="create-a-function-called-fit_ipw-that-fits-the-propensity-score-model-and-the-weighted-outcome-model-for-the-effect-between-park_extra_magic_morning-and-wait_minutes_posted_avg">Create a function called <code>fit_ipw</code> that fits the propensity score model and the weighted outcome model for the effect between <code>park_extra_magic_morning</code> and <code>wait_minutes_posted_avg</code></h3>
 <h3 id="using-the-bootstraps-and-int_t-functions-to-estimate-the-final-effect.">Using the <code>bootstraps()</code> and <code>int_t()</code> functions to estimate the final effect.</h3>
-<h3 id="fitting-both-models-on-the-full-data-and-using-ipw-to-compare-the-two-intervals.">Fitting both models on the full data and using <code>ipw()</code> to compare the two intervals.</h3>
+<h3 id="fitting-both-models-on-the-full-data-and-using-ipw-to-compare-the-two-intervals-then-as_conditional-to-switch-readings.">Fitting both models on the full data and using <code>ipw()</code> to compare the two intervals, then <code>as_conditional()</code> to switch readings.</h3>
 </section>
 <section id="binary-outcomes" class="slide level2">
 <h2>Binary outcomes</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22" data-code-line-numbers="|1-2|4-11|9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href=""></a>net_data_wts <span class="ot">&lt;-</span> net_data_wts <span class="sc">|&gt;</span></span>
-<span id="cb22-2"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">risk_over_50 =</span> malaria_risk <span class="sc">&gt;</span> <span class="dv">50</span>)</span>
-<span id="cb22-3"><a href=""></a></span>
-<span id="cb22-4"><a href=""></a>binary_outcome_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb22-5"><a href=""></a>  risk_over_50 <span class="sc">~</span> net,</span>
-<span id="cb22-6"><a href=""></a>  <span class="at">data =</span> net_data_wts,</span>
-<span id="cb22-7"><a href=""></a>  <span class="at">weights =</span> wts,</span>
-<span id="cb22-8"><a href=""></a>  <span class="co"># quasibinomial() avoids a warning about non-integer successes</span></span>
-<span id="cb22-9"><a href=""></a>  <span class="at">family =</span> <span class="fu">quasibinomial</span>()</span>
-<span id="cb22-10"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24" data-code-line-numbers="|1-2|4-11|9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href=""></a>net_data_wts <span class="ot">&lt;-</span> net_data_wts <span class="sc">|&gt;</span></span>
+<span id="cb24-2"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">risk_over_50 =</span> malaria_risk <span class="sc">&gt;</span> <span class="dv">50</span>)</span>
+<span id="cb24-3"><a href=""></a></span>
+<span id="cb24-4"><a href=""></a>binary_outcome_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb24-5"><a href=""></a>  risk_over_50 <span class="sc">~</span> net,</span>
+<span id="cb24-6"><a href=""></a>  <span class="at">data =</span> net_data_wts,</span>
+<span id="cb24-7"><a href=""></a>  <span class="at">weights =</span> wts,</span>
+<span id="cb24-8"><a href=""></a>  <span class="co"># quasibinomial() avoids a warning about non-integer successes</span></span>
+<span id="cb24-9"><a href=""></a>  <span class="at">family =</span> <span class="fu">quasibinomial</span>()</span>
+<span id="cb24-10"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="binary-outcomes-all-three-effects" class="slide level2">
 <h2>Binary outcomes: all three effects</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href=""></a><span class="fu">ipw</span>(propensity_model, binary_outcome_model) <span class="sc">|&gt;</span></span>
-<span id="cb23-2"><a href=""></a>  <span class="fu">tidy</span>(<span class="at">conf.int =</span> <span class="cn">TRUE</span>, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb23-3"><a href=""></a>  <span class="fu">select</span>(term, estimate, conf.low, conf.high)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href=""></a><span class="fu">ipw</span>(propensity_model, binary_outcome_model) <span class="sc">|&gt;</span></span>
+<span id="cb25-2"><a href=""></a>  <span class="fu">tidy</span>(<span class="at">conf.int =</span> <span class="cn">TRUE</span>, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb25-3"><a href=""></a>  <span class="fu">select</span>(term, estimate, conf.low, conf.high)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell fragment" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
@@ -560,6 +589,9 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <div class="fragment">
 <p><code>ipw()</code> reports the risk difference, risk ratio, and odds ratio, with standard errors that account for the propensity score model</p>
+</div>
+<div class="fragment">
+<p><code>as_conditional()</code> returns the model’s log-odds coefficient, which exponentiated is the <code>or</code> row; only the marginal reading has the risk difference and risk ratio</p>
 
 </div>
 </section>
