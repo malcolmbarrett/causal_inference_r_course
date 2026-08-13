@@ -353,8 +353,9 @@ ggplot(
   aes(x = correlation, y = variable, group = method, color = method)
 ) +
   geom_love(vline_xintercept = 0) +
+  scale_color_okabe_ito() +
   theme_minimal(base_size = 20) +
-  scale_x_continuous(breaks = c(-0.2, -0.1, 0)) +
+  scale_x_continuous(breaks = c(-0.1, 0)) +
   labs(x = "Correlation", y = NULL, color = NULL)
 ```
 
