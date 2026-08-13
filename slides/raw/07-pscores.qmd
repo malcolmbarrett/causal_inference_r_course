@@ -286,7 +286,7 @@ The Seven Dwarfs Mine Train is a ride at Walt Disney World's Magic Kingdom. Typi
 #| echo: false
 #| message: false
 #| warning: false
-#| fig.height: 4.0
+#| fig-height: 4.0
 
 library(tidyverse)
 library(ggdag)

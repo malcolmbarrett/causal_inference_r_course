@@ -605,7 +605,7 @@ countdown::countdown(minutes = 8)
 ```{r}
 #| echo: true
 #| cache: true
-#| cache.lazy: false
+#| cache-lazy: false
 
 # For TMLE with continuous outcomes, fit SuperLearner on bounded Y
 min_y <- min(net_data$malaria_risk)
@@ -811,7 +811,7 @@ tibble(
 
 ```{r}
 #| cache: true
-#| cache.lazy: false
+#| cache-lazy: false
 
 library(tmle)
 

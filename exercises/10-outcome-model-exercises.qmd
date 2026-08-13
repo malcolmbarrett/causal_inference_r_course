@@ -53,9 +53,11 @@ ipw_results |>
     estimate = map_dbl(
       boot_fits,
       # pull the `estimate` for `park_extra_magic_morning` for each fit
-      \(.fit) .fit |>
-        filter(term == "park_extra_magic_morning") |>
-        pull(estimate)
+      \(.fit) {
+        .fit |>
+          filter(term == "park_extra_magic_morning") |>
+          pull(estimate)
+      }
     )
   ) |>
   ggplot(aes(estimate)) +

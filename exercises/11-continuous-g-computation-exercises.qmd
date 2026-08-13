@@ -15,7 +15,7 @@ library(marginaleffects)
 
 For this set of exercises, we'll use g-computation to calculate a causal effect for continuous exposures.
 
-In the touringplans data set, we have information about the posted waiting times for rides. We also have a limited amount of data on the observed, actual times. The question that we will consider is this: Do posted wait times (`wait_minutes_posted_avg`) for the Seven Dwarves Mine Train at 8 am affect actual wait times (`wait_minutes_actual_avg`) at 9 am? Here’s our DAG:
+In the touringplans data set, we have information about the posted waiting times for rides. We also have a limited amount of data on the observed, actual times. The question that we will consider is this: Do posted wait times (`wait_minutes_posted_avg`) for the Seven Dwarves Mine Train at 8 am affect actual wait times (`wait_minutes_actual_avg`) at 9 am? Here's our DAG:
 
 ```{r}
 #| echo: false
@@ -89,7 +89,7 @@ dagify(
   )
 ```
 
-First, let’s wrangle our data to address our question: do posted wait times at 8 affect actual weight times at 9? We’ll join the baseline data (all covariates and posted wait time at 8) with the outcome (average actual time). We also have a lot of missingness for `wait_minutes_actual_avg`, so we’ll drop unobserved values for now.
+First, let's wrangle our data to address our question: do posted wait times at 8 affect actual weight times at 9? We'll join the baseline data (all covariates and posted wait time at 8) with the outcome (average actual time). We also have a lot of missingness for `wait_minutes_actual_avg`, so we'll drop unobserved values for now.
 
 You don't need to update any code here, so just run this.
 

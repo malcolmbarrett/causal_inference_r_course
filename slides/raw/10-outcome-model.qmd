@@ -137,9 +137,11 @@ ipw_results |>
     estimate = map_dbl(
       boot_fits,
       # pull the `estimate` for `netTRUE` for each fit
-      \(.fit) .fit |>
-        filter(term == "netTRUE") |>
-        pull(estimate)
+      \(.fit) {
+        .fit |>
+          filter(term == "netTRUE") |>
+          pull(estimate)
+      }
     )
   ) |>
   ggplot(aes(estimate)) +

@@ -83,8 +83,8 @@ mosquito_dag <- dagify(
 
 ```{r}
 #| echo: false
-#| out.width: 100%
-#| out.height: 100%
+#| out-width: 100%
+#| out-height: 100%
 
 knitr::include_graphics("img/ggdagitty.png")
 ```
@@ -95,8 +95,8 @@ knitr::include_graphics("img/ggdagitty.png")
 
 ```{r}
 #| echo: false
-#| out.width: 100%
-#| out.height: 100%
+#| out-width: 100%
+#| out-height: 100%
 
 knitr::include_graphics("img/ggdagitty_alg.png")
 ```
@@ -107,8 +107,8 @@ knitr::include_graphics("img/ggdagitty_alg.png")
 
 ```{r}
 #| echo: false
-#| out.width: 100%
-#| out.height: 100%
+#| out-width: 100%
+#| out-height: 100%
 
 knitr::include_graphics("img/ggdagitty_plots.png")
 ```
@@ -119,8 +119,8 @@ knitr::include_graphics("img/ggdagitty_plots.png")
 
 ```{r}
 #| echo: false
-#| out.width: 100%
-#| out.height: 100%
+#| out-width: 100%
+#| out-height: 100%
 
 knitr::include_graphics("img/tidy_ggdagitty.png")
 ```
@@ -232,7 +232,7 @@ ggdag_paths(mosquito_dag)
 
 ```{r}
 #| echo: false
-#| fig.width: 15
+#| fig-width: 15
 
 mosquito_dag |>
   dag_paths(paths_only = FALSE) |>
@@ -305,7 +305,7 @@ coffee_cancer_dag |>
 
 ```{r}
 #| echo: false
-#| fig.width: 6.5
+#| fig-width: 6.5
 
 coords <- list(x = c(x = 0, y = 2, q = 1), y = c(x = 0, y = 0, q = 1))
 
@@ -357,7 +357,7 @@ dag_flows |>
 
 ```{r}
 #| echo: false
-#| fig.width: 6.5
+#| fig-width: 6.5
 
 dag_flows |>
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
@@ -379,7 +379,7 @@ dag_flows |>
 
 ```{r}
 #| echo: false
-#| fig.width: 6.5
+#| fig-width: 6.5
 
 dag_flows |>
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
@@ -401,7 +401,7 @@ dag_flows |>
 
 ```{r}
 #| echo: false
-#| fig.width: 6.5
+#| fig-width: 6.5
 
 dag_flows |>
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
@@ -425,7 +425,7 @@ dag_flows |>
 
 ```{r}
 #| echo: false
-#| fig.width: 6.5
+#| fig-width: 6.5
 
 dag_flows |>
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
@@ -449,7 +449,7 @@ dag_flows |>
 
 ```{r}
 #| echo: false
-#| fig.width: 6.5
+#| fig-width: 6.5
 
 dag_flows |>
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
@@ -487,7 +487,7 @@ dag_flows |>
 
 ```{r}
 #| output-location: slide
-#| fig.width: 8
+#| fig-width: 8
 
 # `mosquito_dag` defined in
 # `exercises/01-whole-game-exercises.qmd`
@@ -606,7 +606,7 @@ adjustmentSets(coffee_cancer_dag, type = "all")
 
 ```{r}
 #| echo: false
-#| fig.width: 10
+#| fig-width: 10
 
 map(
   list(fork = fork, chain = chain, collider = collider),
@@ -632,7 +632,7 @@ map(
 
 ```{r}
 #| echo: false
-#| fig.width: 6
+#| fig-width: 6
 
 # dagify() requires an acyclic graph, so assemble these data by hand
 feedback_loop <- tibble(
@@ -660,7 +660,7 @@ feedback_loop |>
 
 ```{r}
 #| echo: false
-#| fig.width: 10
+#| fig-width: 10
 
 dagify(
   global_temp_2000 ~ ac_use_1990 + global_temp_1990,
@@ -747,7 +747,7 @@ ggdag(coffee_cancer_dag_to, use_labels = TRUE, use_text = FALSE)
 
 ```{r}
 #| echo: false
-#| fig.width: 7
+#| fig-width: 7
 
 coffee_cancer_dag_saturated <- dagify(
   cancer ~ coffee + smoking + addictive,
@@ -784,7 +784,7 @@ saturated_dag_data |>
 
 ```{r}
 #| echo: false
-#| fig.width: 7
+#| fig-width: 7
 
 saturated_dag_data |>
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
@@ -863,7 +863,7 @@ saturated_dag_data |>
 
 ```{r}
 #| echo: false
-#| fig.width: 10
+#| fig-width: 10
 
 mosquito_dag |>
   tidy_dagitty() |>

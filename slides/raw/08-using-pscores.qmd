@@ -71,7 +71,7 @@ $$\tau = E[Y(1) - Y(0)]$$
 
 ```{r}
 #| echo: false
-#| fig.height: 2.0
+#| fig-height: 2.0
 
 set.seed(10)
 p <- tibble(
@@ -124,7 +124,7 @@ $$\tau = E[Y(1) - Y(0) | Z = 1]$$
 
 ```{r}
 #| echo: false
-#| fig.height: 3.0
+#| fig-height: 3.0
 
 set.seed(10)
 p |>
@@ -198,7 +198,7 @@ $$\tau = E[Y(1) - Y(0) | Z = 0]$$
 
 ```{r}
 #| echo: false
-#| fig.height: 3.0
+#| fig-height: 3.0
 
 set.seed(10)
 p |>
@@ -263,7 +263,7 @@ m
 
 ```{r}
 #| echo: false
-#| fig.height: 3.0
+#| fig-height: 3.0
 
 set.seed(10)
 p |>

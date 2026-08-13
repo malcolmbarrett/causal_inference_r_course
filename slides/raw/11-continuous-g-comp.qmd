@@ -442,7 +442,7 @@ ggplot(nhefs_dose_response, aes(smkintensity82_71, estimate)) +
 #| echo: false
 #| message: false
 #| warning: false
-#| fig.width: 6.5
+#| fig-width: 6.5
 
 library(tidyverse)
 library(ggdag)

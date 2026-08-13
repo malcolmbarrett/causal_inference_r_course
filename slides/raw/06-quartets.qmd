@@ -32,7 +32,7 @@ library(gt)
 ```{r}
 #| echo: false
 #| eval: true
-#| fig.width: 8.5
+#| fig-width: 8.5
 
 ggplot(anscombe_quartet, aes(x = x, y = y)) +
   geom_point() +
@@ -120,7 +120,7 @@ cor(causal_confounding$exposure, causal_confounding$covariate) |>
 ```{r}
 #| echo: false
 #| eval: true
-#| fig.width: 8.5
+#| fig-width: 8.5
 
 coords <- list(
   x = c(X = 2, Z = 1, Y = 3),

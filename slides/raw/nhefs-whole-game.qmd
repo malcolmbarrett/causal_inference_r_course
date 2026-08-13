@@ -94,7 +94,7 @@ nhefs_complete_uc |>
 
 ```{r}
 #| echo: false
-#| fig.width: 9
+#| fig-width: 9
 
 library(ggdag)
 # set up DAG
@@ -161,7 +161,7 @@ smk_wt_dag |>
 
 ```{r}
 #| echo: false
-#| fig.width: 9
+#| fig-width: 9
 
 smk_wt_dag |>
   ggdag(use_text = FALSE, use_labels = TRUE) +
@@ -178,7 +178,7 @@ smk_wt_dag |>
 
 ```{r}
 #| echo: false
-#| fig.width: 15
+#| fig-width: 15
 
 library(ggokabeito)
 glyph <- function(data, params, size) {
@@ -262,7 +262,7 @@ smk_wt_dag |>
 
 ```{r}
 #| echo: false
-#| fig.width: 9
+#| fig-width: 9
 
 smk_wt_dag |>
   ggdag_adjustment_set(
@@ -410,7 +410,7 @@ nhefs_complete_uc |>
 
 ```{r}
 #| echo: false
-#| fig.height: 5.5
+#| fig-height: 5.5
 
 vars <- c(
   "sex",
@@ -430,7 +430,7 @@ plot_df <- nhefs_complete_uc |>
 
 ```{r}
 #| echo: false
-#| fig.height: 5.5
+#| fig-height: 5.5
 
 ggplot(
   data = plot_df |> filter(method == "observed"),
@@ -448,7 +448,7 @@ ggplot(
 
 ```{r}
 #| echo: false
-#| fig.height: 5.5
+#| fig-height: 5.5
 
 ggplot(
   data = plot_df,
