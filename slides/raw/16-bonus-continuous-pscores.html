@@ -330,7 +330,7 @@ Malcolm Barrett
 <h3 id="fit-a-model-using-lm-with-wait_minutes_posted_avg-as-the-outcome-and-the-confounders-identified-in-the-dag.">Fit a model using <code>lm()</code> with <code>wait_minutes_posted_avg</code> as the outcome and the confounders identified in the DAG.</h3>
 <h3 id="use-augment-to-add-model-predictions-to-the-data-frame">Use <code>augment()</code> to add model predictions to the data frame</h3>
 <h3 id="in-wt_ate-calculate-the-weights-using-.fitted-and-wait_minutes_posted_avg">In <code>wt_ate()</code>, calculate the weights using <code>.fitted</code> and <code>wait_minutes_posted_avg</code></h3>
-<p><countdown-timer class="countdown" id="timer_b68915ed" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_f973deea" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-1-1" class="slide level2">
 <h2><em>Your Turn 1</em></h2>
@@ -397,7 +397,7 @@ Malcolm Barrett
 <section id="your-turn-2" class="slide level2">
 <h2><em>Your Turn 2</em></h2>
 <h3 id="re-fit-the-above-using-stabilized-weights">Re-fit the above using stabilized weights</h3>
-<p><countdown-timer class="countdown" id="timer_84e7a285" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_7799c3b4" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-2-1" class="slide level2">
 <h2><em>Your Turn 2</em></h2>
@@ -485,8 +485,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <h2><em>Your Turn 3</em></h2>
 <h3 id="estimate-the-relationship-between-posted-wait-times-and-actual-wait-times-using-the-stabilized-weights-we-just-created.">Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created.</h3>
 <h3 id="fit-the-same-outcome-model-again-saving-it-to-an-object">Fit the same outcome model again, saving it to an object</h3>
-<h3 id="use-ipw-to-estimate-the-effect-with-standard-errors-that-account-for-the-weights">Use <code>ipw()</code> to estimate the effect with standard errors that account for the weights</h3>
-<p><countdown-timer class="countdown" id="timer_2165d573" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<h3 id="use-ipw-to-estimate-the-effect-with-standard-errors-that-account-for-the-weights-then-as_conditional-to-switch-readings">Use <code>ipw()</code> to estimate the effect with standard errors that account for the weights, then <code>as_conditional()</code> to switch readings</h3>
+<p><countdown-timer class="countdown" id="timer_beb827f0" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-3-1" class="slide level2">
 <h2><em>Your Turn 3</em></h2>
@@ -545,6 +545,22 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 </section>
+<section id="your-turn-3-4" class="slide level2">
+<h2><em>Your Turn 3</em></h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href=""></a><span class="fu">as_conditional</span>(ipw_fit) <span class="sc">|&gt;</span></span>
+<span id="cb25-2"><a href=""></a>  <span class="fu">tidy</span>(<span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 7
+  term        estimate std.error statistic  p.value conf.low
+  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+1 (Intercept)   44.9       4.51       9.95 2.41e-23   36.0  
+2 wait_minut…   -0.291     0.110     -2.65 8.07e- 3   -0.507
+# ℹ 1 more variable: conf.high &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<h3 id="the-slope-matches-the-marginal-reading-here-because-the-outcome-model-is-linear-in-the-exposure-with-an-identity-link">The slope matches the marginal reading here because the outcome model is linear in the exposure with an identity link</h3>
+</section>
 <section id="causal-dose-response-functions" class="slide level2" data-background-color="#23373B">
 <h2>Causal dose-response functions</h2>
 <ol type="1">
@@ -561,41 +577,41 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <section id="fit-a-flexible-outcome-model" class="slide level2">
 <h2>2. Fit a flexible outcome model</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href=""></a>nhefs_msm <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
-<span id="cb25-2"><a href=""></a>  wt82_71 <span class="sc">~</span> splines<span class="sc">::</span><span class="fu">ns</span>(smkintensity82_71, <span class="at">df =</span> <span class="dv">3</span>),</span>
-<span id="cb25-3"><a href=""></a>  <span class="at">weights =</span> swts,</span>
-<span id="cb25-4"><a href=""></a>  <span class="at">data =</span> nhefs_swts</span>
-<span id="cb25-5"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href=""></a>nhefs_msm <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb27-2"><a href=""></a>  wt82_71 <span class="sc">~</span> splines<span class="sc">::</span><span class="fu">ns</span>(smkintensity82_71, <span class="at">df =</span> <span class="dv">3</span>),</span>
+<span id="cb27-3"><a href=""></a>  <span class="at">weights =</span> swts,</span>
+<span id="cb27-4"><a href=""></a>  <span class="at">data =</span> nhefs_swts</span>
+<span id="cb27-5"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="estimate-the-effects-with-ipw" class="slide level2">
 <h2>3. Estimate the effects with <code>ipw()</code></h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href=""></a>nhefs_ipw <span class="ot">&lt;-</span> <span class="fu">ipw</span>(</span>
-<span id="cb26-2"><a href=""></a>  nhefs_model,</span>
-<span id="cb26-3"><a href=""></a>  nhefs_msm,</span>
-<span id="cb26-4"><a href=""></a>  <span class="at">.data =</span> nhefs_swts</span>
-<span id="cb26-5"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href=""></a>nhefs_ipw <span class="ot">&lt;-</span> <span class="fu">ipw</span>(</span>
+<span id="cb28-2"><a href=""></a>  nhefs_model,</span>
+<span id="cb28-3"><a href=""></a>  nhefs_msm,</span>
+<span id="cb28-4"><a href=""></a>  <span class="at">.data =</span> nhefs_swts</span>
+<span id="cb28-5"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <h3 id="the-standard-errors-account-for-the-estimated-weights.">The standard errors account for the estimated weights.</h3>
 </section>
 <section id="predict-across-the-exposure-range" class="slide level2">
 <h2>4. Predict across the exposure range</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href=""></a>dose_response <span class="ot">&lt;-</span> nhefs_ipw <span class="sc">|&gt;</span></span>
-<span id="cb27-2"><a href=""></a>  <span class="fu">as_conditional</span>() <span class="sc">|&gt;</span></span>
-<span id="cb27-3"><a href=""></a>  <span class="co"># marginaleffects needs the data to build the grid</span></span>
-<span id="cb27-4"><a href=""></a>  <span class="fu">set_modeldata</span>(nhefs_swts) <span class="sc">|&gt;</span></span>
-<span id="cb27-5"><a href=""></a>  <span class="fu">predictions</span>(</span>
-<span id="cb27-6"><a href=""></a>    <span class="at">newdata =</span> <span class="fu">datagrid</span>(<span class="at">smkintensity82_71 =</span> <span class="sc">-</span><span class="dv">25</span><span class="sc">:</span><span class="dv">25</span>)</span>
-<span id="cb27-7"><a href=""></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href=""></a>dose_response <span class="ot">&lt;-</span> nhefs_ipw <span class="sc">|&gt;</span></span>
+<span id="cb29-2"><a href=""></a>  <span class="fu">as_conditional</span>() <span class="sc">|&gt;</span></span>
+<span id="cb29-3"><a href=""></a>  <span class="co"># marginaleffects needs the data to build the grid</span></span>
+<span id="cb29-4"><a href=""></a>  <span class="fu">set_modeldata</span>(nhefs_swts) <span class="sc">|&gt;</span></span>
+<span id="cb29-5"><a href=""></a>  <span class="fu">predictions</span>(</span>
+<span id="cb29-6"><a href=""></a>    <span class="at">newdata =</span> <span class="fu">datagrid</span>(<span class="at">smkintensity82_71 =</span> <span class="sc">-</span><span class="dv">25</span><span class="sc">:</span><span class="dv">25</span>)</span>
+<span id="cb29-7"><a href=""></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <h3 id="the-predictions-along-the-exposure-grid-come-from-the-outcome-model-itself-so-we-switch-to-the-conditional-reading-first">The predictions along the exposure grid come from the outcome model itself, so we switch to the conditional reading first</h3>
 </section>
 <section id="the-causal-dose-response-function" class="slide level2">
 <h2>The causal dose-response function</h2>
 
-<img data-src="16-bonus-continuous-pscores_files/figure-revealjs/unnamed-chunk-26-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="16-bonus-continuous-pscores_files/figure-revealjs/unnamed-chunk-27-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="diagnosing-issues" class="slide level2" data-background-color="#23373B">
 <h2>Diagnosing issues</h2>
 <ol type="1">

@@ -356,7 +356,7 @@ nhefs_ipw_fit
 
 ### Fit the same outcome model again, saving it to an object
 
-### Use `ipw()` to estimate the effect with standard errors that account for the weights
+### Use `ipw()` to estimate the effect with standard errors that account for the weights, then `as_conditional()` to switch readings
 
 `r countdown::countdown(minutes = 5)`
 
@@ -392,6 +392,15 @@ ipw_fit <- ipw(post_time_model, ipw_model)
 ```{r}
 ipw_fit
 ```
+
+## *Your Turn 3*
+
+```{r}
+as_conditional(ipw_fit) |>
+  tidy(conf.int = TRUE)
+```
+
+### The slope matches the marginal reading here because the outcome model is linear in the exposure with an identity link
 
 ## Causal dose-response functions {background-color="#23373B"}
 
