@@ -74,7 +74,7 @@ nhefs_complete_uc |>
 ## Did those who quit smoking gain weight?
 
 ```{r}
-#| highlight.output: !expr '4:5'
+#| highlight-output: [4, 5]
 
 # ~2.5 KGs gained for quit vs. not quit
 nhefs_complete_uc |>
