@@ -206,7 +206,7 @@ as_conditional(____) |>
   tidy(conf.int = TRUE)
 ```
 
-The conditional reading reports the outcome model's own coefficients. The per-minute slope matches the marginal `slope` row, and the intercept comes with it. The marginal reading is the estimand; the conditional reading is the regression table.
+The conditional reading reports the outcome model's own coefficients. The per-minute slope matches the marginal `slope` row here because the outcome model is linear in the exposure with an identity link, and the intercept comes with it. The marginal reading is the estimand; the conditional reading is the regression table.
 
 ## Stretch goal: Bootstrapped intervals
 
