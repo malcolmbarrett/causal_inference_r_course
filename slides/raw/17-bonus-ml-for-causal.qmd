@@ -783,11 +783,8 @@ targeted_pred_observed <- ifelse(
 )
 
 # IC uses bounded outcomes and predictions
-ic <- clever_covariate *
-  (y_bounded - targeted_pred_observed) +
-  targeted_pred_net -
-  targeted_pred_no_net -
-  targeted_ate / (max_y - min_y)
+ic <- clever_covariate * (y_bounded - targeted_pred_observed) +
+      targeted_pred_net - targeted_pred_no_net - targeted_ate / (max_y - min_y)
 
 # Standard error on original scale
 se_tmle <- sqrt(var(ic) / nrow(net_data)) * (max_y - min_y)
