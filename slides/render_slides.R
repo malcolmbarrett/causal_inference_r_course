@@ -4,7 +4,7 @@ convert_to_pdf <- function(.html_file) {
     "pdf",
     fs::path_ext_set(fs::path_file(.html_file), "pdf")
   )
-  
+
   usethis::ui_done("Converting {usethis::ui_path(.html_file)} to PDF")
   suppress(renderthis::to_pdf(.html_file, pdf_file))
 }
