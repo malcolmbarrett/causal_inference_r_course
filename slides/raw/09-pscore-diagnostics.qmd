@@ -458,12 +458,6 @@ ggplot(net_data_ns, aes(x = temperature, color = factor(net))) +
   ylab("Proportion <= x (Weighted)")
 ```
 
-## Detect, then iterate
-
-Diagnostics are not a final exam
-
-When a check fails, change the model and check again
-
 ## Kolmogorov-Smirnov statistic
 
 The maximum vertical distance between the two ECDF curves
@@ -483,14 +477,6 @@ check_balance(
 ```
 
 We care about the magnitude, not the hypothesis test
-
-## *Your turn 2*
-
-`r countdown::countdown(minutes = 6)`
-
-### Create an unweighted ECDF examining the `park_temperature_high` confounder by whether or not the day had Extra Magic Hours.
-
-### Create a weighted ECDF examining the `park_temperature_high` confounder
 
 ## Balance across the joint distribution {background-color="#23373B"}
 
@@ -548,15 +534,15 @@ Imai, King, and Stuart (2008)
 
 ## Balancing weights {background-color="#23373B"}
 
-So far, we modeled the propensity score, then checked whether its weights balance
+- So far, we modeled the propensity score, then checked whether its weights balance
 
-An alternative approach is to directly optimize the weights to achieve balance without explicitly modeling the propensity score
+- An alternative approach is to directly optimize the weights to achieve balance without explicitly modeling the propensity score
 
 ## Optimizing the energy statistic
 
-We used the energy statistic to measure balance across the joint distribution
+- We used the energy statistic to measure balance across the joint distribution
 
-Energy balancing weights minimize it directly
+- Energy balancing weights minimize it directly
 
 ## Energy balancing weights
 
@@ -578,13 +564,23 @@ energy_fit <- balance(
 energy_fit
 ```
 
+## Extracting the weights
+
+```{r}
+#| eval: true
+#| output-location: slide
+
+net_data_ns <- net_data_ns |>
+  mutate(w_energy = weights(energy_fit))
+
+ggplot(net_data_ns, aes(x = w_energy)) +
+  geom_histogram(bins = 30)
+```
+
 ## Comparing balance metrics
 
 ```{r}
 #| eval: true
-
-net_data_ns <- net_data_ns |>
-  mutate(w_energy = weights(energy_fit))
 
 balance_metrics_energy <- check_balance(
   net_data_ns,
@@ -675,9 +671,51 @@ All are fit the same way through `balance()`; only `method` changes
 
 ## Inference with balancing weights
 
-Energy, kernel distance, and stable weights have no analytic standard errors, so bootstrap, refitting the weights in each resample
+- Energy, kernel distance, and stable weights have no analytic standard errors, so bootstrap, refitting the weights in each resample
 
-Whatever produced the weights, the diagnostics are the same
+  | `ipw()`        | Bootstrap     |
+  | -------------- | ------------- |
+  | `bw_entropy()` | `bw_energy()` |
+  | `bw_ipt()`     | `bw_cfd()`    |
+  | `bw_cbps()`    | `bw_sbw()`    |
+
+## `ipw()` with balancing weights
+
+```{r}
+#| eval: true
+#| code-line-numbers: "|1-6|8-12|14"
+
+entropy_fit <- balance(
+  net_data_ns,
+  .exposure = net,
+  .covariates = c(income, health, temperature),
+  method = bw_entropy()
+)
+
+outcome_model <- lm(
+  malaria_risk ~ net,
+  data = net_data_ns,
+  weights = weights(entropy_fit)
+)
+
+ipw_fit <- ipw(entropy_fit, outcome_model)
+```
+
+## `ipw()` with balancing weights {.small}
+
+```{r}
+#| eval: true
+
+ipw_fit
+```
+
+## *Your turn 2*
+
+`r countdown::countdown(minutes = 6)`
+
+### Create an unweighted ECDF examining the `park_temperature_high` confounder by whether or not the day had Extra Magic Hours.
+
+### Create a weighted ECDF examining the `park_temperature_high` confounder
 
 ## {.center .huge background-color="#23373B"}
 
