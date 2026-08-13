@@ -9,7 +9,7 @@ format: "kakashi-revealjs"
 #| label: setup
 #| include: false
 options(
-  tibble.max_extra_cols = 6, 
+  tibble.max_extra_cols = 6,
   tibble.width = 60
 )
 
@@ -24,7 +24,7 @@ set.seed(1000)
 ```
 
 ## {background-color="#23373B" .huge .center}
-### *Warning!* Propensity score weights are sensitive to positivity violations for continuous exposures. 
+### *Warning!* Propensity score weights are sensitive to positivity violations for continuous exposures.
 
 ## {background-color="#23373B" .huge .center}
 ### **The story so far**
@@ -34,7 +34,7 @@ set.seed(1000)
 ## Propensity score weighting {background-color="#23373B"}
 
 1. Fit a propensity model predicting exposure `x`, `x + z` where z is all covariates
-2. Calculate weights 
+2. Calculate weights
 3. Fit an outcome model estimating the effect of `x` on `y` weighted by the propensity score
 
 ## Continous exposures {background-color="#23373B"}
@@ -43,7 +43,7 @@ set.seed(1000)
 2. Use `wt_ate()` with `.fitted`; transforms using `dnorm()` to get on probability-like scale.
 3. Apply the weights to the outcome model as normal!
 
-## Alternative: quantile binning {background-color="#23373B" .small} 
+## Alternative: quantile binning {background-color="#23373B" .small}
 
 1. Bin the continuous exposure into quantiles and use categorical regression like a multinomial model to calculate probabilities.
 2. Calculate the weights where the propensity score is the probability you fall into the quantile you actually fell into. Same as the binary ATE!
@@ -86,10 +86,10 @@ nhefs_light_smokers <- nhefs_complete |>
 ```{r}
 #| code-line-numbers: "|1-2|3-6"
 nhefs_model <- lm(
-  smkintensity82_71 ~ sex + race + age + I(age^2) + 
-    education + smokeintensity + I(smokeintensity^2) + 
-    smokeyrs + I(smokeyrs^2) + exercise + active + 
-    wt71 + I(wt71^2), 
+  smkintensity82_71 ~ sex + race + age + I(age^2) +
+    education + smokeintensity + I(smokeintensity^2) +
+    smokeyrs + I(smokeyrs^2) + exercise + active +
+    wt71 + I(wt71^2),
   data = nhefs_light_smokers
 )
 ```
@@ -128,16 +128,16 @@ library(ggokabeito)
 geom_dag_label_repel <- function(..., seed = 10) {
   ggdag::geom_dag_label_repel(
     aes(x, y, label = label),
-    box.padding = 1.25, 
+    box.padding = 1.25,
     inherit.aes = FALSE,
-    max.overlaps = Inf, 
+    max.overlaps = Inf,
     family = "sans",
     seed = seed,
-    label.size = NA, 
+    label.size = NA,
     label.padding = 0.1,
     size = 14 / 3,
     ...
-  ) 
+  )
 }
 
 coord_dag <- list(
@@ -170,7 +170,7 @@ dagify(
     ) +
     geom_dag_edges_arc(curvature = c(rep(0, 7), .2, 0, .2, .2, 0), edge_colour = "grey70") +
     geom_dag_point() +
-    geom_dag_label_repel(seed = 1602) + 
+    geom_dag_label_repel(seed = 1602) +
     scale_color_okabe_ito(na.value = "grey90") +
     theme_dag() +
     theme(
@@ -219,8 +219,8 @@ wait_times <- eight |>
 ```{r}
 post_time_model <- lm(
   wait_minutes_posted_avg ~
-    park_close + park_extra_magic_morning + 
-    park_temperature_high + park_ticket_season, 
+    park_close + park_extra_magic_morning +
+    park_temperature_high + park_ticket_season,
   data = wait_times
 )
 ```
@@ -243,9 +243,9 @@ wait_times_wts <- post_time_model |>
 #| echo: false
 nhefs_wts |>
   ggplot(aes(wts)) +
-  geom_density(col = "#E69F00", fill = "#E69F0095") + 
-  scale_x_log10() + 
-  theme_minimal(base_size = 20) + 
+  geom_density(col = "#E69F00", fill = "#E69F0095") +
+  scale_x_log10() +
+  theme_minimal(base_size = 20) +
   xlab("Weights")
 ```
 
@@ -255,7 +255,7 @@ nhefs_wts |>
 2. Calculate the marginal density from this model.
 3. Divide the marginal density by the propensity score density. `wt_ate(.., stabilize = TRUE)` does this all!
 
-## Calculate stabilized weights 
+## Calculate stabilized weights
 
 ```{r}
 #| code-line-numbers: "|7"
@@ -274,9 +274,9 @@ nhefs_swts <- nhefs_model |>
 ```{r}
 #| echo: false
 ggplot(nhefs_swts, aes(swts)) +
-  geom_density(col = "#E69F00", fill = "#E69F0095") + 
-  scale_x_log10() + 
-  theme_minimal(base_size = 20) + 
+  geom_density(col = "#E69F00", fill = "#E69F0095") +
+  scale_x_log10() +
+  theme_minimal(base_size = 20) +
   xlab("Stabilized Weights")
 ```
 
@@ -317,13 +317,13 @@ wait_times_swts <- post_time_model |>
 ```{r}
 #| code-line-numbers: "|3,8"
 lm(
-  wt82_71 ~ smkintensity82_71, 
-  weights = swts, 
+  wt82_71 ~ smkintensity82_71,
+  weights = swts,
   data = nhefs_swts
 ) |>
   tidy() |>
   filter(term == "smkintensity82_71") |>
-  mutate(estimate = estimate * -10) 
+  mutate(estimate = estimate * -10)
 ```
 
 ## Fit the outcome model
@@ -352,7 +352,7 @@ nhefs_ipw_fit
 
 ## *Your Turn 3*
 
-### Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created. 
+### Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created.
 
 ### Fit the same outcome model again, saving it to an object
 
@@ -364,8 +364,8 @@ nhefs_ipw_fit
 
 ```{r}
 lm(
-  wait_minutes_actual_avg ~ wait_minutes_posted_avg, 
-  weights = swts, 
+  wait_minutes_actual_avg ~ wait_minutes_posted_avg,
+  weights = swts,
   data = wait_times_swts
 ) |>
   tidy() |>
@@ -445,6 +445,8 @@ dose_response <- nhefs_ipw |>
   predictions(
     newdata = datagrid(smkintensity82_71 = -25:25)
   )
+
+dose_response
 ```
 
 ### The predictions along the exposure grid come from the outcome model itself, so we switch to the conditional reading first
