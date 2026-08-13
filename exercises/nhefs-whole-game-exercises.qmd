@@ -38,7 +38,7 @@ Let's look at the distribution of weight gain between the two groups.
 nhefs_complete_uc |>
   ggplot(aes(wt82_71, fill = factor(qsmk))) +
   geom_vline(xintercept = 0, color = "grey60", linewidth = 1) +
-  geom_density(color = "white", alpha = .75, linewidth = .5) +
+  geom_density(color = "white", alpha = 0.75, linewidth = 0.5) +
   scale_color_okabe_ito(order = c(1, 5)) +
   theme_minimal() +
   theme(legend.position = "bottom") +
@@ -260,7 +260,7 @@ nhefs_complete_uc |>
   geom_mirror_histogram(
     aes(fill = qsmk, weight = wts),
     bins = 50,
-    alpha = .5
+    alpha = 0.5
   ) +
   scale_y_continuous(labels = abs) +
   labs(x = "propensity score") +

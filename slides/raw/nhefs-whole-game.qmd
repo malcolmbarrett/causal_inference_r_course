@@ -59,7 +59,7 @@ nhefs_complete_uc
 nhefs_complete_uc |>
   ggplot(aes(wt82_71, fill = factor(qsmk))) +
   geom_vline(xintercept = 0, color = "grey60", linewidth = 1) +
-  geom_density(color = "white", alpha = .75, linewidth = .5) +
+  geom_density(color = "white", alpha = 0.75, linewidth = 0.5) +
   ggokabeito::scale_color_okabe_ito(order = c(1, 5)) +
   theme_minimal() +
   theme(legend.position = "bottom") +
@@ -234,13 +234,13 @@ smk_wt_dag |>
   scale_alpha_manual(
     drop = FALSE,
     values = c("open path" = 1),
-    na.value = .5,
+    na.value = 0.5,
     breaks = "open path"
   ) +
   ggraph::scale_edge_alpha_manual(
     drop = FALSE,
     values = c("open path" = 1),
-    na.value = .5,
+    na.value = 0.5,
     breaks = "open path"
   ) +
   scale_color_okabe_ito(
@@ -399,7 +399,7 @@ nhefs_complete_uc |>
   geom_mirror_histogram(
     aes(fill = qsmk, weight = wts),
     bins = 50,
-    alpha = .5
+    alpha = 0.5
   ) +
   scale_y_continuous(labels = abs) +
   labs(x = "propensity score") +
@@ -441,7 +441,7 @@ ggplot(
   geom_vline(xintercept = 0.1, color = "black", linewidth = 0.3) +
   theme_minimal(base_size = 20) +
   theme(axis.title.y = element_blank()) +
-  xlim(0, .3)
+  xlim(0, 0.3)
 ```
 
 --------------------------------------------------------------------------------
@@ -461,7 +461,7 @@ ggplot(
   theme(axis.title.y = element_blank()) +
   scale_color_manual(values = c("grey85", "#00BFC4")) +
   scale_fill_manual(values = c("grey85", "#00BFC4")) +
-  xlim(0, .3)
+  xlim(0, 0.3)
 ```
 
 ## {.center background-color="#23373B"}

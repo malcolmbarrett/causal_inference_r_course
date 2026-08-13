@@ -257,13 +257,13 @@ mosquito_dag |>
   scale_alpha_manual(
     drop = FALSE,
     values = c("open path" = 1),
-    na.value = .35,
+    na.value = 0.35,
     breaks = "open path"
   ) +
   ggraph::scale_edge_alpha_manual(
     drop = FALSE,
     values = c("open path" = 1),
-    na.value = .35,
+    na.value = 0.35,
     breaks = "open path"
   ) +
   ggraph::scale_edge_colour_hue(drop = FALSE, breaks = "open path") +
@@ -539,7 +539,7 @@ cancer ~ coffee + smoking
 ```{r}
 set.seed(1234)
 dag_data <- coffee_cancer_dag |>
-  simulate_data(-.6)
+  simulate_data(-0.6)
 ```
 
 ## Let's prove it!
@@ -622,7 +622,7 @@ map(
   geom_dag_text() +
   facet_wrap(~dag) +
   expand_plot(
-    expand_x = expansion(c(.1, .1)),
+    expand_x = expansion(c(0.1, 0.1)),
     expand_y = expansion(c(0.2, 0.2))
   ) +
   theme_dag()

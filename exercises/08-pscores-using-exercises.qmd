@@ -89,7 +89,7 @@ seven_dwarfs_prop |>
   ) +
   geom_mirror_histogram(
     aes(fill = park_extra_magic_morning, weight = ______),
-    alpha = .5,
+    alpha = 0.5,
     bins = 30
   ) +
   geom_hline(yintercept = 0, lwd = 0.5) +

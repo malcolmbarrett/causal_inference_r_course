@@ -27,7 +27,7 @@ set.seed(100111)
 library(ggdag)
 ggdag_confounder_triangle(x_y_associated = TRUE) +
   theme_dag() +
-  expand_plot(expansion(.2), expansion(.2))
+  expand_plot(expansion(0.2), expansion(0.2))
 ```
 
 ## Colliders
@@ -37,7 +37,7 @@ ggdag_confounder_triangle(x_y_associated = TRUE) +
 
 ggdag_collider_triangle() +
   theme_dag() +
-  expand_plot(expansion(.2), expansion(.2))
+  expand_plot(expansion(0.2), expansion(0.2))
 ```
 
 ## Colliders
@@ -52,7 +52,7 @@ ggdag_adjust(
 ) +
   theme_dag() +
   theme(legend.position = "none") +
-  expand_plot(expansion(.2), expansion(.2)) +
+  expand_plot(expansion(0.2), expansion(0.2)) +
   ggokabeito::scale_color_okabe_ito()
 ```
 
@@ -61,7 +61,7 @@ ggdag_adjust(
 ```{r}
 set.seed(1234)
 collider_data <- collider_triangle() |>
-  simulate_data(-.6)
+  simulate_data(-0.6)
 ```
 
 ## Let's prove it!
