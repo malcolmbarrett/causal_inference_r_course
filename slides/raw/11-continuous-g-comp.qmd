@@ -308,19 +308,10 @@ nhefs_light_smokers <- nhefs_complete |>
 
 nhefs_gcomp_model <- lm(
   wt82_71 ~ splines::ns(smkintensity82_71, df = 3) +
-    sex +
-    race +
-    age +
-    I(age^2) +
-    education +
-    smokeintensity +
-    I(smokeintensity^2) +
-    smokeyrs +
-    I(smokeyrs^2) +
-    exercise +
-    active +
-    wt71 +
-    I(wt71^2),
+    sex + race + age + I(age^2) +
+    education + smokeintensity + I(smokeintensity^2) +
+    smokeyrs + I(smokeyrs^2) + exercise + active +
+    wt71 + I(wt71^2),
   data = nhefs_light_smokers
 )
 ```

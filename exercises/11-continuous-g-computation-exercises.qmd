@@ -119,14 +119,8 @@ First, let's fit the model.
 2. Save the model as `standardized_model`
 
 ```{r}
-_______
-___
-_______(
-  wait_minutes_actual_avg ~ ns(_______, df = 2) *
-    park_extra_magic_morning +
-    _______ +
-    _______ +
-    _______,
+_______ ___ _______(
+  wait_minutes_actual_avg ~ ns(_______, df = 2)*park_extra_magic_morning + _______ + _______ + _______, 
   data = wait_times
 )
 ```
@@ -199,16 +193,19 @@ Remember, you need to bootstrap the entire modeling process, including the regre
 set.seed(1234)
 library(rsample)
 
-fit_gcomp <- function(.split, ...) {
+fit_gcomp <- function(.split, ...) { 
   # get bootstrapped data frame
   .df <- as.data.frame(.split)
-
+  
   # fit outcome model. remember to model using `.df` instead of `wait_times`
-
+  
+  
   # clone datasets. remember to clone `.df` instead of `wait_times`
-
+  
+  
   # predict actual wait time for each cloned dataset
-
+  
+  
   # calculate ATE
   bind_cols(predicted_thirty, predicted_sixty) |>
     summarize(

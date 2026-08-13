@@ -121,7 +121,9 @@ predicted_quit_smoking <- _______ |>
 
 #  summarize the mean difference
 bind_cols(predicted_kept_smoking, predicted_quit_smoking) |>
-  summarise()
+  summarise(
+    
+  )
 ```
 
 ## Stretch goal: Boostrapped intervals

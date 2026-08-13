@@ -627,13 +627,8 @@ outcome_sl_bounded <- SuperLearner(
 ## TMLE Step 1: Initial Predictions (on the bounded [0,1] scale)
 
 ```{r}
-initial_pred_net <- predict(outcome_sl_bounded, newdata = data_all_net)$pred[,
-  1
-]
-initial_pred_no_net <- predict(
-  outcome_sl_bounded,
-  newdata = data_all_no_net
-)$pred[, 1]
+initial_pred_net <- predict(outcome_sl_bounded, newdata = data_all_net)$pred[, 1]
+initial_pred_no_net <- predict(outcome_sl_bounded, newdata = data_all_no_net)$pred[, 1]
 
 # Predictions for observed treatment
 initial_pred_observed <- ifelse(
@@ -693,8 +688,7 @@ epsilon
 
 # Update predictions on logit scale, then transform back
 logit_pred_net <- qlogis(initial_pred_net) + epsilon * (1 / propensity_scores)
-logit_pred_no_net <- qlogis(initial_pred_no_net) +
-  epsilon * (-1 / (1 - propensity_scores))
+logit_pred_no_net <- qlogis(initial_pred_no_net) + epsilon * (-1 / (1 - propensity_scores))
 
 # Transform back to probability scale
 targeted_pred_net <- plogis(logit_pred_net)

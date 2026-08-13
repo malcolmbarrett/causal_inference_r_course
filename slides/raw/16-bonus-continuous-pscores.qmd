@@ -73,13 +73,11 @@ model <- lm(
 model |>
   augment(data = df) |>
   # wt_ate() estimates the SD from the model
-  mutate(
-    wts = wt_ate(
-      .fitted,
-      exposure,
-      exposure_type = "continuous"
-    )
-  )
+  mutate(wts = wt_ate(
+    .fitted,
+    exposure,
+    exposure_type = "continuous"
+  ))
 ```
 
 ## Does change in smoking intensity (`smkintensity82_71`) affect weight gain among lighter smokers?
@@ -95,19 +93,10 @@ nhefs_light_smokers <- nhefs_complete |>
 #| code-line-numbers: "|1-2|3-6"
 
 nhefs_model <- lm(
-  smkintensity82_71 ~ sex +
-    race +
-    age +
-    I(age^2) +
-    education +
-    smokeintensity +
-    I(smokeintensity^2) +
-    smokeyrs +
-    I(smokeyrs^2) +
-    exercise +
-    active +
-    wt71 +
-    I(wt71^2),
+  smkintensity82_71 ~ sex + race + age + I(age^2) +
+    education + smokeintensity + I(smokeintensity^2) +
+    smokeyrs + I(smokeyrs^2) + exercise + active +
+    wt71 + I(wt71^2),
   data = nhefs_light_smokers
 )
 ```
@@ -119,13 +108,11 @@ nhefs_model <- lm(
 
 nhefs_wts <- nhefs_model |>
   augment(data = nhefs_light_smokers) |>
-  mutate(
-    wts = wt_ate(
-      .fitted,
-      smkintensity82_71,
-      exposure_type = "continuous"
-    )
-  )
+  mutate(wts = wt_ate(
+    .fitted,
+    smkintensity82_71,
+    exposure_type = "continuous"
+  ))
 ```
 
 ## 2. Calculate the weights with `wt_ate()`
@@ -294,14 +281,12 @@ nhefs_wts |>
 
 nhefs_swts <- nhefs_model |>
   augment(data = nhefs_light_smokers) |>
-  mutate(
-    swts = wt_ate(
-      .fitted,
-      smkintensity82_71,
-      exposure_type = "continuous",
-      stabilize = TRUE
-    )
-  )
+  mutate(swts = wt_ate(
+    .fitted,
+    smkintensity82_71,
+    exposure_type = "continuous",
+    stabilize = TRUE
+  ))
 ```
 
 ## Stabilizing extreme weights

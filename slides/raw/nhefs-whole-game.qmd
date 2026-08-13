@@ -284,22 +284,13 @@ smk_wt_dag |>
 #| code-line-numbers: "|1-8"
 #| output-location: fragment
 
-lm(
-  wt82_71 ~ qsmk +
-    sex +
-    race +
-    age +
-    I(age^2) +
-    education +
-    smokeintensity +
-    I(smokeintensity^2) +
-    smokeyrs +
-    I(smokeyrs^2) +
-    exercise +
-    active +
-    wt71 +
-    I(wt71^2),
-  data = nhefs_complete_uc
+lm( 
+  wt82_71 ~ qsmk + sex +  
+    race + age + I(age^2) + education + 
+    smokeintensity + I(smokeintensity^2) + 
+    smokeyrs + I(smokeyrs^2) + exercise + active + 
+    wt71 + I(wt71^2), 
+  data = nhefs_complete_uc 
 ) |>
   tidy(conf.int = TRUE) |>
   filter(term == "qsmk")
@@ -318,21 +309,13 @@ lm(
 ```{r}
 #| code-line-numbers: "|1-2"
 
-propensity_model <- glm(
-  qsmk ~ sex +
-    race +
-    age +
-    I(age^2) +
-    education +
-    smokeintensity +
-    I(smokeintensity^2) +
-    smokeyrs +
-    I(smokeyrs^2) +
-    exercise +
-    active +
-    wt71 +
-    I(wt71^2),
-  family = binomial(),
+propensity_model <- glm( 
+  qsmk ~ sex +  
+    race + age + I(age^2) + education + 
+    smokeintensity + I(smokeintensity^2) + 
+    smokeyrs + I(smokeyrs^2) + exercise + active + 
+    wt71 + I(wt71^2), 
+  family = binomial(), 
   data = nhefs_complete_uc
 )
 ```
@@ -542,31 +525,23 @@ fit_ipw_not_quite_rightly <- function(.split, ...) {
 fit_ipw <- function(.split, ...) {
   # get bootstrapped data frame
   .df <- as.data.frame(.split)
-
+  
   # fit propensity score model
   propensity_model <- glm(
-    qsmk ~ sex +
-      race +
-      age +
-      I(age^2) +
-      education +
-      smokeintensity +
-      I(smokeintensity^2) +
-      smokeyrs +
-      I(smokeyrs^2) +
-      exercise +
-      active +
-      wt71 +
-      I(wt71^2),
-    family = binomial(),
+    qsmk ~ sex + 
+      race + age + I(age^2) + education + 
+      smokeintensity + I(smokeintensity^2) + 
+      smokeyrs + I(smokeyrs^2) + exercise + active + 
+      wt71 + I(wt71^2), 
+    family = binomial(), 
     data = .df
   )
-
+  
   # calculate inverse probability weights
   .df <- propensity_model |>
     augment(type.predict = "response", data = .df) |>
     mutate(wts = wt_ate(.fitted, qsmk))
-
+  
   # fit correctly bootstrapped ipw model
   lm(wt82_71 ~ qsmk, data = .df, weights = wts) |>
     tidy()
