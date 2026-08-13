@@ -95,6 +95,43 @@ ggplot(seven_dwarfs_ps, aes(x = ____, color = factor(____))) +
 
 If the weighted curves still diverge, refit the propensity score model with `splines::ns(park_temperature_high, df = 5)` and look again.
 
+## Stretch goal: Energy balancing weights
+
+Energy balancing weights optimize balance directly instead of modeling the propensity score. Fit them with `balance()` from the balancing package, then compare them to the propensity score weights you have been using. On a dataset this small, the solver needs a looser convergence tolerance to finish.
+
+```{r}
+library(balancing)
+
+seven_dwarfs_num <- seven_dwarfs_ps |>
+  mutate(park_close = as.numeric(park_close))
+
+energy_fit <- balance(
+  seven_dwarfs_num,
+  .exposure = ____,
+  .covariates = c(____, ____, ____),
+  method = bw_energy(convergence_tolerance = 1e-6),
+  estimand = "ate"
+)
+
+seven_dwarfs_energy <- seven_dwarfs_num |>
+  mutate(w_energy = weights(energy_fit))
+```
+
+Calculate the balance metrics for both sets of weights, then plot the SMDs.
+
+```{r}
+balance_energy <- seven_dwarfs_energy |>
+  check_balance(
+    .vars = c(park_ticket_season, park_close, park_temperature_high),
+    .exposure = ____,
+    .weights = c(____, ____)
+  )
+
+balance_energy |>
+  filter(metric == "smd") |>
+  plot_balance()
+```
+
 ## Bonus Your Turn: Weighted Tables
 
 Create a weighted table for the seven dwarfs dataset given your weights
