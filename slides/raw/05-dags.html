@@ -298,7 +298,8 @@ Malcolm Barrett
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="fu">dagify</span>(</span>
 <span id="cb2-2"><a href=""></a>  cancer <span class="sc">~</span> smoking,</span>
 <span id="cb2-3"><a href=""></a>  coffee <span class="sc">~</span> smoking</span>
-<span id="cb2-4"><a href=""></a>) <span class="sc">|&gt;</span> <span class="fu">ggdag</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-4"><a href=""></a>) <span class="sc">|&gt;</span></span>
+<span id="cb2-5"><a href=""></a>  <span class="fu">ggdag</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
@@ -316,7 +317,8 @@ Malcolm Barrett
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">dagify</span>(</span>
 <span id="cb3-2"><a href=""></a>  cancer <span class="sc">~</span> smoking <span class="sc">+</span> coffee,</span>
 <span id="cb3-3"><a href=""></a>  coffee <span class="sc">~</span> smoking</span>
-<span id="cb3-4"><a href=""></a>) <span class="sc">|&gt;</span> <span class="fu">ggdag</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-4"><a href=""></a>) <span class="sc">|&gt;</span></span>
+<span id="cb3-5"><a href=""></a>  <span class="fu">ggdag</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
@@ -334,7 +336,7 @@ Malcolm Barrett
 <h3 id="were-going-to-assume-that-coffee-does-not-cause-cancer-so-theres-no-formula-for-that.-but-we-still-need-to-declare-our-causal-question.-specify-coffee-as-the-exposure-and-cancer-as-the-outcome-both-in-quotations-marks.">We’re going to assume that coffee does not cause cancer, so there’s no formula for that. But we still need to declare our causal question. Specify “coffee” as the exposure and “cancer” as the outcome (both in quotations marks).</h3>
 <h3 id="plot-the-dag-using-ggdag">Plot the DAG using <code>ggdag()</code></h3>
 <h3 id="finish-early-try-the-stretch-goals">Finish early? Try the <em>stretch goals</em></h3>
-<p><countdown-timer class="countdown" id="timer_55a64e5e" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_32f97f98" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-1-05-dags-exercises.qmd-1" class="slide level2">
 <h2><em>Your Turn 1</em> (<code>05-dags-exercises.qmd</code>)</h2>
@@ -391,7 +393,7 @@ Malcolm Barrett
 <h3 id="call-tidy_dagitty-on-coffee_cancer_dag-to-create-a-tidy-dag-then-pass-the-results-to-dag_paths.-whats-different-about-these-data">Call <code>tidy_dagitty()</code> on <code>coffee_cancer_dag</code> to create a tidy DAG, then pass the results to <code>dag_paths()</code>. What’s different about these data?</h3>
 <h3 id="plot-the-open-paths-with-ggdag_paths.-just-give-it-coffee_cancer_dag-rather-than-using-dag_paths-the-quick-plot-function-will-do-that-for-you.-remember-since-we-assume-there-is-no-causal-path-from-coffee-to-lung-cancer-any-open-paths-must-be-confounding-pathways.">Plot the open paths with <code>ggdag_paths()</code>. (Just give it <code>coffee_cancer_dag</code> rather than using <code>dag_paths()</code>; the quick plot function will do that for you.) Remember, since we assume there is <em>no</em> causal path from coffee to lung cancer, any open paths must be confounding pathways.</h3>
 <h3 id="finish-early-try-the-stretch-goals-1">Finish early? Try the <em>stretch goals</em></h3>
-<p><countdown-timer class="countdown" id="timer_4f5f02ce" minutes="4" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_9697c514" minutes="4" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-2-1" class="slide level2">
 <h2><em>Your Turn 2</em></h2>
@@ -498,7 +500,7 @@ Malcolm Barrett
 <h3 id="use-ggdag_adjustment_set-to-visualize-the-adjustment-sets.-add-the-arguments-use_labels-true-and-use_text-false.">Use <code>ggdag_adjustment_set()</code> to visualize the adjustment sets. Add the arguments <code>use_labels = TRUE</code> and <code>use_text = FALSE</code>.</h3>
 <h3 id="write-an-r-formula-for-each-adjustment-set-as-you-might-if-you-were-fitting-a-model-in-lm-or-glm">Write an R formula for each adjustment set, as you might if you were fitting a model in <code>lm()</code> or <code>glm()</code></h3>
 <h3 id="finish-early-try-the-stretch-goals-2">Finish early? Try the <em>stretch goals</em></h3>
-<p><countdown-timer class="countdown" id="timer_683dbe08" minutes="4" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_02b18b6a" minutes="4" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-3-1" class="slide level2">
 <h2><em>Your Turn 3</em></h2>
@@ -531,7 +533,7 @@ Malcolm Barrett
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
 <span id="cb15-2"><a href=""></a>dag_data <span class="ot">&lt;-</span> coffee_cancer_dag <span class="sc">|&gt;</span></span>
-<span id="cb15-3"><a href=""></a>  <span class="fu">simulate_data</span>(<span class="sc">-</span>.<span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb15-3"><a href=""></a>  <span class="fu">simulate_data</span>(<span class="sc">-</span><span class="fl">0.6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="lets-prove-it-1" class="slide level2">
@@ -606,7 +608,7 @@ Malcolm Barrett
 <section id="your-turn-4" class="slide level2">
 <h2><em>Your Turn 4</em></h2>
 <p>Recreate the DAG we’ve been working with using <code>time_ordered_coords()</code>, then visualize the DAG. You don’t need to use any arguments for this function, so <code>coords = time_ordered_coords()</code> will do.</p>
-<p><countdown-timer class="countdown" id="timer_a8d0c88a" minutes="2" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_5ebc55ad" minutes="2" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-4-1" class="slide level2">
 <h2><em>Your Turn 4</em></h2>

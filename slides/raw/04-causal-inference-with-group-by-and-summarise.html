@@ -272,9 +272,10 @@ Lucy D’Agostino McGowan
 <span id="cb1-12"><a href=""></a>  <span class="at">y1 =</span> y0,</span>
 <span id="cb1-13"><a href=""></a>  <span class="co"># we only ever observe one of the two</span></span>
 <span id="cb1-14"><a href=""></a>  <span class="at">outcome =</span> (<span class="dv">1</span> <span class="sc">-</span> exposure) <span class="sc">*</span> y0 <span class="sc">+</span> exposure <span class="sc">*</span> y1</span>
-<span id="cb1-15"><a href=""></a>) <span class="sc">|&gt;</span> <span class="fu">select</span>(confounder, exposure, outcome)</span>
-<span id="cb1-16"><a href=""></a></span>
-<span id="cb1-17"><a href=""></a>sim</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-15"><a href=""></a>) <span class="sc">|&gt;</span></span>
+<span id="cb1-16"><a href=""></a>  <span class="fu">select</span>(confounder, exposure, outcome)</span>
+<span id="cb1-17"><a href=""></a></span>
+<span id="cb1-18"><a href=""></a>sim</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
@@ -318,7 +319,7 @@ Coefficients:
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" data-code-line-numbers="|2|3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a>sim <span class="sc">|&gt;</span></span>
 <span id="cb5-2"><a href=""></a>  <span class="fu">group_by</span>(exposure) <span class="sc">|&gt;</span></span>
-<span id="cb5-3"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">avg_y =</span> <span class="fu">mean</span>(outcome)) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-3"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">avg_y =</span> <span class="fu">mean</span>(outcome))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell fragment" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
@@ -337,11 +338,11 @@ Coefficients:
 <span id="cb7-2"><a href=""></a>  <span class="fu">group_by</span>(exposure) <span class="sc">|&gt;</span></span>
 <span id="cb7-3"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">avg_y =</span> <span class="fu">mean</span>(outcome)) <span class="sc">|&gt;</span></span>
 <span id="cb7-4"><a href=""></a>  <span class="fu">pivot_wider</span>(</span>
-<span id="cb7-5"><a href=""></a>    <span class="at">names_from =</span> exposure, </span>
-<span id="cb7-6"><a href=""></a>    <span class="at">values_from =</span> avg_y,  </span>
+<span id="cb7-5"><a href=""></a>    <span class="at">names_from =</span> exposure,</span>
+<span id="cb7-6"><a href=""></a>    <span class="at">values_from =</span> avg_y,</span>
 <span id="cb7-7"><a href=""></a>    <span class="at">names_prefix =</span> <span class="st">"x_"</span></span>
 <span id="cb7-8"><a href=""></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb7-9"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">estimate =</span> x_1 <span class="sc">-</span> x_0) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-9"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">estimate =</span> x_1 <span class="sc">-</span> x_0)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 1
   estimate
@@ -354,7 +355,7 @@ Coefficients:
 <h2><em>Your Turn 1</em> (<code>04-ci-with-group-by-and-summarise-exercises.qmd</code>)</h2>
 <h3 id="group-the-dataset-by-confounder-and-exposure">Group the dataset by <code>confounder</code> and <code>exposure</code></h3>
 <h3 id="calculate-the-mean-of-the-outcome-for-the-groups">Calculate the mean of the <code>outcome</code> for the groups</h3>
-<p><countdown-timer class="countdown" id="timer_cb67e2e2" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_cbceb329" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-1" class="slide level2">
 <h2><em>Your Turn 1</em></h2>
@@ -412,7 +413,7 @@ Coefficients:
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13" data-code-line-numbers="|4-10,12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a>n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
 <span id="cb13-2"><a href=""></a>sim2 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
 <span id="cb13-3"><a href=""></a>  <span class="at">confounder_1 =</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, <span class="fl">0.5</span>),</span>
-<span id="cb13-4"><a href=""></a>  <span class="at">confounder_2 =</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, <span class="fl">0.5</span>), </span>
+<span id="cb13-4"><a href=""></a>  <span class="at">confounder_2 =</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, <span class="fl">0.5</span>),</span>
 <span id="cb13-5"><a href=""></a>  <span class="at">p_exposure =</span> <span class="fu">case_when</span>(</span>
 <span id="cb13-6"><a href=""></a>    confounder_1 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> confounder_2 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="fl">0.75</span>,</span>
 <span id="cb13-7"><a href=""></a>    confounder_1 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> confounder_2 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="fl">0.9</span>,</span>
@@ -420,10 +421,11 @@ Coefficients:
 <span id="cb13-9"><a href=""></a>    confounder_1 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> confounder_2 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="fl">0.1</span>,</span>
 <span id="cb13-10"><a href=""></a>  ),</span>
 <span id="cb13-11"><a href=""></a>  <span class="at">exposure =</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, p_exposure),</span>
-<span id="cb13-12"><a href=""></a>  <span class="at">outcome =</span> confounder_1 <span class="sc">+</span> confounder_2 <span class="sc">+</span> <span class="fu">rnorm</span>(n) </span>
-<span id="cb13-13"><a href=""></a>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>p_exposure)</span>
-<span id="cb13-14"><a href=""></a></span>
-<span id="cb13-15"><a href=""></a>sim2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-12"><a href=""></a>  <span class="at">outcome =</span> confounder_1 <span class="sc">+</span> confounder_2 <span class="sc">+</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb13-13"><a href=""></a>) <span class="sc">|&gt;</span></span>
+<span id="cb13-14"><a href=""></a>  <span class="fu">select</span>(<span class="sc">-</span>p_exposure)</span>
+<span id="cb13-15"><a href=""></a></span>
+<span id="cb13-16"><a href=""></a>sim2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
@@ -466,7 +468,7 @@ Coefficients:
 <h2><em>Your Turn 2</em></h2>
 <h3 id="group-the-dataset-by-the-confounders-and-exposure">Group the dataset by the confounders and exposure</h3>
 <h3 id="calculate-the-mean-of-the-outcome-for-the-groups-1">Calculate the mean of the outcome for the groups</h3>
-<p><countdown-timer class="countdown" id="timer_11d2c39b" minutes="2" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_a5dc30be" minutes="2" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-2-1" class="slide level2">
 <h2><em>Your Turn 2</em></h2>
@@ -497,7 +499,7 @@ Coefficients:
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19" data-code-line-numbers="|1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href=""></a>n <span class="ot">&lt;-</span> <span class="dv">100000</span></span>
 <span id="cb19-2"><a href=""></a>big_sim2 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
 <span id="cb19-3"><a href=""></a>  <span class="at">confounder_1 =</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, <span class="fl">0.5</span>),</span>
-<span id="cb19-4"><a href=""></a>  <span class="at">confounder_2 =</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, <span class="fl">0.5</span>), </span>
+<span id="cb19-4"><a href=""></a>  <span class="at">confounder_2 =</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, <span class="fl">0.5</span>),</span>
 <span id="cb19-5"><a href=""></a>  <span class="at">p_exposure =</span> <span class="fu">case_when</span>(</span>
 <span id="cb19-6"><a href=""></a>    confounder_1 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> confounder_2 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="fl">0.75</span>,</span>
 <span id="cb19-7"><a href=""></a>    confounder_1 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> confounder_2 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="fl">0.9</span>,</span>
@@ -505,10 +507,11 @@ Coefficients:
 <span id="cb19-9"><a href=""></a>    confounder_1 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> confounder_2 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="fl">0.1</span>,</span>
 <span id="cb19-10"><a href=""></a>  ),</span>
 <span id="cb19-11"><a href=""></a>  <span class="at">exposure =</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, p_exposure),</span>
-<span id="cb19-12"><a href=""></a>  <span class="at">outcome =</span> confounder_1 <span class="sc">+</span> confounder_2 <span class="sc">+</span> <span class="fu">rnorm</span>(n) </span>
-<span id="cb19-13"><a href=""></a>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>p_exposure)</span>
-<span id="cb19-14"><a href=""></a></span>
-<span id="cb19-15"><a href=""></a>big_sim2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb19-12"><a href=""></a>  <span class="at">outcome =</span> confounder_1 <span class="sc">+</span> confounder_2 <span class="sc">+</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb19-13"><a href=""></a>) <span class="sc">|&gt;</span></span>
+<span id="cb19-14"><a href=""></a>  <span class="fu">select</span>(<span class="sc">-</span>p_exposure)</span>
+<span id="cb19-15"><a href=""></a></span>
+<span id="cb19-16"><a href=""></a>big_sim2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
@@ -573,15 +576,16 @@ Coefficients:
 <section id="simulation-9" class="slide level2">
 <h2>Simulation</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25" data-code-line-numbers="|3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href=""></a>n <span class="ot">&lt;-</span> <span class="dv">10000</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25" data-code-line-numbers="|3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href=""></a>n <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
 <span id="cb25-2"><a href=""></a>sim3 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb25-3"><a href=""></a>  <span class="at">confounder =</span> <span class="fu">rnorm</span>(n), </span>
+<span id="cb25-3"><a href=""></a>  <span class="at">confounder =</span> <span class="fu">rnorm</span>(n),</span>
 <span id="cb25-4"><a href=""></a>  <span class="at">p_exposure =</span> <span class="fu">exp</span>(confounder) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(confounder)),</span>
 <span id="cb25-5"><a href=""></a>  <span class="at">exposure =</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, p_exposure),</span>
-<span id="cb25-6"><a href=""></a>  <span class="at">outcome =</span> confounder <span class="sc">+</span> <span class="fu">rnorm</span>(n) </span>
-<span id="cb25-7"><a href=""></a>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>p_exposure)</span>
-<span id="cb25-8"><a href=""></a></span>
-<span id="cb25-9"><a href=""></a>sim3</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb25-6"><a href=""></a>  <span class="at">outcome =</span> confounder <span class="sc">+</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb25-7"><a href=""></a>) <span class="sc">|&gt;</span></span>
+<span id="cb25-8"><a href=""></a>  <span class="fu">select</span>(<span class="sc">-</span>p_exposure)</span>
+<span id="cb25-9"><a href=""></a></span>
+<span id="cb25-10"><a href=""></a>sim3</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
@@ -625,7 +629,7 @@ Coefficients:
 <h3 id="use-ntile-from-dplyr-to-calculate-a-binned-version-of-confounder-called-confounder_q.-well-create-a-variable-with-5-bins.">Use <code>ntile()</code> from dplyr to calculate a binned version of <code>confounder</code> called <code>confounder_q</code>. We’ll create a variable with 5 bins.</h3>
 <h3 id="group-the-dataset-by-the-binned-variable-you-just-created-and-exposure">Group the dataset by the binned variable you just created and exposure</h3>
 <h3 id="calculate-the-mean-of-the-outcome-for-the-groups-2">Calculate the mean of the outcome for the groups</h3>
-<p><countdown-timer class="countdown" id="timer_ea90ce5d" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_4ad3993e" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-3-1" class="slide level2">
 <h2><em>Your Turn 3</em></h2>
