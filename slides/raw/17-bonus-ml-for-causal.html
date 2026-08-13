@@ -399,7 +399,7 @@ SL.gam_All    28.05101 0.353561</code></pre>
 <h2><em>Your Turn 1</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_21775520" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_179ccf45" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 <h3 id="first-create-a-character-vector-sl_library-that-specifies-the-following-algorithms-sl.glm-sl.ranger-sl.gam.-then-fit-a-superlearner-for-the-exposure-model-using-the-superlearner-package.-the-predictors-for-this-model-should-be-the-confounders-identified-in-the-dag-park_ticket_season-park_close-and-park_temperature_high.-the-outcome-is-park_extra_magic_morning.">First, create a character vector <code>sl_library</code> that specifies the following algorithms: “SL.glm”, “SL.ranger”, “SL.gam”. Then, Fit a SuperLearner for the exposure model using the <code>SuperLearner</code> package. The predictors for this model should be the confounders identified in the DAG: <code>park_ticket_season</code>, <code>park_close</code>, and <code>park_temperature_high</code>. The outcome is <code>park_extra_magic_morning</code>.</h3>
@@ -465,7 +465,7 @@ SL.gam_All    28.05101 0.353561</code></pre>
 <h2><em>Your Turn 2</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_06a5d646" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_32ed9fa5" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 <h3 id="implement-the-ipw-algorithm-using-the-superlearner-propensity-scores">Implement the IPW algorithm using the SuperLearner propensity scores</h3>
@@ -616,7 +616,7 @@ SL.gam_All    28.05101 0.353561</code></pre>
 <h2><em>Your Turn 3</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_5bc87d19" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_84aa508e" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 <h3 id="calculate-initial-predictions-for-treatedcontrol-scenarios">Calculate initial predictions for treated/control scenarios</h3>
@@ -657,22 +657,19 @@ SL.gam_All    28.05101 0.353561</code></pre>
 <span id="cb20-5"><a href=""></a>)</span>
 <span id="cb20-6"><a href=""></a></span>
 <span id="cb20-7"><a href=""></a><span class="co"># IC uses bounded outcomes and predictions</span></span>
-<span id="cb20-8"><a href=""></a>ic <span class="ot">&lt;-</span> clever_covariate <span class="sc">*</span></span>
-<span id="cb20-9"><a href=""></a>  (y_bounded <span class="sc">-</span> targeted_pred_observed) <span class="sc">+</span></span>
-<span id="cb20-10"><a href=""></a>  targeted_pred_net <span class="sc">-</span></span>
-<span id="cb20-11"><a href=""></a>  targeted_pred_no_net <span class="sc">-</span></span>
-<span id="cb20-12"><a href=""></a>  targeted_ate <span class="sc">/</span> (max_y <span class="sc">-</span> min_y)</span>
+<span id="cb20-8"><a href=""></a>ic <span class="ot">&lt;-</span> clever_covariate <span class="sc">*</span> (y_bounded <span class="sc">-</span> targeted_pred_observed) <span class="sc">+</span></span>
+<span id="cb20-9"><a href=""></a>      targeted_pred_net <span class="sc">-</span> targeted_pred_no_net <span class="sc">-</span> targeted_ate <span class="sc">/</span> (max_y <span class="sc">-</span> min_y)</span>
+<span id="cb20-10"><a href=""></a></span>
+<span id="cb20-11"><a href=""></a><span class="co"># Standard error on original scale</span></span>
+<span id="cb20-12"><a href=""></a>se_tmle <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">var</span>(ic) <span class="sc">/</span> <span class="fu">nrow</span>(net_data)) <span class="sc">*</span> (max_y <span class="sc">-</span> min_y)</span>
 <span id="cb20-13"><a href=""></a></span>
-<span id="cb20-14"><a href=""></a><span class="co"># Standard error on original scale</span></span>
-<span id="cb20-15"><a href=""></a>se_tmle <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">var</span>(ic) <span class="sc">/</span> <span class="fu">nrow</span>(net_data)) <span class="sc">*</span> (max_y <span class="sc">-</span> min_y)</span>
-<span id="cb20-16"><a href=""></a></span>
-<span id="cb20-17"><a href=""></a><span class="co"># 95% CI</span></span>
-<span id="cb20-18"><a href=""></a><span class="fu">tibble</span>(</span>
-<span id="cb20-19"><a href=""></a>  <span class="at">ate =</span> targeted_ate,</span>
-<span id="cb20-20"><a href=""></a>  <span class="at">se =</span> se_tmle,</span>
-<span id="cb20-21"><a href=""></a>  <span class="at">lower_ci =</span> targeted_ate <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se_tmle,</span>
-<span id="cb20-22"><a href=""></a>  <span class="at">upper_ci =</span> targeted_ate <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se_tmle</span>
-<span id="cb20-23"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb20-14"><a href=""></a><span class="co"># 95% CI</span></span>
+<span id="cb20-15"><a href=""></a><span class="fu">tibble</span>(</span>
+<span id="cb20-16"><a href=""></a>  <span class="at">ate =</span> targeted_ate,</span>
+<span id="cb20-17"><a href=""></a>  <span class="at">se =</span> se_tmle,</span>
+<span id="cb20-18"><a href=""></a>  <span class="at">lower_ci =</span> targeted_ate <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se_tmle,</span>
+<span id="cb20-19"><a href=""></a>  <span class="at">upper_ci =</span> targeted_ate <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se_tmle</span>
+<span id="cb20-20"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
@@ -715,7 +712,7 @@ SL.gam_All    28.05101 0.353561</code></pre>
 <h2><em>Your Turn 4</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_c050a4a0" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_880b8f53" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 <h3 id="calculate-the-tmle-ate-and-compare-to-the-initial-g-computation-estimate">Calculate the TMLE ATE and compare to the initial (g-computation) estimate</h3>
