@@ -330,7 +330,7 @@ Malcolm Barrett
 <h3 id="fit-a-model-using-lm-with-wait_minutes_posted_avg-as-the-outcome-and-the-confounders-identified-in-the-dag.">Fit a model using <code>lm()</code> with <code>wait_minutes_posted_avg</code> as the outcome and the confounders identified in the DAG.</h3>
 <h3 id="use-augment-to-add-model-predictions-to-the-data-frame">Use <code>augment()</code> to add model predictions to the data frame</h3>
 <h3 id="in-wt_ate-calculate-the-weights-using-.fitted-and-wait_minutes_posted_avg">In <code>wt_ate()</code>, calculate the weights using <code>.fitted</code> and <code>wait_minutes_posted_avg</code></h3>
-<p><countdown-timer class="countdown" id="timer_33c0e713" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_42c6358a" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-1-1" class="slide level2">
 <h2><em>Your Turn 1</em></h2>
@@ -397,7 +397,7 @@ Malcolm Barrett
 <section id="your-turn-2" class="slide level2">
 <h2><em>Your Turn 2</em></h2>
 <h3 id="re-fit-the-above-using-stabilized-weights">Re-fit the above using stabilized weights</h3>
-<p><countdown-timer class="countdown" id="timer_8cc37686" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_ed9b7856" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-2-1" class="slide level2">
 <h2><em>Your Turn 2</em></h2>
@@ -417,49 +417,44 @@ Malcolm Barrett
 <ol type="1">
 <li class="fragment">Weighting should break the association between the confounders and the exposure</li>
 <li class="fragment">For a binary exposure, we check standardized mean differences</li>
-<li class="fragment">For a continuous exposure, we check correlations</li>
+<li class="fragment">For a continuous exposure, we check correlations and energy</li>
 </ol>
 </section>
-<section id="correlations-with-bal_corr" class="slide level2">
-<h2>Correlations with <code>bal_corr()</code></h2>
+<section id="check-balance-with-check_balance" class="slide level2">
+<h2>Check balance with <code>check_balance()</code></h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a>balance_corrs <span class="ot">&lt;-</span> nhefs_swts <span class="sc">|&gt;</span></span>
-<span id="cb14-2"><a href=""></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb14-3"><a href=""></a>    <span class="fu">c</span>(age, smokeintensity, smokeyrs, wt71),</span>
-<span id="cb14-4"><a href=""></a>    <span class="at">names_to =</span> <span class="st">"variable"</span></span>
-<span id="cb14-5"><a href=""></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb14-6"><a href=""></a>  <span class="fu">summarize</span>(</span>
-<span id="cb14-7"><a href=""></a>    <span class="at">observed =</span> <span class="fu">bal_corr</span>(value, smkintensity82_71),</span>
-<span id="cb14-8"><a href=""></a>    <span class="at">weighted =</span> <span class="fu">bal_corr</span>(value, smkintensity82_71, <span class="at">.weights =</span> swts),</span>
-<span id="cb14-9"><a href=""></a>    <span class="at">.by =</span> variable</span>
-<span id="cb14-10"><a href=""></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb14-11"><a href=""></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb14-12"><a href=""></a>    <span class="fu">c</span>(observed, weighted),</span>
-<span id="cb14-13"><a href=""></a>    <span class="at">names_to =</span> <span class="st">"method"</span>,</span>
-<span id="cb14-14"><a href=""></a>    <span class="at">values_to =</span> <span class="st">"correlation"</span></span>
-<span id="cb14-15"><a href=""></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a>balance_metrics <span class="ot">&lt;-</span> <span class="fu">check_balance</span>(</span>
+<span id="cb14-2"><a href=""></a>  nhefs_swts,</span>
+<span id="cb14-3"><a href=""></a>  <span class="fu">c</span>(age, smokeintensity, smokeyrs, wt71),</span>
+<span id="cb14-4"><a href=""></a>  smkintensity82_71,</span>
+<span id="cb14-5"><a href=""></a>  <span class="at">.weights =</span> swts,</span>
+<span id="cb14-6"><a href=""></a>  <span class="at">exposure_type =</span> <span class="st">"continuous"</span></span>
+<span id="cb14-7"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <h3 id="these-are-the-continuous-confounders-the-categorical-ones-need-dummy-coding-first">These are the continuous confounders; the categorical ones need dummy coding first</h3>
+<h3 id="as-in-wt_ate-exposure_type-tells-check_balance-the-exposure-is-continuous">As in <code>wt_ate()</code>, <code>exposure_type</code> tells <code>check_balance()</code> the exposure is continuous</h3>
 </section>
-<section id="correlations-with-bal_corr-1" class="slide level2">
-<h2>Correlations with <code>bal_corr()</code></h2>
+<section id="check-balance-with-check_balance-1" class="slide level2">
+<h2>Check balance with <code>check_balance()</code></h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a>balance_corrs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a>balance_metrics</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 8 × 3
-  variable       method   correlation
-  &lt;chr&gt;          &lt;chr&gt;          &lt;dbl&gt;
-1 age            observed    -0.156  
-2 age            weighted     0.0219 
-3 smokeintensity observed    -0.178  
-4 smokeintensity weighted    -0.0276 
-5 smokeyrs       observed    -0.134  
-6 smokeyrs       weighted     0.0279 
-7 wt71           observed     0.00301
-8 wt71           weighted    -0.0248 </code></pre>
+<pre><code># A tibble: 10 × 5
+   variable       group_level       method   metric estimate
+   &lt;chr&gt;          &lt;chr&gt;             &lt;chr&gt;    &lt;chr&gt;     &lt;dbl&gt;
+ 1 age            smkintensity82_71 observed corre… -0.156  
+ 2 age            smkintensity82_71 swts     corre…  0.0219 
+ 3 smokeintensity smkintensity82_71 observed corre… -0.178  
+ 4 smokeintensity smkintensity82_71 swts     corre… -0.0276 
+ 5 smokeyrs       smkintensity82_71 observed corre… -0.134  
+ 6 smokeyrs       smkintensity82_71 swts     corre…  0.0279 
+ 7 wt71           smkintensity82_71 observed corre…  0.00301
+ 8 wt71           smkintensity82_71 swts     corre… -0.0248 
+ 9 &lt;NA&gt;           &lt;NA&gt;              observed energy  2.03   
+10 &lt;NA&gt;           &lt;NA&gt;              swts     energy  0.798  </code></pre>
 </div>
 </div>
-<h3 id="the-weighted-correlations-are-close-to-zero-so-the-weights-are-doing-their-job-for-these-confounders">The weighted correlations are close to zero, so the weights are doing their job for these confounders</h3>
+<h3 id="the-weighted-correlations-are-close-to-zero-and-energy-is-smaller-after-weighting">The weighted correlations are close to zero, and energy is smaller after weighting</h3>
 </section>
 <section id="correlations-before-and-after-weighting" class="slide level2">
 <h2>Correlations before and after weighting</h2>
@@ -539,7 +534,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <h3 id="estimate-the-relationship-between-posted-wait-times-and-actual-wait-times-using-the-stabilized-weights-we-just-created.">Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created.</h3>
 <h3 id="fit-the-same-outcome-model-again-saving-it-to-an-object">Fit the same outcome model again, saving it to an object</h3>
 <h3 id="use-ipw-to-estimate-the-effect-with-standard-errors-that-account-for-the-weights-then-as_conditional-to-switch-readings">Use <code>ipw()</code> to estimate the effect with standard errors that account for the weights, then <code>as_conditional()</code> to switch readings</h3>
-<p><countdown-timer class="countdown" id="timer_78226d4e" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_b9b2ff50" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-3-1" class="slide level2">
 <h2><em>Your Turn 3</em></h2>

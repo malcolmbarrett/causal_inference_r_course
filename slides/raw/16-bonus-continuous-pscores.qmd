@@ -312,46 +312,39 @@ wait_times_swts <- post_time_model |>
 
 1. Weighting should break the association between the confounders and the exposure
 2. For a binary exposure, we check standardized mean differences
-3. For a continuous exposure, we check correlations
+3. For a continuous exposure, we check correlations and energy
 
-## Correlations with `bal_corr()`
+## Check balance with `check_balance()`
 
 ```{r}
-balance_corrs <- nhefs_swts |>
-  pivot_longer(
-    c(age, smokeintensity, smokeyrs, wt71),
-    names_to = "variable"
-  ) |>
-  summarize(
-    observed = bal_corr(value, smkintensity82_71),
-    weighted = bal_corr(value, smkintensity82_71, .weights = swts),
-    .by = variable
-  ) |>
-  pivot_longer(
-    c(observed, weighted),
-    names_to = "method",
-    values_to = "correlation"
-  )
+balance_metrics <- check_balance(
+  nhefs_swts,
+  c(age, smokeintensity, smokeyrs, wt71),
+  smkintensity82_71,
+  .weights = swts,
+  exposure_type = "continuous"
+)
 ```
 
 ### These are the continuous confounders; the categorical ones need dummy coding first
 
-## Correlations with `bal_corr()`
+### As in `wt_ate()`, `exposure_type` tells `check_balance()` the exposure is continuous
+
+## Check balance with `check_balance()`
 
 ```{r}
-balance_corrs
+balance_metrics
 ```
 
-### The weighted correlations are close to zero, so the weights are doing their job for these confounders
+### The weighted correlations are close to zero, and energy is smaller after weighting
 
 ## Correlations before and after weighting
 
 ```{r}
 #| echo: false
-ggplot(
-  balance_corrs,
-  aes(x = correlation, y = variable, group = method, color = method)
-) +
+balance_metrics |>
+  filter(metric == "correlation") |>
+  ggplot(aes(x = estimate, y = variable, group = method, color = method)) +
   geom_love(vline_xintercept = 0) +
   scale_color_okabe_ito() +
   theme_minimal(base_size = 20) +
