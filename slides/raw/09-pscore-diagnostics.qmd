@@ -546,6 +546,139 @@ The scale depends on the confounders, so use energy to compare approaches
 Imai, King, and Stuart (2008)
 :::
 
+## Balancing weights {background-color="#23373B"}
+
+So far, we modeled the propensity score, then checked whether its weights balance
+
+An alternative approach is to directly optimize the weights to achieve balance without explicitly modeling the propensity score
+
+## Optimizing the energy statistic
+
+We used the energy statistic to measure balance across the joint distribution
+
+Energy balancing weights minimize it directly
+
+## Energy balancing weights
+
+```{r}
+#| eval: true
+#| code-line-numbers: "|6|7"
+#| output-location: slide
+
+library(balancing)
+
+energy_fit <- balance(
+  net_data_ns,
+  .exposure = net,
+  .covariates = c(income, health, temperature),
+  method = bw_energy(),
+  estimand = "ate"
+)
+
+energy_fit
+```
+
+## Comparing balance metrics
+
+```{r}
+#| eval: true
+
+net_data_ns <- net_data_ns |>
+  mutate(w_energy = weights(energy_fit))
+
+balance_metrics_energy <- check_balance(
+  net_data_ns,
+  .vars = all_of(vars),
+  .exposure = net,
+  .weights = c(w_ate, w_energy),
+  interactions = TRUE,
+  squares = TRUE
+)
+```
+
+## Comparing energy
+
+```{r}
+#| eval: true
+#| output-location: fragment
+
+balance_metrics_energy |>
+  filter(metric == "energy") |>
+  select(method, estimate)
+```
+
+. . .
+
+Lower energy than the spline model we tuned by hand
+
+## Comparing SMDs
+
+```{r}
+#| eval: true
+#| output-location: slide
+
+balance_metrics_energy |>
+  filter(metric == "smd") |>
+  plot_balance()
+```
+
+## Weighted ECDF with energy weights
+
+```{r}
+#| eval: true
+#| code-line-numbers: "|2"
+#| output-location: slide
+
+ggplot(net_data_ns, aes(x = temperature, color = factor(net))) +
+  geom_ecdf(aes(weights = w_energy)) +
+  scale_color_manual(
+    "Net use",
+    values = c("#5154B8", "#5DB854"),
+    labels = c("No", "Yes")
+  ) +
+  xlab("Temperature") +
+  ylab("Proportion <= x (Weighted)")
+```
+
+The optimization balanced the whole distribution, with no spline needed
+
+## Energy weights and ESS
+
+```{r}
+#| eval: true
+#| output-location: fragment
+
+net_data_ns |>
+  summarize(
+    n = n(),
+    ess_ate = ess(w_ate),
+    ess_energy = ess(w_energy)
+  )
+```
+
+. . .
+
+Better joint balance did not cost effective sample size here
+
+## Other balancing weights {.small}
+
+  | Weights                              | Function       | What it optimizes                                         |
+  | ------------------------------------ | -------------- | --------------------------------------------------------- |
+  | Entropy                              | `bw_entropy()` | Uniformity of the weights, with exact mean balance        |
+  | Inverse probability tilting          | `bw_ipt()`     | A propensity model tilted to match the weighted means     |
+  | Covariate balancing propensity score | `bw_cbps()`    | A propensity score that also satisfies balance conditions |
+  | Energy                               | `bw_energy()`  | The energy distance across the joint distribution         |
+  | Kernel distance                      | `bw_cfd()`     | A kernel distance between the weighted groups             |
+  | Stable                               | `bw_sbw()`     | Weight variability, holding means within a tolerance      |
+
+All are fit the same way through `balance()`; only `method` changes
+
+## Inference with balancing weights
+
+Energy, kernel distance, and stable weights have no analytic standard errors, so bootstrap, refitting the weights in each resample
+
+Whatever produced the weights, the diagnostics are the same
+
 ## {.center .huge background-color="#23373B"}
 
 ### *Bonus!* Weighted Tables in R
