@@ -19,6 +19,7 @@ library(causaldata)
 library(touringplans)
 library(propensity)
 library(marginaleffects)
+library(halfmoon)
 
 set.seed(1000)
 ```
@@ -305,6 +306,56 @@ wait_times_swts <- post_time_model |>
     exposure_type = "continuous",
     stabilize = TRUE
   ))
+```
+
+## Checking balance {background-color="#23373B"}
+
+1. Weighting should break the association between the confounders and the exposure
+2. For a binary exposure, we check standardized mean differences
+3. For a continuous exposure, we check correlations
+
+## Correlations with `bal_corr()`
+
+```{r}
+balance_corrs <- nhefs_swts |>
+  pivot_longer(
+    c(age, smokeintensity, smokeyrs, wt71),
+    names_to = "variable"
+  ) |>
+  summarize(
+    observed = bal_corr(value, smkintensity82_71),
+    weighted = bal_corr(value, smkintensity82_71, .weights = swts),
+    .by = variable
+  ) |>
+  pivot_longer(
+    c(observed, weighted),
+    names_to = "method",
+    values_to = "correlation"
+  )
+```
+
+### These are the continuous confounders; the categorical ones need dummy coding first
+
+## Correlations with `bal_corr()`
+
+```{r}
+balance_corrs
+```
+
+### The weighted correlations are close to zero, so the weights are doing their job for these confounders
+
+## Correlations before and after weighting
+
+```{r}
+#| echo: false
+ggplot(
+  balance_corrs,
+  aes(x = correlation, y = variable, group = method, color = method)
+) +
+  geom_love(vline_xintercept = 0) +
+  theme_minimal(base_size = 20) +
+  scale_x_continuous(breaks = c(-0.2, -0.1, 0)) +
+  labs(x = "Correlation", y = NULL, color = NULL)
 ```
 
 ## Fitting the outcome model {background-color="#23373B"}
