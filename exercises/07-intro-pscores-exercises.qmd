@@ -5,6 +5,7 @@ format: html
 
 ```{r}
 #| label: setup
+
 library(tidyverse)
 library(broom)
 library(touringplans)
@@ -58,12 +59,12 @@ dagify(
   geom_dag_point() +
   geom_dag_label_repel(
     aes(x, y, label = label),
-    box.padding = 1.25, 
+    box.padding = 1.25,
     inherit.aes = FALSE,
-    max.overlaps = Inf, 
+    max.overlaps = Inf,
     family = "sans",
     seed = 1630,
-    label.size = NA, 
+    label.size = NA,
     label.padding = 0.1,
     size = 14 / 3
   ) +
@@ -99,13 +100,13 @@ seven_dwarfs <- seven_dwarfs_train_2018 |>
 
 Here's a data dictionary of the variables we need in the `seven_dwarfs` data set:
 
-| Variable                       | Column in `seven_dwarfs` |
-|--------------------------------|--------------------------|
-| Posted Wait Time (outcome)     | `wait_minutes_posted_avg`|
-| Extra Magic Morning (exposure) | `park_extra_magic_morning`    |
-| Ticket Season                  | `park_ticket_season`      |
-| Closing Time                   | `park_close`                  |
-| Historic Temperature           | `park_temperature_high`        |
+  | Variable                       | Column in `seven_dwarfs`   |
+  | ------------------------------ | -------------------------- |
+  | Posted Wait Time (outcome)     | `wait_minutes_posted_avg`  |
+  | Extra Magic Morning (exposure) | `park_extra_magic_morning` |
+  | Ticket Season                  | `park_ticket_season`       |
+  | Closing Time                   | `park_close`               |
+  | Historic Temperature           | `park_temperature_high`    |
 
 ## Your Turn 1
 
@@ -162,5 +163,4 @@ Examine two histograms of the propensity scores, one days with Extra Magic Morni
 How do these compare?
 
 ```{r}
-
 ```

@@ -11,6 +11,7 @@ knitr:
 ```{r}
 #| include: false
 #| eval: true
+
 options(
   tibble.max_extra_cols = 6,
   tibble.width = 60,
@@ -21,9 +22,9 @@ options(
 
 ## Checking balance {background-color="#23373B"}
 
-* Model-level diagnostics
-* Variable-level diagnostics
-* Balance across the joint distribution
+- Model-level diagnostics
+- Variable-level diagnostics
+- Balance across the joint distribution
 
 ## Model-level diagnostics {background-color="#23373B"}
 
@@ -34,6 +35,7 @@ Now: did weighting remove what the model knew?
 ```{r}
 #| include: false
 #| eval: true
+
 library(halfmoon)
 library(tidyverse)
 library(broom)
@@ -63,6 +65,7 @@ If the weights did their job, the model should no longer discriminate between th
 #| eval: true
 #| code-line-numbers: "|2"
 #| output-location: slide
+
 net_data_wts |>
   check_model_roc_curve(net, .fitted, .weights = w_ate) |>
   plot_model_roc_curve()
@@ -73,6 +76,7 @@ net_data_wts |>
 ```{r}
 #| eval: true
 #| output-location: fragment
+
 check_model_auc(
   net_data_wts,
   .exposure = net,
@@ -83,8 +87,8 @@ check_model_auc(
 
 ## Weighted AUC
 
-* In a prediction model, a weighted AUC of 0.50 would be a failure
-* In a causal model, it means the confounders no longer tell the groups apart
+- In a prediction model, a weighted AUC of 0.50 would be a failure
+- In a causal model, it means the confounders no longer tell the groups apart
 
 ## Effective sample size {background-color="#23373B"}
 
@@ -97,6 +101,7 @@ The approximate number of independent observations after weighting
 ```{r}
 #| eval: true
 #| output-location: fragment
+
 net_data_wts |>
   summarize(
     n = n(),
@@ -114,6 +119,7 @@ Weighting buys balance at the price of precision
 ```{r}
 #| eval: true
 #| output-location: fragment
+
 net_data_wts |>
   group_by(net) |>
   summarize(
@@ -134,6 +140,7 @@ The grouped values do not sum to the total: each measures the variation in a dif
 #| eval: true
 #| message: false
 #| warning: false
+
 ggplot(net_data_wts, aes(x = as.numeric(w_ate), fill = factor(net))) +
   geom_density(color = NA) +
   scale_x_log10() +
@@ -142,9 +149,9 @@ ggplot(net_data_wts, aes(x = as.numeric(w_ate), fill = factor(net))) +
 
 ## The price of balance
 
-* Weighting introduces variation, so precision drops
-* The more variable the weights, the lower the ESS
-* If the ESS is too small: different weights, or trimming and truncation
+- Weighting introduces variation, so precision drops
+- The more variable the weights, the lower the ESS
+- If the ESS is too small: different weights, or trimming and truncation
 
 ## Comparing weights with ESS
 
@@ -152,6 +159,7 @@ ggplot(net_data_wts, aes(x = as.numeric(w_ate), fill = factor(net))) +
 #| eval: true
 #| code-line-numbers: "|1-7|9-10"
 #| output-location: slide
+
 net_data_wts <- net_data_wts |>
   mutate(
     w_att = wt_att(.fitted, net),
@@ -189,6 +197,7 @@ Calculate standardized mean differences and other balance metrics
 #| message: false
 #| warning: false
 #| code-line-numbers: "|4|6|7|8"
+
 library(halfmoon)
 library(tidyverse)
 
@@ -205,6 +214,7 @@ balance_metrics <- check_balance(
 ```{r}
 #| output-location: slide
 #| eval: true
+
 vars <- c("income", "health", "temperature")
 
 balance_metrics <- check_balance(
@@ -222,13 +232,14 @@ balance_metrics
 ```{r}
 #| eval: true
 #| output-location: slide
+
 smds <- balance_metrics |>
   filter(metric == "smd")
 
 smds
 ```
 
----
+--------------------------------------------------------------------------------
 
 ## Plotting SMDs ![](img/hex/halfmoon.png){.absolute top=0 right=0 width=140}
 
@@ -238,6 +249,7 @@ Plot them! (in a Love plot!)
 
 ```{r}
 #| code-line-numbers: "|2|3-8|10"
+
 ggplot(
   data = smds,
   aes(
@@ -257,6 +269,7 @@ ggplot(
 #| eval: true
 #| message: false
 #| warning: false
+
 ggplot(
   data = smds,
   aes(x = abs(estimate), y = variable, group = method, color = method)
@@ -272,6 +285,7 @@ The ratio of the within-group variances, ideally as close to 1 as possible
 #| eval: true
 #| code-line-numbers: "|2|8"
 #| output-location: slide
+
 vrs <- balance_metrics |>
   filter(metric == "vr")
 
@@ -293,6 +307,7 @@ ggplot(
 ```{r}
 #| eval: true
 #| output-location: slide
+
 ggplot(
   net_data_wts,
   aes(x = factor(net), y = income, color = factor(net))
@@ -308,6 +323,7 @@ ggplot(
 #| eval: true
 #| code-line-numbers: "|3"
 #| output-location: slide
+
 ggplot(
   net_data_wts,
   aes(x = factor(net), y = income, color = factor(net), weight = w_ate)
@@ -334,20 +350,7 @@ For continuous variables, it can be helpful to look at the _whole_ distribution 
 #| message: false
 #| warning: false
 #| eval: true
-ggplot(net_data_wts, aes(x = income, color = factor(net))) +
-  geom_ecdf() +
-  scale_color_manual("Net use", values = c("#5154B8", "#5DB854"),
-                     labels = c("No", "Yes")) +
-  xlab("Income") +
-  ylab("Proportion <= x")
-```
 
-## Unweighted ECDF
-
-```{r}
-#| code-line-numbers: "|1|2"
-#| eval: true
-#| output-location: slide
 ggplot(net_data_wts, aes(x = income, color = factor(net))) +
   geom_ecdf() +
   scale_color_manual(
@@ -359,6 +362,23 @@ ggplot(net_data_wts, aes(x = income, color = factor(net))) +
   ylab("Proportion <= x")
 ```
 
+## Unweighted ECDF
+
+```{r}
+#| code-line-numbers: "|1|2"
+#| eval: true
+#| output-location: slide
+
+ggplot(net_data_wts, aes(x = income, color = factor(net))) +
+  geom_ecdf() +
+  scale_color_manual(
+    "Net use",
+    values = c("#5154B8", "#5DB854"),
+    labels = c("No", "Yes")
+  ) +
+  xlab("Income") +
+  ylab("Proportion <= x")
+```
 
 ## Weighted  ECDF
 
@@ -366,6 +386,7 @@ ggplot(net_data_wts, aes(x = income, color = factor(net))) +
 #| eval: true
 #| code-line-numbers: "|2"
 #| output-location: slide
+
 ggplot(net_data_wts, aes(x = income, color = factor(net))) +
   geom_ecdf(aes(weights = w_ate)) +
   scale_color_manual(
@@ -383,6 +404,7 @@ ggplot(net_data_wts, aes(x = income, color = factor(net))) +
 #| eval: true
 #| code-line-numbers: "|1"
 #| output-location: slide
+
 ggplot(net_data_wts, aes(x = temperature, color = factor(net))) +
   geom_ecdf(aes(weights = w_ate)) +
   scale_color_manual(
@@ -396,15 +418,16 @@ ggplot(net_data_wts, aes(x = temperature, color = factor(net))) +
 
 ## A non-linear relationship
 
-* The weighted curves overlap until about 27 degrees, then they diverge
-* The SMD for temperature is near zero, so it would have missed this
-* Let's refit the propensity score model with a natural spline
+- The weighted curves overlap until about 27 degrees, then they diverge
+- The SMD for temperature is near zero, so it would have missed this
+- Let's refit the propensity score model with a natural spline
 
 ## Refit with a spline
 
 ```{r}
 #| eval: true
 #| code-line-numbers: "|2"
+
 propensity_model_ns <- glm(
   net ~ income + health + splines::ns(temperature, df = 5),
   family = binomial(),
@@ -423,6 +446,7 @@ net_data_ns <- propensity_model_ns |>
 #| eval: true
 #| message: false
 #| warning: false
+
 ggplot(net_data_ns, aes(x = temperature, color = factor(net))) +
   geom_ecdf(aes(weights = w_ate)) +
   scale_color_manual(
@@ -448,6 +472,7 @@ The maximum vertical distance between the two ECDF curves
 #| eval: true
 #| code-line-numbers: "|7"
 #| output-location: slide
+
 check_balance(
   net_data_ns,
   .vars = all_of(vars),
@@ -464,6 +489,7 @@ We care about the magnitude, not the hypothesis test
 `r countdown::countdown(minutes = 6)`
 
 ### Create an unweighted ECDF examining the `park_temperature_high` confounder by whether or not the day had Extra Magic Hours.
+
 ### Create a weighted ECDF examining the `park_temperature_high` confounder
 
 ## Balance across the joint distribution {background-color="#23373B"}
@@ -478,6 +504,7 @@ That includes interactions between variables and higher moments
 #| eval: true
 #| code-line-numbers: "|6-7|10-12"
 #| output-location: slide
+
 balance_metrics_joint <- check_balance(
   net_data_ns,
   .vars = all_of(vars),
@@ -499,6 +526,7 @@ The average distance across the joint ECDFs: one number for the whole covariate 
 ```{r}
 #| eval: true
 #| output-location: fragment
+
 balance_metrics_joint |>
   filter(metric == "energy") |>
   select(method, estimate)
@@ -510,25 +538,24 @@ The scale depends on the confounders, so use energy to compare approaches
 
 ## Don't use p-values
 
-* Balance is a property of the *sample*; p-values refer to a hypothetical population
-* p-values depend on sample size: dropping observations at random "improves" them
-* There is no theoretical link between a p-value cut-off and good balance
+- Balance is a property of the *sample*; p-values refer to a hypothetical population
+- p-values depend on sample size: dropping observations at random "improves" them
+- There is no theoretical link between a p-value cut-off and good balance
 
 ::: tiny
 Imai, King, and Stuart (2008)
 :::
 
-## {background-color="#23373B" .center .huge}
+## {.center .huge background-color="#23373B"}
 
 ### *Bonus!* Weighted Tables in R
 
-
 ## 1. Create a "design object" to incorporate the weights {.gtsummary}
-
 
 ```{r}
 #| message: false
 #| warning: false
+
 library(survey)
 
 svy_des <- svydesign(
@@ -543,6 +570,7 @@ svy_des <- svydesign(
 ```{r}
 #| message: false
 #| warning: false
+
 library(gtsummary)
 tbl_svysummary(svy_des, by = x) |>
   add_ess_header() |>
@@ -556,6 +584,7 @@ tbl_svysummary(svy_des, by = x) |>
 #| warning: false
 #| eval: true
 #| echo: false
+
 library(survey)
 library(gtsummary)
 
@@ -573,7 +602,6 @@ tbl_svysummary(svy_des, by = net, include = c(income, health, temperature)) |>
   add_overall(last = TRUE)
 ```
 
-
-## {background-color="#23373B" .center .huge}
+## {.center .huge background-color="#23373B"}
 
 ### *Bonus Your Turn*: Weighted Tables

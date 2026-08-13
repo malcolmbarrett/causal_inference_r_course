@@ -8,6 +8,7 @@ format: "kakashi-revealjs"
 ```{r}
 #| label: setup
 #| include: false
+
 options(
   tibble.max_extra_cols = 6,
   tibble.width = 60
@@ -31,7 +32,7 @@ set.seed(1234)
 
 # Review: Estimands, estimators, and estimates {background-color="#23373B"}
 
-## {background-color="#23373B" .huge .center}
+## {.huge .center background-color="#23373B"}
 
 Normal regression estimates associations. But we want *causal* estimates: what would happen if *everyone* in the study were exposed to x vs if *no one* was exposed.
 
@@ -39,6 +40,7 @@ Normal regression estimates associations. But we want *causal* estimates: what w
 
 ```{r}
 #| echo: false
+
 knitr::include_graphics("img/estimands-cake.png")
 ```
 
@@ -97,6 +99,7 @@ dag_base + geom_dag_edges()
 #| echo: false
 #| message: false
 #| warning: false
+
 # Propensity score approach - highlight z -> x
 dag_base +
   geom_dag_edges(edge_color = "grey80") +
@@ -112,6 +115,7 @@ dag_base +
 #| echo: false
 #| message: false
 #| warning: false
+
 # Outcome model approach - highlight z -> y
 dag_base +
   geom_dag_edges(edge_color = "grey80") +
@@ -120,7 +124,6 @@ dag_base +
     edge_width = 1.1
   )
 ```
-
 
 ## Inverse Probability Weighting (IPW) {background-color="#23373B"}
 
@@ -133,6 +136,7 @@ dag_base +
 
 ```{r}
 #| echo: false
+
 propensity_model <- glm(
   net ~ income + health + temperature,
   family = binomial(),
@@ -168,7 +172,6 @@ halfmoon::plot_mirror_distributions(
 2. Create a duplicate of your data set for each level of `x`
 3. Set the value of x to a single value for each cloned data set (e.g `x = 1` for one, `x = 0` for the other)
 
-
 ## G-computation {background-color="#23373B"}
 
 4. Make predictions using the model on the cloned data sets
@@ -178,6 +181,7 @@ halfmoon::plot_mirror_distributions(
 
 ```{r}
 #| echo: false
+
 outcome_model <- lm(
   malaria_risk ~ net + income + health + temperature,
   data = net_data
@@ -212,7 +216,7 @@ ggplot(gcomp_data, aes(x = predicted_malaria_risk)) +
     color = "white",
     linewidth = 0.5
   ) +
-  facet_wrap(~ scenario, ncol = 1, scales = "free_y") +
+  facet_wrap(~scenario, ncol = 1, scales = "free_y") +
   scale_fill_okabe_ito() +
   labs(
     x = "Predicted Outcome",
@@ -231,6 +235,7 @@ ggplot(gcomp_data, aes(x = predicted_malaria_risk)) +
 #| echo: false
 #| message: false
 #| warning: false
+
 # Doubly robust approach - highlight both z -> x and z -> y
 dag_base +
   geom_dag_edges(
@@ -250,6 +255,7 @@ dag_base +
 ```{r}
 #| echo: false
 #| fig-width: 10
+
 mosquito_dag <- dagify(
   malaria_risk ~ net + income + health + temperature + resistance,
   net ~ income + health + temperature + eligible + household,
@@ -308,34 +314,35 @@ mosquito_dag |>
 
 ## Example: The Seven Dwarfs Mine Train {.small}
 
-:::: {.columns}
+::: {.columns}
 
-::: {.column width="50%"}
+::::: {.column width="50%"}
 <img src="img/Mickey_and_Walt_Disney.jpg" height="300"></img>
 
 Photo by Anna [CC-BY-SA-4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.en)
-:::
+:::::
 
-::: {.column width="50%"}
+::::: {.column width="50%"}
 Historically, guests who stayed in a Walt Disney World resort hotel were able to access the park during "Extra Magic Hours" during which the park was closed to all other guests.
 
 These extra hours could be in the morning or evening.
 
 The Seven Dwarfs Mine Train is a ride at Walt Disney World's Magic Kingdom. Typically, each day Magic Kingdom may or may not be selected to have these "Extra Magic Hours".
+:::::
+
 :::
 
-::::
-
-## {background-color="#23373B" .large .center}
+## {.large .center background-color="#23373B"}
 
 *We are interested in examining the relationship between whether there were* **"Extra Magic Hours"** *in the morning and* **the average wait time** *for the Seven Dwarfs Mine Train the same day between 9am and 10am.*
 
----
+--------------------------------------------------------------------------------
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
+
 library(tidyverse)
 library(ggdag)
 library(ggokabeito)
@@ -409,6 +416,7 @@ dagify(
 
 ```{r}
 #| echo: false
+
 knitr::include_graphics("img/superlearner.png")
 ```
 
@@ -420,10 +428,11 @@ Image source: Sherri Rose
 
 ```{r}
 #| echo: false
+
 knitr::include_graphics("img/ml_algorithms.png")
 ```
 
-:::{.fragment}
+::: {.fragment}
 Given a set of candidate algorithms (and hyperparameters), stacked ensembles combine them to minimize (cross-validated) prediction error. Stacked ensembles will perform at least as well as the best individual algorithm.
 :::
 
@@ -432,6 +441,7 @@ Given a set of candidate algorithms (and hyperparameters), stacked ensembles com
 ```{r}
 #| code-line-numbers: "|1,3,9|4-7|"
 #| cache: true
+
 sl_library <- c("SL.glm", "SL.ranger", "SL.gam")
 
 propensity_sl <- SuperLearner(
@@ -449,6 +459,7 @@ propensity_sl <- SuperLearner(
 
 ```{r}
 #| echo: true
+
 propensity_sl
 ```
 
@@ -457,6 +468,7 @@ propensity_sl
 ```{r}
 #| code-line-numbers: "|2|3-5|"
 #| cache: true
+
 outcome_sl <- SuperLearner(
   Y = net_data$malaria_risk,
   X = net_data |>
@@ -479,11 +491,14 @@ outcome_sl
 ```{r}
 #| echo: false
 #| eval: true
+
 countdown::countdown(minutes = 8)
 ```
 
 ### First, create a character vector `sl_library` that specifies the following algorithms: "SL.glm", "SL.ranger", "SL.gam". Then, Fit a SuperLearner for the exposure model using the `SuperLearner` package. The predictors for this model should be the confounders identified in the DAG: `park_ticket_season`, `park_close`, and `park_temperature_high`. The outcome is `park_extra_magic_morning`.
+
 ### Fit a SuperLearner for the outcome model using the `SuperLearner` package. The predictors for this model should be the confounders plus the exposure: `park_extra_magic_morning`, `park_ticket_season`, `park_close`, and `park_temperature_high`. The outcome is `wait_minutes_posted_avg`.
+
 ### Inspect the fitted SuperLearner objects.
 
 ## IPW with SuperLearner
@@ -491,6 +506,7 @@ countdown::countdown(minutes = 8)
 ```{r}
 #| echo: true
 #| code-line-numbers: "|1|3|5-9"
+
 propensity_scores <- predict(propensity_sl, type = "response")$pred[, 1]
 
 ate_weights <- wt_ate(propensity_scores, net_data$net)
@@ -520,6 +536,7 @@ These standard errors are not correct: they do not account for having estimated 
 
 ```{r}
 #| code-line-numbers: "|1,4,6,9|11-12|14"
+
 data_all_net <- net_data |>
   select(net, income, health, temperature) |>
   mutate(across(everything(), as.numeric)) |>
@@ -541,15 +558,18 @@ mean(pred_net - pred_no_net)
 ```{r}
 #| echo: false
 #| eval: true
+
 countdown::countdown(minutes = 8)
 ```
 
 ### Implement the IPW algorithm using the SuperLearner propensity scores
+
 ### Implement the G-computation algorithm using the SuperLearner outcome predictions
 
 # Targeted Maximum Likelihood Estimation (TMLE) {background-color="#23373B"}
 
 ## Targeted Learning
+
 - TMLE is a flexible, efficient method for estimating causal effects based in semi-parametric theory
 - TMLE solves three problems: doubly robustness, targeted estimation, and valid statistical inference
 
@@ -564,6 +584,7 @@ countdown::countdown(minutes = 8)
 - In **TMLE**, we adjust the predictions to specifically target the ATE. We change the bias-variance tradeoff to focus on the ATE rather than just minimizing prediction error. This is a debiasing step that also improves the efficiency of the estimate!
 
 ## Targeted Learning: valid statistical inference {.small}
+
 - In **IPW** and **G-computation**, we cannot easily get valid confidence intervals with ML. Bootstrapping is often used, but it can be computationally intensive and not always valid.
 - In **TMLE**, we can use the influence curve to get valid confidence intervals. The influence curve is a way to estimate the variance of the TMLE estimate, even when using complex ML algorithms.
 
@@ -585,6 +606,7 @@ countdown::countdown(minutes = 8)
 #| echo: true
 #| cache: true
 #| cache.lazy: false
+
 # For TMLE with continuous outcomes, fit SuperLearner on bounded Y
 min_y <- min(net_data$malaria_risk)
 max_y <- max(net_data$malaria_risk)
@@ -605,8 +627,13 @@ outcome_sl_bounded <- SuperLearner(
 ## TMLE Step 1: Initial Predictions (on the bounded [0,1] scale)
 
 ```{r}
-initial_pred_net <- predict(outcome_sl_bounded, newdata = data_all_net)$pred[, 1]
-initial_pred_no_net <- predict(outcome_sl_bounded, newdata = data_all_no_net)$pred[, 1]
+initial_pred_net <- predict(outcome_sl_bounded, newdata = data_all_net)$pred[,
+  1
+]
+initial_pred_no_net <- predict(
+  outcome_sl_bounded,
+  newdata = data_all_no_net
+)$pred[, 1]
 
 # Predictions for observed treatment
 initial_pred_observed <- ifelse(
@@ -620,6 +647,7 @@ initial_pred_observed <- ifelse(
 
 ```{r}
 #| code-line-numbers: "|3-4"
+
 clever_covariate <- ifelse(
   net_data$net,
   1 / propensity_scores,
@@ -638,13 +666,14 @@ clever_covariate <- ifelse(
 ```{r}
 #| code-line-numbers: "|4|5|6|7|8|11-12"
 #| output-location: fragment
+
 # Fluctuation model - learns how much to adjust
 # Use quasibinomial family and work on logit scale
 fluctuation_model <- glm(
   y_bounded ~
-     -1 +
-     offset(qlogis(initial_pred_observed)) +
-     clever_covariate,
+    -1 +
+    offset(qlogis(initial_pred_observed)) +
+    clever_covariate,
   family = quasibinomial()
 )
 
@@ -661,9 +690,11 @@ epsilon
 
 ```{r}
 #| code-line-numbers: "|2-3|6-7"
+
 # Update predictions on logit scale, then transform back
 logit_pred_net <- qlogis(initial_pred_net) + epsilon * (1 / propensity_scores)
-logit_pred_no_net <- qlogis(initial_pred_no_net) + epsilon * (-1 / (1 - propensity_scores))
+logit_pred_no_net <- qlogis(initial_pred_no_net) +
+  epsilon * (-1 / (1 - propensity_scores))
 
 # Transform back to probability scale
 targeted_pred_net <- plogis(logit_pred_net)
@@ -676,6 +707,7 @@ targeted_pred_no_net <- plogis(logit_pred_no_net)
 #| echo: false
 #| fig-width: 10
 #| fig-asp: 0.5
+
 library(patchwork)
 
 targeting_data <- tibble(
@@ -695,7 +727,10 @@ p_net <- ggplot(targeting_data, aes(x = initial_net, y = targeted_net)) +
   theme_minimal(base_size = 14) +
   coord_fixed()
 
-p_no_net <- ggplot(targeting_data, aes(x = initial_no_net, y = targeted_no_net)) +
+p_no_net <- ggplot(
+  targeting_data,
+  aes(x = initial_no_net, y = targeted_no_net)
+) +
   geom_point(alpha = 0.6, color = "#E69F00") +
   geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
   labs(
@@ -713,12 +748,16 @@ p_net + p_no_net
 ```{r}
 #| echo: false
 #| eval: true
+
 countdown::countdown(minutes = 10)
 ```
 
 ### Calculate initial predictions for treated/control scenarios
+
 ### Create the clever covariate using propensity scores
+
 ### Fit the fluctuation model with offset and no intercept
+
 ### Update predictions with the targeted adjustment
 
 ## TMLE ATE
@@ -727,11 +766,13 @@ countdown::countdown(minutes = 10)
 initial_ate <- mean(
   initial_pred_net - initial_pred_no_net
   # Transform back to original scale for ATE
-) * (max_y - min_y)
+) *
+  (max_y - min_y)
 
 targeted_ate <- mean(
   targeted_pred_net - targeted_pred_no_net
-) * (max_y - min_y)
+) *
+  (max_y - min_y)
 
 tibble(initial = initial_ate, targeted = targeted_ate)
 ```
@@ -740,6 +781,7 @@ tibble(initial = initial_ate, targeted = targeted_ate)
 
 ```{r}
 #| output-location: slide
+
 targeted_pred_observed <- ifelse(
   net_data$net,
   targeted_pred_net,
@@ -747,8 +789,11 @@ targeted_pred_observed <- ifelse(
 )
 
 # IC uses bounded outcomes and predictions
-ic <- clever_covariate * (y_bounded - targeted_pred_observed) +
-      targeted_pred_net - targeted_pred_no_net - targeted_ate / (max_y - min_y)
+ic <- clever_covariate *
+  (y_bounded - targeted_pred_observed) +
+  targeted_pred_net -
+  targeted_pred_no_net -
+  targeted_ate / (max_y - min_y)
 
 # Standard error on original scale
 se_tmle <- sqrt(var(ic) / nrow(net_data)) * (max_y - min_y)
@@ -767,6 +812,7 @@ tibble(
 ```{r}
 #| cache: true
 #| cache.lazy: false
+
 library(tmle)
 
 tmle_result <- tmle(
@@ -786,16 +832,17 @@ tibble(
 )
 ```
 
-
 ## *Your Turn 4*
 
 ```{r}
 #| echo: false
 #| eval: true
+
 countdown::countdown(minutes = 5)
 ```
 
 ### Calculate the TMLE ATE and compare to the initial (g-computation) estimate
+
 ### Work through the code to compute the variance and CIs (nothing to change here)
 
 ## Key Takeaways
@@ -808,4 +855,5 @@ countdown::countdown(minutes = 5)
 ## Resources {background-color="#23373B"}
 
 ### *Targeted Learning* by Mark van der Laan and Sherri Rose (THE book... see the sequel for longitudinal problems)
+
 ### [*Introduction to Modern Causal Inference*](https://alejandroschuler.github.io/mci/introduction-to-modern-causal-inference.html) by Alejandro Schuler and Mark van der Laan (Great introduction to the math and theory)

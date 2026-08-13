@@ -9,6 +9,7 @@ format: "kakashi-revealjs"
 
 ```{r}
 #| include: false
+
 options(
   tibble.max_extra_cols = 6,
   tibble.width = 60
@@ -27,14 +28,11 @@ options(
 
 ## Confounding {background-color="#23373B"}
 
-
 ![](img/conf-2.png)
-
 
 ## Confounding {background-color="#23373B"}
 
 ![](img/conf-3.png)
-
 
 ## What part of the DAG do we want to try to deal with?
 
@@ -87,6 +85,7 @@ dag_base + geom_dag_edges()
 #| echo: false
 #| message: false
 #| warning: false
+
 # Propensity score approach - highlight z -> x
 dag_base +
   geom_dag_edges(edge_color = "grey80") +
@@ -102,6 +101,7 @@ dag_base +
 #| echo: false
 #| message: false
 #| warning: false
+
 # Outcome model approach - highlight z -> y
 dag_base +
   geom_dag_edges(edge_color = "grey80") +
@@ -113,27 +113,27 @@ dag_base +
 
 ## Which relationship should we model?
 
-* Paths into the exposure: **propensity scores**
-* Paths into the outcome: **outcome models**
-* Both: **doubly robust** estimators
+- Paths into the exposure: **propensity scores**
+- Paths into the outcome: **outcome models**
+- Both: **doubly robust** estimators
 
 ## The hidden experiment
 
-* Imagine the exposure had been randomized with a probability of 0.5
-* Then the arrows into the exposure wouldn't exist
-* In an experiment, the propensity score is *known*: `rbinom(1, 1, 0.5)`
+- Imagine the exposure had been randomized with a probability of 0.5
+- Then the arrows into the exposure wouldn't exist
+- In an experiment, the propensity score is *known*: `rbinom(1, 1, 0.5)`
 
 ## The hidden experiment
 
-* Now imagine randomizing the exposure *within levels of the confounders*
-* Still a randomized experiment, but the probability of exposure depends on the covariates
-* This gives us **conditional exchangeability**
+- Now imagine randomizing the exposure *within levels of the confounders*
+- Still a randomized experiment, but the probability of exposure depends on the covariates
+- This gives us **conditional exchangeability**
 
 ## The hidden experiment
 
-* In observational data, these probabilities are not known
-* But *something* determined who was exposed: what was that decision process?
-* Domain knowledge and statistics can estimate it: the **propensity score**
+- In observational data, these probabilities are not known
+- But *something* determined who was exposed: what was that decision process?
+- Domain knowledge and statistics can estimate it: the **propensity score**
 
 ## Propensity scores
 
@@ -144,19 +144,20 @@ Rosenbaum and Rubin showed in observational studies, conditioning on **propensit
 
 ## Propensity scores
 
-* Fit a **logistic regression** predicting exposure using known covariates
+- Fit a **logistic regression** predicting exposure using known covariates
 
 ::: {.fragment}
 $$Pr(exposure = 1) = \frac{1}{1+\exp(-X\beta)}$$
 :::
 
-* Each individuals' predicted values are the **propensity scores**
+- Each individuals' predicted values are the **propensity scores**
 
 ## Propensity scores
 
 ```{r}
 #| message: false
 #| warning: false
+
 library(tidyverse)
 library(broom)
 library(causalworkshop)
@@ -167,6 +168,7 @@ library(halfmoon)
 
 ```{r}
 #| eval: false
+
 glm(
   exposure ~ confounder_1 + confounder_2 + confounder_3 + ...,
   data = df,
@@ -174,13 +176,14 @@ glm(
 )
 ```
 
----
+--------------------------------------------------------------------------------
 
 ## Propensity scores
 
 ```{r}
 #| eval: false
 #| code-line-numbers: "|6"
+
 glm(
   exposure ~ confounder_1 + confounder_2 + confounder_3 + ...,
   data = df,
@@ -215,6 +218,7 @@ If we look at all the households with a predicted probability of 0.3, about 30% 
 
 ```{r}
 #| output-location: slide
+
 plot_model_calibration(
   propensity_model,
   method = "windowed",
@@ -231,6 +235,7 @@ How well does the model discriminate between the exposed and the unexposed?
 
 ```{r}
 #| output-location: slide
+
 net_data_ps |>
   check_model_roc_curve(net, .fitted) |>
   plot_model_roc_curve()
@@ -242,46 +247,47 @@ net_data_ps |>
 check_model_auc(net_data_ps, .exposure = net, .fitted = .fitted)
 ```
 
-* Perfect discrimination would be a violation of **positivity**
-* Values between 0.6 and 0.8 usually mean we've picked up enough signal to adjust for
+- Perfect discrimination would be a violation of **positivity**
+- Values between 0.6 and 0.8 usually mean we've picked up enough signal to adjust for
 
 ## AUC
 
-* There is no clear cutoff for a "good" AUC in causal inference
-* A randomized trial has an expected AUC of 0.5
-* We are not trying to optimize the AUC; we use it as a **diagnostic**
+- There is no clear cutoff for a "good" AUC in causal inference
+- A randomized trial has an expected AUC of 0.5
+- We are not trying to optimize the AUC; we use it as a **diagnostic**
 
 ## Example: The Seven Dwarfs Mine Train {.small}
 
-:::: {.columns}
+::: {.columns}
 
-::: {.column width="50%"}
+::::: {.column width="50%"}
 <img src="img/Mickey_and_Walt_Disney.jpg" height="300"></img>
 
 Photo by Anna [CC-BY-SA-4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.en)
-:::
+:::::
 
-::: {.column width="50%"}
+::::: {.column width="50%"}
 Historically, guests who stayed in a Walt Disney World resort hotel were able to access the park during "Extra Magic Hours" during which the park was closed to all other guests.
 
 These extra hours could be in the morning or evening.
 
 The Seven Dwarfs Mine Train is a ride at Walt Disney World's Magic Kingdom. Typically, each day Magic Kingdom may or may not be selected to have these "Extra Magic Hours".
+:::::
+
 :::
 
-::::
-
-## {background-color="#23373B" .large .center}
+## {.large .center background-color="#23373B"}
 
 *We are interested in examining the relationship between whether there were* **"Extra Magic Hours"** *in the morning and* **the average posted wait time** *for the Seven Dwarfs Mine Train the same day between 9 AM and 10 AM in 2018.*
 
----
+--------------------------------------------------------------------------------
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| fig.height: 4.0
+
 library(tidyverse)
 library(ggdag)
 library(ggokabeito)

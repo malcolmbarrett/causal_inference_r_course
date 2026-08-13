@@ -8,6 +8,7 @@ format: "kakashi-revealjs"
 ```{r}
 #| label: setup
 #| include: false
+
 options(
   tibble.max_extra_cols = 6,
   tibble.width = 60
@@ -25,6 +26,7 @@ set.seed(1234)
 
 ```{r}
 #| eval: false
+
 library(broom)
 
 lm(outcome ~ exposure, data = df, weights = wts) |>
@@ -46,11 +48,11 @@ lm(outcome ~ exposure, data = df, weights = wts) |>
 ## Three ways to estimate the uncertainty
 
 ::: {.small}
-::: nonincremental
+::::: nonincremental
 1. **A bootstrap**: correct and general purpose, but slow
 2. **A robust standard error**: a sandwich estimator for the outcome model alone
 3. **A propensity-aware sandwich**: correct and fast
-:::
+:::::
 :::
 
 . . .
@@ -63,6 +65,7 @@ The bootstrap is still worth knowing: it also solves problems that have no close
 
 ```{r}
 #| code-line-numbers: "|1-2|5-9|12-14|17-18"
+
 fit_ipw <- function(.split, ...) {
   .df <- as.data.frame(.split)
 
@@ -90,6 +93,7 @@ fit_ipw <- function(.split, ...) {
 ```{r}
 #| code-line-numbers: "|4-8"
 #| output-location: slide
+
 library(rsample)
 
 # fit ipw model to bootstrapped samples
@@ -114,6 +118,7 @@ fit_ipw(bootstrapped_net_data$splits[[1]])
 #| cache: true
 #| output-location: slide
 #| code-line-numbers: "|2"
+
 ipw_results <- bootstrapped_net_data |>
   mutate(boot_fits = map(splits, fit_ipw))
 
@@ -124,6 +129,7 @@ ipw_results
 
 ```{r}
 #| echo: false
+
 ipw_results |>
   # remove the original data set results
   filter(id != "Apparent") |>
@@ -141,12 +147,12 @@ ipw_results |>
   theme_minimal()
 ```
 
-
 ## 3. Pull out the causal effect
 
 ```{r}
 #| code-line-numbers: "|2"
 #| output-location: fragment
+
 # get t-statistic-based CIs
 boot_estimate <- int_t(ipw_results, boot_fits) |>
   filter(term == "netTRUE")
@@ -158,6 +164,7 @@ boot_estimate
 
 ```{r}
 #| code-line-numbers: "|1-5|7-9|11"
+
 propensity_model <- glm(
   net ~ income + health + temperature,
   family = binomial(),
@@ -191,6 +198,7 @@ That is why these are called "robust" standard errors
 
 ```{r}
 #| output-location: fragment
+
 vcov(ipw_model)
 ```
 
@@ -202,6 +210,7 @@ vcov(ipw_model)
 
 ```{r}
 #| output-location: fragment
+
 library(sandwich)
 
 sandwich(ipw_model)
@@ -215,6 +224,7 @@ For the treatment coefficient, the sandwich variance is about 1.5 times the mode
 
 ```{r}
 #| output-location: fragment
+
 robust_se <- avg_comparisons(ipw_model, variables = "net", vcov = "HC3")
 
 robust_se
@@ -269,6 +279,7 @@ Both are computed either way; `as_conditional()` and `as_marginal()` change whic
 
 ```{r}
 #| output-location: fragment
+
 tidy(as_conditional(ipw_fit), conf.int = TRUE) |>
   select(term, estimate, std.error, conf.low, conf.high)
 ```
@@ -281,6 +292,7 @@ tidy(as_conditional(ipw_fit), conf.int = TRUE) |>
 
 ```{r}
 #| echo: false
+
 bind_rows(
   "bootstrap" = boot_estimate |>
     select(estimate = .estimate, conf.low = .lower, conf.high = .upper),
@@ -312,6 +324,7 @@ bind_rows(
 
 ```{r}
 #| code-line-numbers: "|1-2|4-11|9"
+
 net_data_wts <- net_data_wts |>
   mutate(risk_over_50 = malaria_risk > 50)
 
@@ -328,6 +341,7 @@ binary_outcome_model <- glm(
 
 ```{r}
 #| output-location: fragment
+
 ipw(propensity_model, binary_outcome_model) |>
   tidy(conf.int = TRUE, exponentiate = TRUE) |>
   select(term, estimate, conf.low, conf.high)

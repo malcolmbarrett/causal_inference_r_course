@@ -12,6 +12,7 @@ knitr:
 #| label: setup
 #| include: false
 #| eval: true
+
 options(
   tibble.max_extra_cols = 6,
   tibble.width = 60
@@ -121,7 +122,7 @@ Rosenbaum and Rubin showed in observational studies, conditioning on **propensit
 2. Every subject has a nonzero probability of receiving either exposure
 :::
 
-## {background-color="#23373B" .center .large}
+## {.center .large background-color="#23373B"}
 
 ### **How sensitive is our result to conditions other than those laid out in our assumptions and analysis?**
 
@@ -140,6 +141,7 @@ Rosenbaum and Rubin showed in observational studies, conditioning on **propensit
 #| eval: true
 #| echo: false
 #| fig-width: 9
+
 ggdag_adjustment_set(
   mosquito_dag,
   use_labels = TRUE,
@@ -154,6 +156,7 @@ ggdag_adjustment_set(
 ```{r}
 #| eval: true
 #| output-location: slide
+
 library(dagitty)
 adjustmentSets(mosquito_dag, type = "all")
 ```
@@ -162,6 +165,7 @@ adjustmentSets(mosquito_dag, type = "all")
 
 ```{r}
 #| eval: true
+
 fit_ipw_effect <- function(.fmla, .data = net_data) {
   propensity_model <- glm(.fmla, data = .data, family = binomial())
 
@@ -180,12 +184,12 @@ fit_ipw_effect <- function(.fmla, .data = net_data) {
 ```{r}
 #| eval: true
 #| output-location: slide
+
 adjustment_sets <- list(
   "income, health, temperature" = net ~ income + health + temperature,
   "+ eligible" = net ~ income + health + temperature + eligible,
   "+ household" = net ~ income + health + temperature + household,
-  "+ resistance" = net ~ income + health + temperature +
-    insecticide_resistance
+  "+ resistance" = net ~ income + health + temperature + insecticide_resistance
 )
 
 tibble(
@@ -205,6 +209,7 @@ A DAG can be right about every variable it contains and still be missing one ent
 ```{r}
 #| eval: true
 #| output-location: slide
+
 query_conditional_independence(mosquito_dag) |>
   unnest(conditioned_on)
 ```
@@ -215,6 +220,7 @@ query_conditional_independence(mosquito_dag) |>
 #| eval: true
 #| output-location: slide
 #| fig-asp: 0.7
+
 set.seed(1234)
 
 test_conditional_independence(
@@ -249,6 +255,7 @@ test_conditional_independence(
 ```{r}
 #| eval: true
 #| code-line-numbers: "|7,13"
+
 full_dag <- dagify(
   malaria_risk ~ net +
     income +
@@ -275,6 +282,7 @@ full_dag <- dagify(
 #| eval: true
 #| output-location: slide
 #| fig-asp: 0.7
+
 set.seed(1234)
 
 test_conditional_independence(
@@ -320,6 +328,7 @@ Adding genetic resistance does not resolve them, so they come from somewhere els
 ```{r}
 #| eval: true
 #| code-line-numbers: "|15-17|18"
+
 dgm_dag <- dagify(
   malaria_risk ~ net +
     income +
@@ -351,6 +360,7 @@ dgm_dag <- dagify(
 #| eval: true
 #| echo: false
 #| fig-width: 9
+
 ggdag_adjustment_set(
   dgm_dag,
   use_labels = TRUE,
@@ -366,6 +376,7 @@ ggdag_adjustment_set(
 #| eval: true
 #| output-location: slide
 #| fig-asp: 0.7
+
 set.seed(1234)
 
 test_conditional_independence(
@@ -405,7 +416,7 @@ test_conditional_independence(
 
 Both intervals barely exclude zero, which is what we would expect from chance
 
-## {background-color="#23373B" .center}
+## {.center background-color="#23373B"}
 
 ### **These tests cannot prove a DAG right or wrong; they tell us where the data disagrees with our assumptions**
 
@@ -414,6 +425,7 @@ Both intervals barely exclude zero, which is what we would expect from chance
 ```{r}
 #| eval: true
 #| echo: false
+
 countdown::countdown(minutes = 8)
 ```
 
@@ -423,6 +435,7 @@ countdown::countdown(minutes = 8)
 
 ```{r}
 #| eval: true
+
 emm_wait_dag <- dagify(
   wait_minutes_posted_avg ~ park_extra_magic_morning +
     park_close +
@@ -441,6 +454,7 @@ emm_wait_dag <- dagify(
 ```{r}
 #| eval: true
 #| output-location: slide
+
 query_conditional_independence(emm_wait_dag) |>
   unnest(conditioned_on)
 ```
@@ -451,6 +465,7 @@ query_conditional_independence(emm_wait_dag) |>
 #| eval: true
 #| output-location: slide
 #| fig-asp: 0.7
+
 set.seed(1234)
 
 test_conditional_independence(
@@ -504,20 +519,20 @@ test_conditional_independence(
 ![](img/tipr-table.png){width=65%}
 [D’Agostino McGowan, L. Sensitivity Analyses for Unmeasured Confounders. Curr Epidemiol Rep 9, 361–375 (2022)](https://doi.org/10.1007/s40471-022-00308-6)
 
-## {background-color="#23373B" .center .huge}
+## {.center .huge background-color="#23373B"}
 
 ### **tipr**
 
 ## The grammar of tipr: `{action}_{effect}_with_{what}` {.small}
 
-| part | term | what it means |
-|------|------|---------------|
-| **action** | `adjust` | needs both confounder relationships |
-| | `tip` | needs only one of them |
-| **effect** | `coef`, `rr`, `or`, `hr` | the scale of `effect_observed` |
-| **what** | `continuous` | `exposure_confounder_effect`, `confounder_outcome_effect` |
-| | `binary` | `exposed_confounder_prev`, `unexposed_confounder_prev`, `confounder_outcome_effect` |
-| | `r2` | `confounder_exposure_r2`, `confounder_outcome_r2` |
+  | part       | term                     | what it means                                                                       |
+  | ---------- | ------------------------ | ----------------------------------------------------------------------------------- |
+  | **action** | `adjust`                 | needs both confounder relationships                                                 |
+  |            | `tip`                    | needs only one of them                                                              |
+  | **effect** | `coef`, `rr`, `or`, `hr` | the scale of `effect_observed`                                                      |
+  | **what**   | `continuous`             | `exposure_confounder_effect`, `confounder_outcome_effect`                           |
+  |            | `binary`                 | `exposed_confounder_prev`, `unexposed_confounder_prev`, `confounder_outcome_effect` |
+  |            | `r2`                     | `confounder_exposure_r2`, `confounder_outcome_r2`                                   |
 
 ::: tiny
 [D’Agostino McGowan, L., (2022). tipr: An R package for sensitivity analyses for unmeasured confounders. Journal of Open Source Software, 7(77), 4495](https://doi.org/10.21105/joss.04495)
@@ -536,6 +551,7 @@ test_conditional_independence(
 ```{r}
 #| eval: true
 #| output-location: slide
+
 propensity_model <- glm(
   net ~ income + health + temperature,
   family = binomial(),
@@ -569,6 +585,7 @@ observed_effect |>
 ```{r}
 #| eval: true
 #| output-location: slide
+
 temperature_sd <- sd(net_data$temperature)
 
 net_data |>
@@ -610,6 +627,7 @@ net_data |>
 #| eval: true
 #| code-line-numbers: "|5-7"
 #| output-location: slide
+
 observed_effect |>
   select(estimate, conf.low, conf.high) |>
   unlist() |>
@@ -621,7 +639,7 @@ observed_effect |>
   select(effect_observed, effect_adjusted)
 ```
 
-## {background-color="#23373B" .center}
+## {.center background-color="#23373B"}
 
 ### **These data are simulated. The true effect of net use on malaria risk is about -10**
 
@@ -638,6 +656,7 @@ observed_effect |>
 
 ```{r}
 #| eval: true
+
 sens <- adjust_coef(
   effect_observed = observed_effect$estimate,
   exposure_confounder_effect = rep(seq(0, 1.5, by = 0.05), each = 5),
@@ -652,6 +671,7 @@ sens <- adjust_coef(
 #| eval: true
 #| output-location: slide
 #| fig-asp: 0.55
+
 ggplot(
   sens,
   aes(
@@ -666,7 +686,7 @@ ggplot(
   labs(color = "confounder-\noutcome effect")
 ```
 
-## {background-color="#23373B" .center .large}
+## {.center .large background-color="#23373B"}
 
 ### **What will tip our confidence bound to cross zero?**
 
@@ -676,6 +696,7 @@ ggplot(
 #| eval: true
 #| code-line-numbers: "|2|3"
 #| output-location: slide
+
 tip_coef(
   effect_observed = observed_effect$conf.high,
   confounder_outcome_effect = -10
@@ -694,9 +715,9 @@ tip_coef(
 ## The published result
 
 ::: nonincremental
-* **Matched** 42,217 new metformin users to 42,217 new sulfonylurea users
-* **Outcome:** Lung Cancer
-* **Adjusted Hazard Ratio**: 0.87 (0.79, 0.96)
+- **Matched** 42,217 new metformin users to 42,217 new sulfonylurea users
+- **Outcome:** Lung Cancer
+- **Adjusted Hazard Ratio**: 0.87 (0.79, 0.96)
 :::
 
 # What if heavy alcohol consumption is prevalent among *4%* of Metformin users and *6%* of Sulfonylurea users?
@@ -715,6 +736,7 @@ Substance use among US active-duty service members. RAND; 2018.
 #| eval: true
 #| code-line-numbers: "|3,4|5"
 #| output-location: slide
+
 adjust_hr_with_binary(
   effect_observed = c(0.79, 0.87, 0.96),
   exposed_confounder_prev = 0.04,
@@ -728,6 +750,7 @@ adjust_hr_with_binary(
 ```{r}
 #| eval: true
 #| output-location: slide
+
 tip_hr_with_binary(
   effect_observed = 0.96,
   exposed_confounder_prev = 0.04,
@@ -742,6 +765,7 @@ tip_hr_with_binary(
 
 ```{r}
 #| eval: true
+
 # the smallest confounder-exposure and confounder-outcome
 # association that could explain away the observed effect
 e_value(0.96)
@@ -752,6 +776,7 @@ e_value(0.96)
 ```{r}
 #| eval: true
 #| echo: false
+
 countdown::countdown(minutes = 5)
 ```
 

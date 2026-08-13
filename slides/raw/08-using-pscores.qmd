@@ -7,6 +7,7 @@ format: kakashi-revealjs
 
 ```{r}
 #| include: false
+
 options(
   tibble.max_extra_cols = 6,
   tibble.width = 60
@@ -29,6 +30,7 @@ Direct Adjustment
 
 ```{r}
 #| echo: false
+
 knitr::include_graphics("img/estimands-cake.png")
 ```
 
@@ -52,6 +54,7 @@ Direct Adjustment
 
 ```{r}
 #| include: false
+
 library(tidyverse)
 library(broom)
 library(causalworkshop)
@@ -69,6 +72,7 @@ $$\tau = E[Y(1) - Y(0)]$$
 ```{r}
 #| echo: false
 #| fig.height: 2.0
+
 set.seed(10)
 p <- tibble(
   x = c(runif(10, 0, 0.9), runif(10, 0.1, 1)),
@@ -78,9 +82,11 @@ p <- tibble(
 set.seed(10)
 ggplot(p, aes(x = x, y = y, color = col)) +
   geom_text(aes(label = col), position = "jitter") +
-  theme(legend.position = "none",
-        axis.text = element_blank(),
-        axis.ticks = element_blank()) +
+  theme(
+    legend.position = "none",
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  ) +
   scale_color_manual(values = c("cornflower blue", "orange")) +
   labs(x = "", y = "")
 ```
@@ -119,14 +125,17 @@ $$\tau = E[Y(1) - Y(0) | Z = 1]$$
 ```{r}
 #| echo: false
 #| fig.height: 3.0
+
 set.seed(10)
 p |>
   mutate(color = ifelse(x > 0.8, "grey", col)) |>
-ggplot(aes(x = x, y = y, color = color)) +
+  ggplot(aes(x = x, y = y, color = color)) +
   geom_text(aes(label = col), position = "jitter") +
-  theme(legend.position = "none",
-        axis.text = element_blank(),
-        axis.ticks = element_blank()) +
+  theme(
+    legend.position = "none",
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  ) +
   scale_color_manual(values = c("cornflower blue", "grey", "orange")) +
   labs(x = "", y = "") +
   geom_vline(xintercept = c(0, 0.8))
@@ -163,6 +172,7 @@ ggplot(aes(x = x, y = y, color = color)) +
 ```{r}
 #| output-location: fragment
 #| code-line-numbers: "|2|3-4|"
+
 library(MatchIt)
 m <- matchit(
   net_num ~ income + health + temperature,
@@ -175,6 +185,7 @@ m
 
 ```{r}
 #| output-location: fragment
+
 matched_data <- get_matches(m, id = "i")
 as_tibble(matched_data)
 ```
@@ -188,14 +199,17 @@ $$\tau = E[Y(1) - Y(0) | Z = 0]$$
 ```{r}
 #| echo: false
 #| fig.height: 3.0
+
 set.seed(10)
 p |>
   mutate(color = ifelse(x < 0.1, "grey", col)) |>
-ggplot(aes(x = x, y = y, color = color)) +
+  ggplot(aes(x = x, y = y, color = color)) +
   geom_text(aes(label = col), position = "jitter") +
-  theme(legend.position = "none",
-        axis.text = element_blank(),
-        axis.ticks = element_blank()) +
+  theme(
+    legend.position = "none",
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  ) +
   scale_color_manual(values = c("cornflower blue", "grey", "orange")) +
   labs(x = "", y = "") +
   geom_vline(xintercept = c(0.115, 1))
@@ -232,6 +246,7 @@ ggplot(aes(x = x, y = y, color = color)) +
 ```{r}
 #| output-location: fragment
 #| code-line-numbers: "|4"
+
 m <- matchit(
   net_num ~ income + health + temperature,
   data = net_data,
@@ -249,14 +264,17 @@ m
 ```{r}
 #| echo: false
 #| fig.height: 3.0
+
 set.seed(10)
 p |>
   mutate(color = ifelse(x < 0.1 | x > 0.8, "grey", col)) |>
-ggplot(aes(x = x, y = y, color = color)) +
+  ggplot(aes(x = x, y = y, color = color)) +
   geom_text(aes(label = col), position = "jitter") +
-  theme(legend.position = "none",
-        axis.text = element_blank(),
-        axis.ticks = element_blank()) +
+  theme(
+    legend.position = "none",
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  ) +
   scale_color_manual(values = c("cornflower blue", "grey", "orange")) +
   labs(x = "", y = "") +
   geom_vline(xintercept = c(0.115, 0.8))
@@ -293,6 +311,7 @@ ggplot(aes(x = x, y = y, color = color)) +
 ```{r}
 #| code-line-numbers: "|4-5"
 #| output-location: slide
+
 m <- matchit(
   net_num ~ income + health + temperature,
   data = net_data,
@@ -318,6 +337,7 @@ as_tibble(matched_data)
 ```{r}
 #| echo: false
 #| eval: true
+
 countdown::countdown(minutes = 6)
 ```
 
@@ -337,13 +357,14 @@ Direct Adjustment
 
 ## Matching or weighting?
 
-* Weighting is statistically more efficient; we recommend it when possible
-* Matching has a distinct advantage: it's easy to understand
+- Weighting is statistically more efficient; we recommend it when possible
+- Matching has a distinct advantage: it's easy to understand
 
 ## Histogram of propensity scores
 
 ```{r}
 #| include: false
+
 library(propensity)
 df <- propensity_model |>
   augment(type.predict = "response", data = net_data) |>
@@ -361,6 +382,7 @@ df <- propensity_model |>
 #| echo: false
 #| message: false
 #| warning: false
+
 library(halfmoon)
 ggplot(df, aes(.fitted)) +
   geom_mirror_histogram(bins = 50, aes(group = net)) +
@@ -379,15 +401,15 @@ $$\Large w_{ATE} = \frac{Z_i}{p_i} + \frac{1-Z_i}{1 - p_i}$$
 
 ```{r}
 #| eval: false
+
 (Z / p) + ((1 - Z) / (1 - p))
 ```
-
-
 
 ## Tilting functions {background-color="#23373B"}
 
 ```{r}
 #| include: false
+
 tilt_df <- tibble(p = seq(0.01, 0.99, by = 0.01)) |>
   mutate(
     ATE = 1,
@@ -437,7 +459,6 @@ $$\Large w_i = \frac{h(p_i)Z_i}{p_i} + \frac{h(p_i)(1-Z_i)}{1 - p_i}$$
 The tilting function reshapes the population we are targeting
 
 ::: {.fragment}
-
 The tilting function is $h(p_i) = 1$: the population is unchanged and the weights are unbounded
 
 :::
@@ -446,6 +467,7 @@ The tilting function is $h(p_i) = 1$: the population is unchanged and the weight
 
 ```{r}
 #| echo: false
+
 plot_tilt("ATE")
 ```
 
@@ -455,9 +477,14 @@ plot_tilt("ATE")
 #| echo: false
 #| message: false
 #| warning: false
+
 ggplot(df, aes(.fitted)) +
   geom_mirror_histogram(bins = 50, aes(group = net)) +
-  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_ate), alpha = 0.5) +
+  geom_mirror_histogram(
+    bins = 50,
+    aes(fill = net, weight = w_ate),
+    alpha = 0.5
+  ) +
   geom_hline(yintercept = 0, lwd = 0.5) +
   ylab("count") +
   xlab("propensity score") +
@@ -474,6 +501,7 @@ Average Treatment Effect Among the Treated (ATT) $$\Large w_{ATT} = \frac{p_i Z_
 
 ```{r}
 #| eval: false
+
 ((p * Z) / p) + ((p * (1 - Z)) / (1 - p))
 ```
 
@@ -485,6 +513,7 @@ Average Treatment Effect Among the Unexposed (ATU) $$\Large w_{ATU} = \frac{(1-p
 
 ```{r}
 #| eval: false
+
 (((1 - p) * Z) / p) + (((1 - p) * (1 - Z)) / (1 - p))
 ```
 
@@ -496,9 +525,14 @@ The tilting function is $h(p_i) = 1 - p_i$: the untreated get a weight of 1
 #| echo: false
 #| message: false
 #| warning: false
+
 ggplot(df, aes(.fitted)) +
   geom_mirror_histogram(bins = 50, aes(group = net)) +
-  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_att), alpha = 0.5) +
+  geom_mirror_histogram(
+    bins = 50,
+    aes(fill = net, weight = w_att),
+    alpha = 0.5
+  ) +
   geom_hline(yintercept = 0, lwd = 0.5) +
   ylab("count") +
   xlab("propensity score") +
@@ -513,9 +547,14 @@ ggplot(df, aes(.fitted)) +
 #| echo: false
 #| message: false
 #| warning: false
+
 ggplot(df, aes(.fitted)) +
   geom_mirror_histogram(bins = 50, aes(group = net)) +
-  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_atu), alpha = 0.5) +
+  geom_mirror_histogram(
+    bins = 50,
+    aes(fill = net, weight = w_atu),
+    alpha = 0.5
+  ) +
   geom_hline(yintercept = 0, lwd = 0.5) +
   ylab("count") +
   xlab("propensity score") +
@@ -532,6 +571,7 @@ Average Treatment Effect Among the Evenly Matchable (ATM) $$\Large w_{ATM} = \fr
 
 ```{r}
 #| eval: false
+
 pmin(p, 1 - p) / (Z * p + (1 - Z) * (1 - p))
 ```
 
@@ -541,6 +581,7 @@ The tilting function is $h(p_i) = \min \{p_i, 1-p_i\}$: a triangle peaking at 0.
 
 ```{r}
 #| echo: false
+
 plot_tilt("ATM")
 ```
 
@@ -550,6 +591,7 @@ Average Treatment Effect Among the Overlap Population $$\Large w_{ATO} = (1-p_i)
 
 ```{r}
 #| eval: false
+
 (1 - p) * Z + p * (1 - Z)
 ```
 
@@ -559,14 +601,15 @@ The tilting function is $h(p_i) = p_i(1-p_i)$: smooth, peaking at 0.5, and the w
 
 ```{r}
 #| echo: false
+
 plot_tilt("ATO")
 ```
 
 ## Target estimands
 
-| Estimand | Target population  | Example Research Question |
-|----------|--------------------|---------------------------|
-| ATO     | Overlap population | *Same as ATM*             |
+  | Estimand | Target population  | Example Research Question |
+  | -------- | ------------------ | ------------------------- |
+  | ATO      | Overlap population | *Same as ATM*             |
 
 We will compare these populations with the effective sample size when we check balance
 
@@ -576,9 +619,14 @@ We will compare these populations with the effective sample size when we check b
 #| echo: false
 #| message: false
 #| warning: false
+
 ggplot(df, aes(.fitted)) +
   geom_mirror_histogram(bins = 50, aes(group = net)) +
-  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_atm), alpha = 0.5) +
+  geom_mirror_histogram(
+    bins = 50,
+    aes(fill = net, weight = w_atm),
+    alpha = 0.5
+  ) +
   geom_hline(yintercept = 0, lwd = 0.5) +
   ylab("count") +
   xlab("propensity score") +
@@ -593,9 +641,14 @@ ggplot(df, aes(.fitted)) +
 #| echo: false
 #| message: false
 #| warning: false
+
 ggplot(df, aes(.fitted)) +
   geom_mirror_histogram(bins = 50, aes(group = net)) +
-  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_ato), alpha = 0.5) +
+  geom_mirror_histogram(
+    bins = 50,
+    aes(fill = net, weight = w_ato),
+    alpha = 0.5
+  ) +
   geom_hline(yintercept = 0, lwd = 0.5) +
   ylab("count") +
   xlab("propensity score") +
@@ -612,6 +665,7 @@ Average Treatment Effect (ATE) $w_{ATE} = \frac{Z_i}{p_i} + \frac{1-Z_i}{1 - p_i
 
 ```{r}
 #| code-line-numbers: "|4"
+
 library(propensity)
 df <- propensity_model |>
   augment(type.predict = "response", data = net_data) |>
@@ -620,14 +674,15 @@ df <- propensity_model |>
 
 ## Extreme weights
 
-* The minimum of the ATE weights is 1, but the maximum is unbounded
-* The closer the probability of the observed exposure is to 0, the higher the weight
-* **Extreme weights** *destabilize* our estimate, resulting in worse precision and potentially worse bias
+- The minimum of the ATE weights is 1, but the maximum is unbounded
+- The closer the probability of the observed exposure is to 0, the higher the weight
+- **Extreme weights** *destabilize* our estimate, resulting in worse precision and potentially worse bias
 
 ## Extreme weights
 
 ```{r}
 #| output-location: slide
+
 df |>
   arrange(desc(w_ate)) |>
   select(net, income, health, temperature, .fitted, w_ate)
@@ -638,6 +693,7 @@ df |>
 ```{r}
 #| output-location: fragment
 #| code-line-numbers: "|3"
+
 df <- df |>
   mutate(
     sw_ate = wt_ate(.fitted, net, stabilize = TRUE)
@@ -653,15 +709,16 @@ Stabilizing puts the marginal probability of the observed exposure in the numera
 
 ## Trimming and truncation
 
-* **Trimming**: set an acceptable range of the propensity score and drop the observations outside it
-* **Truncation**: set the values outside the range to the minimum or maximum of the range
-* Some authors use these terms interchangeably, or with the opposite meanings
+- **Trimming**: set an acceptable range of the propensity score and drop the observations outside it
+- **Truncation**: set the values outside the range to the minimum or maximum of the range
+- Some authors use these terms interchangeably, or with the opposite meanings
 
 ## Trimming and truncation in R
 
 ```{r}
 #| output-location: slide
 #| code-line-numbers: "|3-4|5|6"
+
 df <- df |>
   mutate(
     trimmed_ps = ps_trim(.fitted, method = "adaptive") |>
@@ -677,15 +734,16 @@ df |>
 
 ## Trimming and truncation
 
-* Trimming and truncation, like using a caliper, change the population we are making inferences about
-* The tilting function is 0 for the observations we trimmed and 1 for the ones that remain
-* You can think of the resulting estimand as another type of overlap population
+- Trimming and truncation, like using a caliper, change the population we are making inferences about
+- The tilting function is 0 for the observations we trimmed and 1 for the ones that remain
+- You can think of the resulting estimand as another type of overlap population
 
 ## *Your Turn 2*
 
 ```{r}
 #| echo: false
 #| eval: true
+
 countdown::countdown(minutes = 6)
 ```
 

@@ -5,6 +5,7 @@ format: html
 
 ```{r}
 #| label: setup
+
 library(tidyverse)
 library(ggdag)
 library(dagitty)
@@ -31,9 +32,9 @@ coffee_cancer_dag <- ______(
   exposure = "______",
   outcome = "______",
   labels = c(
-    "coffee" = "Coffee", 
-    "cancer" = "Lung Cancer", 
-    "smoking" = "Smoking", 
+    "coffee" = "Coffee",
+    "cancer" = "Lung Cancer",
+    "smoking" = "Smoking",
     "addictive" = "Addictive \nBehavior"
   )
 )
@@ -59,7 +60,6 @@ coffee_cancer_dag |>
 
 ______
 ```
-
 
 ## Your Turn 3
 
@@ -123,9 +123,9 @@ coffee_cancer_dag_to <- dagify(
   outcome = "cancer",
   coords = ________,
   labels = c(
-    "coffee" = "Coffee", 
-    "cancer" = "Lung Cancer", 
-    "smoking" = "Smoking", 
+    "coffee" = "Coffee",
+    "cancer" = "Lung Cancer",
+    "smoking" = "Smoking",
     "addictive" = "Addictive \nBehavior"
   )
 )
@@ -135,6 +135,6 @@ _____(_____, use_labels = TRUE, use_text = FALSE)
 
 # Take aways
 
-* Draw your assumptions with DAGs! Use `dagify()` to specify them and `ggdag()` and friends to draw them. 
-* The main goal for many analyses is to close backdoor (non-causal) paths. {ggdag} and {dagitty} can help you identify them.
-* Adjustment sets are key for closing backdoor paths. Take a reasonable set and use it in your model to get a causal effect estimate.
+- Draw your assumptions with DAGs! Use `dagify()` to specify them and `ggdag()` and friends to draw them. 
+- The main goal for many analyses is to close backdoor (non-causal) paths. {ggdag} and {dagitty} can help you identify them.
+- Adjustment sets are key for closing backdoor paths. Take a reasonable set and use it in your model to get a causal effect estimate.

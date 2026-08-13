@@ -5,7 +5,7 @@ institute: "Wake Forest University"
 format: kakashi-revealjs
 ---
 
-## {background-color="#23373B" .center .large}
+## {.center .large background-color="#23373B"}
 
 ### when correlation *is* causation
 
@@ -13,6 +13,7 @@ format: kakashi-revealjs
 #| label: setup
 #| include: false
 #| message: false
+
 options(
   tibble.max_extra_cols = 6,
   tibble.width = 60
@@ -72,35 +73,37 @@ plot_estimates <- function(data) {
 }
 ```
 
-## {background-color="#23373B" .center}
+## {.center background-color="#23373B"}
 
 ### When you have no confounders and there is a linear relationship between the exposure and the outcome, that *correlation is a causal relationship*
 
 ### 😮
 
-## {background-color="#23373B" .center}
+## {.center background-color="#23373B"}
 
 ### When you have no confounders and there is a linear relationship between the *exposure* and the outcome, that correlation is a causal relationship
 
 ### 😮
 
-## {background-color="#23373B" .center}
+## {.center background-color="#23373B"}
 
 ### When you have no confounders and there is a linear relationship between the exposure and the *outcome*, that correlation is a causal relationship
 
 ### 😮
 
-## {background-color="#23373B" .center}
+## {.center background-color="#23373B"}
 
 ### When you have no *confounders* and there is a linear relationship between the exposure and the outcome, that correlation is a causal relationship
+
 ### 😮
 
-## {background-color="#23373B" .center}
+## {.center background-color="#23373B"}
 
 ### randomized controlled trials
+
 ### A/B testing
 
-## Even in these cases, using the methods you will learn here can help! {background-color="#23373B" .small}
+## Even in these cases, using the methods you will learn here can help! {.small background-color="#23373B"}
 
 1. Adjusting for baseline covariates can make an estimate *more efficient*
 1. Propensity score weighting *always improves precision* over no adjustment and is *equivalent to direct adjustment*
@@ -112,14 +115,15 @@ Williamson et al., *Statistics in Medicine*, 2014
 
 ## Example
 
-* **simulated** data (100 observations)  
-* Treatment is **randomly** assigned 
-* There are **two baseline covariates**: `age` and `weight`
+- **simulated** data (100 observations)  
+- Treatment is **randomly** assigned 
+- There are **two baseline covariates**: `age` and `weight`
 
 ## Example
 
 ```{r}
 #| echo: false
+
 set.seed(10)
 n <- 100
 d <- tibble(
@@ -141,12 +145,13 @@ dagify(
   theme_dag()
 ```
 
-* **True average treatment effect**: 1
+- **True average treatment effect**: 1
 
 ## Three ways to estimate the effect {.small}
 
 ```{r}
 #| eval: false
+
 unadjusted <- lm(y ~ treatment, data = d)
 
 adjusted <- lm(y ~ treatment + weight + age, data = d)
@@ -171,25 +176,27 @@ weighted <- ipw(propensity_model, outcome_model)
 
 ```{r}
 #| echo: false
+
 plot_estimates(d)
 ```
 
 ## Conditional vs. marginal effects
 
-* The outcome model gives a **conditional** effect: *holding the other variables constant*
-* Weighting gives a **marginal** effect: *averaged over the population*
-* With a continuous outcome, a linear effect, and no interactions, the two are identical
+- The outcome model gives a **conditional** effect: *holding the other variables constant*
+- Weighting gives a **marginal** effect: *averaged over the population*
+- With a continuous outcome, a linear effect, and no interactions, the two are identical
 
 ## Example
 
-* **simulated** data (10,000 observations)  
-* Treatment is **randomly** assigned 
-* There are **two baseline covariates**: `age` and `weight`
+- **simulated** data (10,000 observations)  
+- Treatment is **randomly** assigned 
+- There are **two baseline covariates**: `age` and `weight`
 
 ## {.center}
 
 ```{r}
 #| echo: false
+
 set.seed(10)
 n <- 10000
 d <- tibble(
@@ -203,15 +210,16 @@ plot_estimates(d)
 
 ## Example
 
-* **simulated** data (10,000 observations)
-* Treatment is **not** randomly assigned 
-* **Two baseline confounders**: `age` and `weight`
-* The effect is **homogeneous**, so marginal and conditional effects agree
+- **simulated** data (10,000 observations)
+- Treatment is **not** randomly assigned 
+- **Two baseline confounders**: `age` and `weight`
+- The effect is **homogeneous**, so marginal and conditional effects agree
 
 ## Example
 
 ```{r}
 #| echo: false
+
 set.seed(10)
 n <- 10000
 d <- tibble(
@@ -234,26 +242,28 @@ dagify(
   theme_dag()
 ```
 
-* **True average treatment effect**: 1
+- **True average treatment effect**: 1
 
 ## {.center}
 
 ```{r}
 #| echo: false
+
 plot_estimates(d)
 ```
 
 ## Example
 
-* **simulated** data (10,000 observations)
-* The exposure is **daily updates**, the outcome is **satisfaction**
-* There is **one baseline confounder**: `num_users`
-* **True average treatment effect**: 0
+- **simulated** data (10,000 observations)
+- The exposure is **daily updates**, the outcome is **satisfaction**
+- There is **one baseline confounder**: `num_users`
+- **True average treatment effect**: 0
 
 ## Example
 
 ```{r}
 #| echo: false
+
 set.seed(11)
 n <- 10000
 d <- tibble(
@@ -274,7 +284,7 @@ ggplot(d, aes(x = num_users, y = satisfaction)) +
   theme_minimal(base_size = 20)
 ```
 
-* The relationship is **non-linear**
+- The relationship is **non-linear**
 
 ## The wrong functional form
 
@@ -285,7 +295,7 @@ lm(satisfaction ~ update_frequency + num_users, data = d) |>
   select(estimate, starts_with("conf"))
 ```
 
-* The estimate is far from the truth, which is not even contained in the confidence interval
+- The estimate is far from the truth, which is not even contained in the confidence interval
 
 ## A flexible functional form
 
@@ -299,15 +309,15 @@ lm(
   select(estimate, starts_with("conf"))
 ```
 
-* We often do not know the data-generating mechanism, but we can still fit **flexible parametric models**
+- We often do not know the data-generating mechanism, but we can still fit **flexible parametric models**
 
-## {background-color="#23373B" .center}
+## {.center background-color="#23373B"}
 
 ### the model needs the right *variables* and the right *functional form*
 
 We need the correct functional form for both the exposure and the confounders
 
-## {background-color="#23373B" .center}
+## {.center background-color="#23373B"}
 
 ### *time-varying* confounding
 

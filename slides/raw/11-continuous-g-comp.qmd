@@ -8,6 +8,7 @@ format: "kakashi-revealjs"
 ```{r}
 #| label: setup
 #| include: false
+
 options(
   tibble.max_extra_cols = 6,
   tibble.width = 60
@@ -21,7 +22,7 @@ library(marginaleffects)
 set.seed(1000)
 ```
 
-## {background-color="#23373B" .huge .center}
+## {.huge .center background-color="#23373B"}
 
 Normal regression estimates associations. But we want *causal* estimates: what would happen if *everyone* in the study were exposed to x vs if *no one* was exposed.
 
@@ -44,7 +45,6 @@ Normal regression estimates associations. But we want *causal* estimates: what w
 
 . . .
 
-
 **Incredibly flexible**
 
 . . .
@@ -55,6 +55,7 @@ Normal regression estimates associations. But we want *causal* estimates: what w
 
 ```{r}
 #| echo: false
+
 library(gt)
 gt(head(greek_data, 10))
 ```
@@ -71,67 +72,73 @@ greek_model <- lm(y ~ a + l, data = greek_data)
 
 ```{r}
 #| echo: false
+
 gt(head(greek_data, 10))
 ```
 
 ## 2. Create a duplicate of your data set for each level of `a`
 
-:::: {.columns}
+::: {.columns}
 
-::: {.column width="50%"}
+::::: {.column width="50%"}
 ```{r}
 #| echo: false
+
 gt(head(greek_data, 10))
 ```
-:::
+:::::
 
-::: {.column width="50%"}
+::::: {.column width="50%"}
 ```{r}
 #| echo: false
+
 gt(head(greek_data, 10))
 ```
-:::
+:::::
 
-::::
+:::
 
 ## 3. Set the value of `a` to a single value for each cloned data set
 
-:::: {.columns}
+::: {.columns}
 
-::: {.column width="50%"}
+::::: {.column width="50%"}
 ```{r}
 #| echo: false
+
 gt(head(greek_data |> mutate(a = 0), 10)) |>
   tab_style(
     style = list(
       cell_fill(color = "#CEE9FF"),
       cell_text(weight = "bold")
-      ),
+    ),
     locations = cells_body(columns = a)
   )
 ```
-:::
+:::::
 
-::: {.column width="50%"}
+::::: {.column width="50%"}
 ```{r}
 #| echo: false
+
 gt(head(greek_data |> mutate(a = 1), 10)) |>
   tab_style(
     style = list(
       cell_fill(color = "#CEE9FF"),
       cell_text(weight = "bold")
-      ),
+    ),
     locations = cells_body(columns = a)
   )
 ```
-:::
+:::::
 
-::::
+:::
 
 ## 3. Set the value of `a` to a single value for each cloned data set
 
 ```{r}
 #| code-line-numbers: "|3,7"
+
 #  set all participants to have a = 0
 untreated_data <- greek_data |>
   mutate(a = 0)
@@ -145,6 +152,7 @@ treated_data <- greek_data |>
 
 ```{r}
 #| code-line-numbers: "|2-3,7-8"
+
 #  predict under the data where everyone is untreated
 predicted_untreated <- greek_model |>
   augment(newdata = untreated_data) |>
@@ -161,7 +169,7 @@ predictions <- bind_cols(
 )
 ```
 
----
+--------------------------------------------------------------------------------
 
 ## 5. Calculate the estimate you want
 
@@ -169,6 +177,7 @@ predictions <- bind_cols(
 #| eval: false
 #| code-line-numbers: "|5"
 #| output-location: fragment
+
 predictions |>
   summarise(
     mean_treated = mean(treated),
@@ -179,6 +188,7 @@ predictions |>
 
 ```{r}
 #| echo: false
+
 predictions |>
   summarise(
     mean_treated = mean(treated),
@@ -192,6 +202,7 @@ predictions |>
 
 ```{r}
 #| eval: false
+
 library(marginaleffects)
 
 avg_comparisons(greek_model, variables = "a")
@@ -199,6 +210,7 @@ avg_comparisons(greek_model, variables = "a")
 
 ```{r}
 #| echo: false
+
 avg_comparisons(greek_model, variables = "a") |>
   tidy() |>
   select(estimate, std.error, conf.low, conf.high) |>
@@ -214,6 +226,7 @@ The standard error comes from the **delta method**, which approximates the varia
 ```{r}
 #| eval: false
 #| code-line-numbers: "|5,12"
+
 # ATT: average over the treated
 avg_comparisons(
   greek_model,
@@ -233,6 +246,7 @@ avg_comparisons(
 
 ```{r}
 #| echo: false
+
 bind_rows(
   ATE = tidy(avg_comparisons(greek_model, variables = "a")),
   ATT = tidy(avg_comparisons(
@@ -259,6 +273,7 @@ The ATO and ATM populations are not subsets of the rows, so weight the average b
 
 ```{r}
 #| code-line-numbers: "|3-4,9"
+
 library(propensity)
 
 greek_ps <- glm(a ~ l, data = greek_data, family = binomial()) |>
@@ -271,10 +286,11 @@ avg_comparisons(
 )
 ```
 
-## {background-color="#23373B" .huge .center}
+## {.huge .center background-color="#23373B"}
+
 **Continuous exposures**
 
-## {background-color="#23373B" .huge .center}
+## {.huge .center background-color="#23373B"}
 
 **We recommend g-computation over propensity scores for continuous exposures because of stability issues**
 
@@ -289,12 +305,22 @@ nhefs_light_smokers <- nhefs_complete |>
 
 ```{r}
 #| code-line-numbers: "|2|3-6"
+
 nhefs_gcomp_model <- lm(
   wt82_71 ~ splines::ns(smkintensity82_71, df = 3) +
-    sex + race + age + I(age^2) +
-    education + smokeintensity + I(smokeintensity^2) +
-    smokeyrs + I(smokeyrs^2) + exercise + active +
-    wt71 + I(wt71^2),
+    sex +
+    race +
+    age +
+    I(age^2) +
+    education +
+    smokeintensity +
+    I(smokeintensity^2) +
+    smokeyrs +
+    I(smokeyrs^2) +
+    exercise +
+    active +
+    wt71 +
+    I(wt71^2),
   data = nhefs_light_smokers
 )
 ```
@@ -305,6 +331,7 @@ G-computation still uses a single outcome model, and a continuous exposure lets 
 
 ```{r}
 #| code-line-numbers: "|3,7"
+
 #  set all participants to have no change in intensity
 unchanged_data <- nhefs_light_smokers |>
   mutate(smkintensity82_71 = 0)
@@ -318,6 +345,7 @@ reduced_data <- nhefs_light_smokers |>
 
 ```{r}
 #| code-line-numbers: "|2-3,7-8"
+
 #  predict under the data where intensity is unchanged
 predicted_unchanged <- nhefs_gcomp_model |>
   augment(newdata = unchanged_data) |>
@@ -339,6 +367,7 @@ nhefs_predictions <- bind_cols(
 ```{r}
 #| code-line-numbers: "|5"
 #| output-location: fragment
+
 nhefs_predictions |>
   summarise(
     mean_unchanged = mean(unchanged),
@@ -351,6 +380,7 @@ nhefs_predictions |>
 
 ```{r}
 #| eval: false
+
 avg_comparisons(
   nhefs_gcomp_model,
   variables = list(smkintensity82_71 = c(-10, 0))
@@ -359,6 +389,7 @@ avg_comparisons(
 
 ```{r}
 #| echo: false
+
 avg_comparisons(
   nhefs_gcomp_model,
   variables = list(smkintensity82_71 = c(-10, 0))
@@ -391,6 +422,7 @@ nhefs_dose_response
 
 ```{r}
 #| echo: false
+
 ggplot(nhefs_dose_response, aes(smkintensity82_71, estimate)) +
   geom_ribbon(
     aes(ymin = conf.low, ymax = conf.high),
@@ -411,6 +443,7 @@ ggplot(nhefs_dose_response, aes(smkintensity82_71, estimate)) +
 #| message: false
 #| warning: false
 #| fig.width: 6.5
+
 library(tidyverse)
 library(ggdag)
 library(ggokabeito)
@@ -445,42 +478,44 @@ labels <- c(
 )
 
 dagify(
-    y ~ x + close + Season + weather + extra,
-    x ~ weather + close + Season + extra,
-    extra ~ weather + close + Season,
-    coords = coord_dag,
-    labels = labels,
-    exposure = "x",
-    outcome = "y"
+  y ~ x + close + Season + weather + extra,
+  x ~ weather + close + Season + extra,
+  extra ~ weather + close + Season,
+  coords = coord_dag,
+  labels = labels,
+  exposure = "x",
+  outcome = "y"
 ) |>
-    tidy_dagitty() |>
-    node_status() |>
-    ggplot(
-        aes(x, y, xend = xend, yend = yend, color = status)
-    ) +
-    geom_dag_edges_arc(curvature = c(rep(0, 7), .2, 0, .2, .2, 0), edge_colour = "grey70") +
-    geom_dag_point() +
-    geom_dag_label_repel(seed = 1602) +
-    scale_color_okabe_ito(na.value = "grey90") +
-    theme_dag() +
-    theme(
-        legend.position = "none",
-        axis.text.x = element_text()
-    ) +
-    coord_cartesian(clip = "off") +
-    scale_x_continuous(
-        limits = c(-2.25, 2.25),
-        breaks = c(-2, -1, 0, 1, 2),
-        labels = c(
-            "\n(one year ago)",
-            "\n(6 months ago)",
-            "\n(3 months ago)",
-            "8am-9am\n(Today)",
-            "9am-10am\n(Today)"
-        )
+  tidy_dagitty() |>
+  node_status() |>
+  ggplot(
+    aes(x, y, xend = xend, yend = yend, color = status)
+  ) +
+  geom_dag_edges_arc(
+    curvature = c(rep(0, 7), .2, 0, .2, .2, 0),
+    edge_colour = "grey70"
+  ) +
+  geom_dag_point() +
+  geom_dag_label_repel(seed = 1602) +
+  scale_color_okabe_ito(na.value = "grey90") +
+  theme_dag() +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text()
+  ) +
+  coord_cartesian(clip = "off") +
+  scale_x_continuous(
+    limits = c(-2.25, 2.25),
+    breaks = c(-2, -1, 0, 1, 2),
+    labels = c(
+      "\n(one year ago)",
+      "\n(6 months ago)",
+      "\n(3 months ago)",
+      "8am-9am\n(Today)",
+      "9am-10am\n(Today)"
     )
+  )
 ```
-
 
 ## *Your Turn*
 

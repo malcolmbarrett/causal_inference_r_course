@@ -5,6 +5,7 @@ format: html
 
 ```{r}
 #| label: setup
+
 library(tidyverse)
 library(broom)
 library(touringplans)
@@ -20,6 +21,7 @@ In the touringplans data set, we have information about the posted waiting times
 #| echo: false
 #| message: false
 #| warning: false
+
 library(ggdag)
 library(ggokabeito)
 
@@ -51,19 +53,22 @@ dagify(
   ggplot(
     aes(x, y, xend = xend, yend = yend, color = status)
   ) +
-  geom_dag_edges_arc(curvature = c(rep(0, 7), .2, 0, .2, .2, 0), edge_colour = "grey70") +
+  geom_dag_edges_arc(
+    curvature = c(rep(0, 7), .2, 0, .2, .2, 0),
+    edge_colour = "grey70"
+  ) +
   geom_dag_point() +
   geom_dag_label_repel(
     aes(x, y, label = label),
-    box.padding = 1.25, 
+    box.padding = 1.25,
     inherit.aes = FALSE,
-    max.overlaps = Inf, 
+    max.overlaps = Inf,
     family = "sans",
     seed = 1602,
-    label.size = NA, 
+    label.size = NA,
     label.padding = 0.1,
     size = 14 / 3
-  )  + 
+  ) +
   scale_color_okabe_ito(na.value = "grey90") +
   theme_dag() +
   theme(
@@ -114,8 +119,14 @@ First, let's fit the model.
 2. Save the model as `standardized_model`
 
 ```{r}
-_______ ___ _______(
-  wait_minutes_actual_avg ~ ns(_______, df = 2)*park_extra_magic_morning + _______ + _______ + _______, 
+_______
+___
+_______(
+  wait_minutes_actual_avg ~ ns(_______, df = 2) *
+    park_extra_magic_morning +
+    _______ +
+    _______ +
+    _______,
   data = wait_times
 )
 ```
@@ -188,19 +199,16 @@ Remember, you need to bootstrap the entire modeling process, including the regre
 set.seed(1234)
 library(rsample)
 
-fit_gcomp <- function(.split, ...) { 
+fit_gcomp <- function(.split, ...) {
   # get bootstrapped data frame
   .df <- as.data.frame(.split)
-  
+
   # fit outcome model. remember to model using `.df` instead of `wait_times`
-  
-  
+
   # clone datasets. remember to clone `.df` instead of `wait_times`
-  
-  
+
   # predict actual wait time for each cloned dataset
-  
-  
+
   # calculate ATE
   bind_cols(predicted_thirty, predicted_sixty) |>
     summarize(
@@ -246,10 +254,10 @@ dose_response |>
 
 The grid runs from 10 to 80 minutes because that is about the range of posted wait times we observe; asking for predictions outside it would make the spline extrapolate. Notice how much of the plot the confidence band takes up, and compare that to the interval you got in Your Turn 4.
 
-***
+--------------------------------------------------------------------------------
 
 # Take aways
 
-* To fit the parametric G-formula, fit a standardized model with all covariates. Then, use cloned data sets with values set to each level of the exposure you want to study. 
-* Use the model to predict the values for that level of the exposure and compute the effect estimate you want
-* `avg_comparisons()` runs those steps in a single call and returns a standard error and confidence interval with the estimate
+- To fit the parametric G-formula, fit a standardized model with all covariates. Then, use cloned data sets with values set to each level of the exposure you want to study. 
+- Use the model to predict the values for that level of the exposure and compute the effect estimate you want
+- `avg_comparisons()` runs those steps in a single call and returns a standard error and confidence interval with the estimate

@@ -569,10 +569,18 @@ calculated the wrong effect.
 
 ```{r}
 mosquito_dag_full <- dagify(
-  malaria_risk ~ net + income + health + temperature +
-    insecticide_resistance + genetic_resistance,
-  net ~ income + health + temperature + eligible +
-    household + genetic_resistance,
+  malaria_risk ~ net +
+    income +
+    health +
+    temperature +
+    insecticide_resistance +
+    genetic_resistance,
+  net ~ income +
+    health +
+    temperature +
+    eligible +
+    household +
+    genetic_resistance,
   eligible ~ income + household,
   health ~ income,
   exposure = "net",

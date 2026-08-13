@@ -3,9 +3,9 @@ title: "Outcome Model"
 format: html
 ---
 
-
 ```{r}
 #| label: setup
+
 library(tidyverse)
 library(broom)
 library(touringplans)

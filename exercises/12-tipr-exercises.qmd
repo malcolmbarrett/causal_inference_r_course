@@ -5,6 +5,7 @@ format: html
 
 ```{r}
 #| label: setup
+
 library(tidyverse)
 library(ggdag)
 library(touringplans)
@@ -70,6 +71,4 @@ Use the `tip_coef()` function to conduct a sensitivity analysis for the estimate
 `tip_coef()` describes a continuous unmeasured confounder on a unit-variance scale, so `0.1` means the confounder differs by a tenth of a standard deviation between days with and without Extra Magic Hours.
 
 ```{r}
-
 ```
-

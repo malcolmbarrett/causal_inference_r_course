@@ -5,6 +5,7 @@ format: html
 
 ```{r}
 #| label: setup
+
 library(tidyverse)
 set.seed(1)
 ```
@@ -14,7 +15,7 @@ set.seed(1)
 Run this code to generate the simulated data set
 
 ```{r}
-n <- 1000 
+n <- 1000
 sim <- tibble(
   confounder = rbinom(n, 1, 0.5),
   p_exposure = case_when(
@@ -23,7 +24,8 @@ sim <- tibble(
   ),
   exposure = rbinom(n, 1, p_exposure),
   outcome = confounder + rnorm(n)
-) |> select(-p_exposure)
+) |>
+  select(-p_exposure)
 ```
 
 1. Group the dataset by `confounder` and `exposure`
@@ -52,8 +54,8 @@ Run the following code to generate `sim2`
 n <- 1000
 sim2 <- tibble(
   confounder_1 = rbinom(n, 1, 0.5),
-  confounder_2 = rbinom(n, 1, 0.5), 
-  
+  confounder_2 = rbinom(n, 1, 0.5),
+
   p_exposure = case_when(
     confounder_1 == 1 & confounder_2 == 1 ~ 0.75,
     confounder_1 == 0 & confounder_2 == 1 ~ 0.9,
@@ -62,7 +64,8 @@ sim2 <- tibble(
   ),
   exposure = rbinom(n, 1, p_exposure),
   outcome = confounder_1 + confounder_2 + rnorm(n)
-) |> select(-p_exposure)
+) |>
+  select(-p_exposure)
 ```
 
 1. Group the dataset by the confounders and exposure
@@ -86,13 +89,14 @@ sim2 |>
 Run the following code to generate `sim3`
 
 ```{r}
-n <- 10000 
+n <- 10000
 sim3 <- tibble(
-  confounder = rnorm(n), 
+  confounder = rnorm(n),
   p_exposure = exp(confounder) / (1 + exp(confounder)),
   exposure = rbinom(n, 1, p_exposure),
   outcome = confounder + rnorm(n)
-) |> select(-p_exposure)
+) |>
+  select(-p_exposure)
 ```
 
 1. Use `ntile()` from dplyr to calculate a binned version of `confounder` called `confounder_q`. We'll create a variable with 5 bins.
@@ -134,6 +138,6 @@ sim3 |>
 
 # Take aways
 
-* In simple cases, grouping by confounding variables can get us the right answer without a statistical model. This approach is called stratification, and it is non-parametric: we aren't using a statistical model to restrict the form of the variables
-* With many confounders, especially continuous ones, we quickly run into the curse of dimensionality: too few observations within combinations of confounder levels
-* Propensity scores generalize the idea of summarizing exposure effects to any number of confounders. Although we'll use models for this process, the foundations are the same.
+- In simple cases, grouping by confounding variables can get us the right answer without a statistical model. This approach is called stratification, and it is non-parametric: we aren't using a statistical model to restrict the form of the variables
+- With many confounders, especially continuous ones, we quickly run into the curse of dimensionality: too few observations within combinations of confounder levels
+- Propensity scores generalize the idea of summarizing exposure effects to any number of confounders. Although we'll use models for this process, the foundations are the same.

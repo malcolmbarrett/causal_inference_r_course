@@ -4,7 +4,7 @@ author: "Lucy D'Agostino McGowan"
 institute: "Wake Forest University"
 format: kakashi-revealjs
 knitr:
-  opts_chunk: 
+  opts_chunk:
     eval: false
 fig-cap-location: bottom
 ---
@@ -12,8 +12,9 @@ fig-cap-location: bottom
 ```{r}
 #| include: false
 #| eval: true
+
 options(
-  tibble.max_extra_cols = 7, 
+  tibble.max_extra_cols = 7,
   tibble.width = 60
 )
 library(quartets)
@@ -32,6 +33,7 @@ library(gt)
 #| echo: false
 #| eval: true
 #| fig.width: 8.5
+
 ggplot(anscombe_quartet, aes(x = x, y = y)) +
   geom_point() +
   geom_smooth(method = "lm", formula = "y ~ x", se = FALSE) +
@@ -42,80 +44,84 @@ ggplot(anscombe_quartet, aes(x = x, y = y)) +
 
 ## *The problem*
 
-:::{.large}
+::: {.large}
 We have measured variables, what should we adjust for?
 :::
 
 . . .
 
-**exposure** | **outcome** | **covariate**
----|---|---
-0.49 | 1.71 | 2.24
-0.07 | 0.68 | 0.92
-0.40 | -1.60 | -0.10
-. | . | .
-. | . | .
-. | . | .
-0.55 | -1.73 | -2.34
+  | **exposure** | **outcome** | **covariate** |
+  | ------------ | ----------- | ------------- |
+  | 0.49         | 1.71        | 2.24          |
+  | 0.07         | 0.68        | 0.92          |
+  | 0.40         | -1.60       | -0.10         |
+  | .            | .           | .             |
+  | .            | .           | .             |
+  | .            | .           | .             |
+  | 0.55         | -1.73       | -2.34         |
 
 ## *What does the data say?*
 
-:::: columns
+::: columns
 
-::: column
+::::: column
 ```{r}
 #| echo: false
 #| eval: true
 #| message: false
 #| warning: false
-ggplot(causal_confounding, aes(x = exposure, y = outcome)) + 
-  geom_point() + 
+
+ggplot(causal_confounding, aes(x = exposure, y = outcome)) +
+  geom_point() +
   geom_smooth(method = "lm", formula = "y ~ x")
 ```
 
 **One unit increase in the exposure yields an average increase in the outcome of 1**
-:::
+:::::
 
-::: column
+::::: column
 
 ```{r}
 #| echo: true
+
 cor(exposure, covariate)
 ```
 
 ```{r}
 #| echo: false
 #| eval: true
+
 cor(causal_confounding$exposure, causal_confounding$covariate) |>
   round(digits = 2)
 ```
 
 **The exposure and measured factor are positively correlated**
-:::
+:::::
 
-::::
+:::
 
 ##
 
-:::: columns
+::: columns
 
-::: column
+::::: column
 
 ![](img/shake.png)
-:::
+:::::
 
-::: column
+::::: column
 
 ### To adjust or not adjust? That is the question.
+:::::
 :::
-::::
 
-## *Causal Quartet* 
+## *Causal Quartet*
 
 ```{r}
 #| echo: false
 #| eval: true
 #| fig.width: 8.5
+
 coords <- list(
   x = c(X = 2, Z = 1, Y = 3),
   y = c(X = 1, Z = 1.1, Y = 1)
@@ -129,13 +135,13 @@ d_conf <- dagify(
   labels = c(X = "X", Y = "Y", Z = "Z"),
   coords = coords
 ) |>
-  tidy_dagitty() |> 
+  tidy_dagitty() |>
   as_tibble()
 
 coords <- list(
   x = c(X = 1, Z = 3, Y = 2),
   y = c(X = 1, Z = 1.1, Y = 1)
-) 
+)
 
 d_coll <- dagify(
   Z ~ X + Y,
@@ -145,7 +151,7 @@ d_coll <- dagify(
   labels = c(X = "X", Y = "Y", Z = "Z"),
   coords = coords
 ) |>
-  tidy_dagitty() |> 
+  tidy_dagitty() |>
   as_tibble()
 
 coords <- list(
@@ -161,7 +167,7 @@ d_med <- dagify(
   labels = c(X = "X", Y = "Y", Z = "Z"),
   coords = coords
 ) |>
-  tidy_dagitty() |> 
+  tidy_dagitty() |>
   as_tibble()
 
 coords <- list(
@@ -178,7 +184,7 @@ d_mbias <- dagify(
   labels = c(X = "X", Y = "Y", Z = "Z"),
   coords = coords
 ) |>
-  tidy_dagitty() |> 
+  tidy_dagitty() |>
   as_tibble()
 
 dag_data <- bind_rows(
@@ -200,7 +206,7 @@ dags <- dag_data |>
   coord_cartesian(clip = "off") +
   scale_color_manual(values = c("#A8CF9E", "#51c1ad", "#357edd")) +
   theme(legend.position = "none") +
-  facet_wrap(~dag, scales = "free") + 
+  facet_wrap(~dag, scales = "free") +
   expand_plot(
     expand_x = expansion(c(0.25, 0.25)),
     expand_y = expansion(c(0.25, 0.25))
@@ -215,7 +221,6 @@ dags +
   )
 ```
 
-
 ## {.center .middle}
 
 ![](img/quartets-logo.png)
@@ -223,9 +228,13 @@ dags +
 ## *Your turn 1* {.small}
 
 ### Load the `quartets` package
+
 ### Use `causal_quartet`, which stacks the 4 datasets with the names of their data generating mechanisms hidden
+
 ### For each of the 4 datasets, create a scatterplot looking at the relationship between `exposure` and `outcome`
+
 ### For each of the 4 datasets, look at the correlation between `exposure` and `covariate`
+
 ### *Stretch goal*: For each of the 4 datasets, fit a linear model to examine the relationship between the `exposure` and the `outcome`
 
 `r countdown::countdown(6)`
@@ -252,6 +261,7 @@ causal_quartet |>
 
 ```{r}
 #| eval: true
+
 causal_quartet |>
   # hide the dataset names
   mutate(dataset = as.integer(factor(dataset))) |>
@@ -264,6 +274,7 @@ causal_quartet |>
 ```{r}
 #| echo: false
 #| eval: true
+
 effects <- causal_quartet |>
   # hide the dataset names
   nest_by(dataset = as.integer(factor(dataset))) |>
@@ -297,6 +308,7 @@ Journal of Statistics and Data Science Education. doi:10.1080/26939169.2023.2276
 ```{r}
 #| echo: false
 #| eval: true
+
 effects |>
   mutate(percent_change = (ate_x - ate_xz) / ate_x) |>
   select(dataset, percent_change) |>
@@ -320,6 +332,7 @@ effects |>
 ```{r}
 #| echo: false
 #| eval: true
+
 get_rmse <- function(data, model) {
   sqrt(mean((data$outcome - predict(model, data))^2))
 }
@@ -361,6 +374,7 @@ causal_quartet |>
 #| echo: false
 #| eval: true
 #| fig-width: 8.5
+
 dags
 ```
 
@@ -369,18 +383,19 @@ dags
 ```{r}
 #| echo: false
 #| eval: true
+
 tribble(
-  ~"Data generating mechanism",	~"Correct causal model",	~"Correct causal effect",
-  "(1) Collider",	"Y ~ X",	"1.0",
-  "(2) Confounder",	"Y ~ X ; Z",	"0.5",
+  ~"Data generating mechanism", ~"Correct causal model",    ~"Correct causal effect",
+  "(1) Collider",   "Y ~ X",    "1.0",
+  "(2) Confounder", "Y ~ X ; Z",    "0.5",
   "(3) Mediator",
   "Direct effect: Y ~ X ; Z
   Total Effect: Y ~ X",
   "Direct effect: 0.0
   Total effect: 1.0",
-  "(4) M-Bias",	"Y ~ X",	"1.0"
-) |> 
-  gt() |> 
+  "(4) M-Bias", "Y ~ X",    "1.0"
+) |>
+  gt() |>
   tab_options(table.font.size = "100%")
 ```
 
@@ -395,6 +410,7 @@ Journal of Statistics and Data Science Education. doi:10.1080/26939169.2023.2276
 ```{r}
 #| echo: true
 #| eval: true
+
 causal_collider_time
 ```
 
@@ -409,17 +425,32 @@ causal_collider_time
 ```{r}
 #| echo: false
 #| eval: true
+
 coords <- list(
   x = c(
-    X_0 = 1, X_1 = 2, Z_1 = 2, Y_1 = 1.9, 
-    X_2 = 3, Y_2 = 2.9, Z_2 = 3,
-    X_3 = 4, Y_3 = 3.9, Z_3 = 4
+    X_0 = 1,
+    X_1 = 2,
+    Z_1 = 2,
+    Y_1 = 1.9,
+    X_2 = 3,
+    Y_2 = 2.9,
+    Z_2 = 3,
+    X_3 = 4,
+    Y_3 = 3.9,
+    Z_3 = 4
   ),
   y = c(
-    X_0 = 1, Y_0 = 1.05,
-    X_1 = 1, Z_1 = 1.1, Y_1 = 1.05,
-    X_2 = 1, Z_2 = 1.1, Y_2 = 1.05,
-    X_3 = 1, Z_3 = 1.1, Y_3 = 1.05
+    X_0 = 1,
+    Y_0 = 1.05,
+    X_1 = 1,
+    Z_1 = 1.1,
+    Y_1 = 1.05,
+    X_2 = 1,
+    Z_2 = 1.1,
+    Y_2 = 1.05,
+    X_3 = 1,
+    Z_3 = 1.1,
+    Y_3 = 1.05
   )
 )
 
@@ -449,9 +480,12 @@ d_coll <- dagify(
 
 col_bias <- d_coll |>
   tidy_dagitty() |>
-  mutate(color = case_when(
-    !(name %in% c("X_2", "Y_3", "Z_3")) ~ "grey",
-    TRUE ~ label)) |>
+  mutate(
+    color = case_when(
+      !(name %in% c("X_2", "Y_3", "Z_3")) ~ "grey",
+      TRUE ~ label
+    )
+  ) |>
   ggplot(
     aes(x = x, y = y, xend = xend, yend = yend)
   ) +
@@ -459,18 +493,21 @@ col_bias <- d_coll |>
   geom_dag_edges() +
   geom_dag_text(aes(label = label)) +
   theme_dag() +
-  coord_cartesian(clip = "off")  +
+  coord_cartesian(clip = "off") +
   scale_color_manual(values = c("lightgrey", "#A8CF9E", "#51c1ad", "#357edd")) +
-  theme(legend.position = "none") + 
-  geom_vline(xintercept = c(2.6, 3.25, 3.6, 4.25), lty = 2) + 
-  annotate("label", x = 2.925, y = 0.97, label = "baseline") + 
+  theme(legend.position = "none") +
+  geom_vline(xintercept = c(2.6, 3.25, 3.6, 4.25), lty = 2) +
+  annotate("label", x = 2.925, y = 0.97, label = "baseline") +
   annotate("label", x = 3.925, y = 0.97, label = "follow-up")
 
 no_col_bias <- d_coll |>
   tidy_dagitty() |>
-  mutate(color = case_when(
-    !(name %in% c("X_2", "Y_3", "Z_2")) ~ "grey",
-    TRUE ~ label)) |>
+  mutate(
+    color = case_when(
+      !(name %in% c("X_2", "Y_3", "Z_2")) ~ "grey",
+      TRUE ~ label
+    )
+  ) |>
   ggplot(
     aes(x = x, y = y, xend = xend, yend = yend)
   ) +
@@ -478,17 +515,18 @@ no_col_bias <- d_coll |>
   geom_dag_edges() +
   geom_dag_text(aes(label = label)) +
   theme_dag() +
-  coord_cartesian(clip = "off")  +
+  coord_cartesian(clip = "off") +
   scale_color_manual(values = c("lightgrey", "#A8CF9E", "#51c1ad", "#357edd")) +
-  theme(legend.position = "none") + 
-  geom_vline(xintercept = c(2.6, 3.25, 3.6, 4.25), lty = 2) + 
-  annotate("label", x = 2.925, y = 0.97, label = "baseline") + 
+  theme(legend.position = "none") +
+  geom_vline(xintercept = c(2.6, 3.25, 3.6, 4.25), lty = 2) +
+  annotate("label", x = 2.925, y = 0.97, label = "baseline") +
   annotate("label", x = 3.925, y = 0.97, label = "follow-up")
 ```
 
 ```{r}
 #| echo: false
 #| eval: true
+
 col_bias
 ```
 
@@ -502,6 +540,7 @@ col_bias
 ```{r}
 #| echo: false
 #| eval: true
+
 no_col_bias
 ```
 
@@ -523,27 +562,29 @@ no_col_bias
 ```{r}
 #| echo: false
 #| eval: true
+
 causal_quartet_time |>
   nest_by(dataset) |>
   mutate(
     ate_x = coef(lm(outcome_followup ~ exposure_baseline, data = data))[2],
-    ate_xz = coef(lm(outcome_followup ~ exposure_baseline + covariate_baseline, 
-                     data = data))[2]
+    ate_xz = coef(lm(
+      outcome_followup ~ exposure_baseline + covariate_baseline,
+      data = data
+    ))[2]
   ) |>
   bind_cols(tibble(truth = c(1, 0.5, 1, 1))) |>
-  select(-data, dataset) |> 
-  ungroup() |> 
-  gt() |> 
+  select(-data, dataset) |>
+  ungroup() |>
+  gt() |>
   gt::cols_label(
-    dataset = "Data generating mechanism",   
+    dataset = "Data generating mechanism",
     ate_x = "ATE not adjusting for pre-exposure Z",
-    ate_xz = "ATE adjusting for pre-exposure Z", 
+    ate_xz = "ATE adjusting for pre-exposure Z",
     truth = "Correct causal effect"
   ) |>
-  fmt_number() |> 
+  fmt_number() |>
   tab_options(table.font.size = "80%")
 ```
-
 
 ::: tiny
 D'Agostino McGowan L, Gerke T, Barrett M (2023). Causal inference is not just a statistics problem.
@@ -553,10 +594,10 @@ Journal of Statistics and Data Science Education. doi:10.1080/26939169.2023.2276
 ## *On M-Bias*
 
 ::: small
-* The relationship between Z and the unmeasured confounders needs to be really large (Liu et al 2012)
-* "To obsess about the possibility of [M-bias] generates bad practical advice in all but the most unusual circumstances" (Rubin 2009)
-* There are (almost) no true zeros (Gelman 2011)
-* Asymptotic theory shows that induction of M-bias is quite sensitive to various deviations from the exact M-Structure (Ding and Miratrix 2015)
+- The relationship between Z and the unmeasured confounders needs to be really large (Liu et al 2012)
+- "To obsess about the possibility of [M-bias] generates bad practical advice in all but the most unusual circumstances" (Rubin 2009)
+- There are (almost) no true zeros (Gelman 2011)
+- Asymptotic theory shows that induction of M-bias is quite sensitive to various deviations from the exact M-Structure (Ding and Miratrix 2015)
 :::
 
 . . .
@@ -564,5 +605,3 @@ Journal of Statistics and Data Science Education. doi:10.1080/26939169.2023.2276
 ::: small
 **If it is clearly M-bias, do not adjust for the variable. If it is not clear, adjust for it**: confounding bias tends to be worse, and M-structures are sensitive to slight deviations
 :::
-
-

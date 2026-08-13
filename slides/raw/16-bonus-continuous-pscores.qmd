@@ -8,6 +8,7 @@ format: "kakashi-revealjs"
 ```{r}
 #| label: setup
 #| include: false
+
 options(
   tibble.max_extra_cols = 6,
   tibble.width = 60
@@ -24,13 +25,15 @@ library(halfmoon)
 set.seed(1000)
 ```
 
-## {background-color="#23373B" .huge .center}
+## {.huge .center background-color="#23373B"}
+
 ### *Warning!* Propensity score weights are sensitive to positivity violations for continuous exposures.
 
-## {background-color="#23373B" .huge .center}
+## {.huge .center background-color="#23373B"}
+
 ### **The story so far**
 
----
+--------------------------------------------------------------------------------
 
 ## Propensity score weighting {background-color="#23373B"}
 
@@ -44,7 +47,7 @@ set.seed(1000)
 2. Use `wt_ate()` with `.fitted`; transforms using `dnorm()` to get on probability-like scale.
 3. Apply the weights to the outcome model as normal!
 
-## Alternative: quantile binning {background-color="#23373B" .small}
+## Alternative: quantile binning {.small background-color="#23373B"}
 
 1. Bin the continuous exposure into quantiles and use categorical regression like a multinomial model to calculate probabilities.
 2. Calculate the weights where the propensity score is the probability you fall into the quantile you actually fell into. Same as the binary ATE!
@@ -54,6 +57,7 @@ set.seed(1000)
 
 ```{r}
 #| eval: false
+
 model <- lm(
   exposure ~ confounder_1 + confounder_2,
   data = df
@@ -65,14 +69,17 @@ model <- lm(
 ```{r}
 #| eval: false
 #| code-line-numbers: "|3-8"
+
 model |>
   augment(data = df) |>
   # wt_ate() estimates the SD from the model
-  mutate(wts = wt_ate(
-    .fitted,
-    exposure,
-    exposure_type = "continuous"
-  ))
+  mutate(
+    wts = wt_ate(
+      .fitted,
+      exposure,
+      exposure_type = "continuous"
+    )
+  )
 ```
 
 ## Does change in smoking intensity (`smkintensity82_71`) affect weight gain among lighter smokers?
@@ -86,11 +93,21 @@ nhefs_light_smokers <- nhefs_complete |>
 
 ```{r}
 #| code-line-numbers: "|1-2|3-6"
+
 nhefs_model <- lm(
-  smkintensity82_71 ~ sex + race + age + I(age^2) +
-    education + smokeintensity + I(smokeintensity^2) +
-    smokeyrs + I(smokeyrs^2) + exercise + active +
-    wt71 + I(wt71^2),
+  smkintensity82_71 ~ sex +
+    race +
+    age +
+    I(age^2) +
+    education +
+    smokeintensity +
+    I(smokeintensity^2) +
+    smokeyrs +
+    I(smokeyrs^2) +
+    exercise +
+    active +
+    wt71 +
+    I(wt71^2),
   data = nhefs_light_smokers
 )
 ```
@@ -99,15 +116,17 @@ nhefs_model <- lm(
 
 ```{r}
 #| code-line-numbers: "|3-7"
+
 nhefs_wts <- nhefs_model |>
   augment(data = nhefs_light_smokers) |>
-  mutate(wts = wt_ate(
-    .fitted,
-    smkintensity82_71,
-    exposure_type = "continuous"
-  ))
+  mutate(
+    wts = wt_ate(
+      .fitted,
+      smkintensity82_71,
+      exposure_type = "continuous"
+    )
+  )
 ```
-
 
 ## 2. Calculate the weights with `wt_ate()`
 
@@ -122,6 +141,7 @@ nhefs_wts
 #| message: false
 #| warning: false
 #| fig.width: 6.5
+
 library(tidyverse)
 library(ggdag)
 library(ggokabeito)
@@ -156,46 +176,51 @@ labels <- c(
 )
 
 dagify(
-    y ~ x + close + Season + weather + extra,
-    x ~ weather + close + Season + extra,
-    extra ~ weather + close + Season,
-    coords = coord_dag,
-    labels = labels,
-    exposure = "x",
-    outcome = "y"
+  y ~ x + close + Season + weather + extra,
+  x ~ weather + close + Season + extra,
+  extra ~ weather + close + Season,
+  coords = coord_dag,
+  labels = labels,
+  exposure = "x",
+  outcome = "y"
 ) |>
-    tidy_dagitty() |>
-    node_status() |>
-    ggplot(
-        aes(x, y, xend = xend, yend = yend, color = status)
-    ) +
-    geom_dag_edges_arc(curvature = c(rep(0, 7), .2, 0, .2, .2, 0), edge_colour = "grey70") +
-    geom_dag_point() +
-    geom_dag_label_repel(seed = 1602) +
-    scale_color_okabe_ito(na.value = "grey90") +
-    theme_dag() +
-    theme(
-        legend.position = "none",
-        axis.text.x = element_text()
-    ) +
-    coord_cartesian(clip = "off") +
-    scale_x_continuous(
-        limits = c(-2.25, 2.25),
-        breaks = c(-2, -1, 0, 1, 2),
-        labels = c(
-            "\n(one year ago)",
-            "\n(6 months ago)",
-            "\n(3 months ago)",
-            "8am-9am\n(Today)",
-            "9am-10am\n(Today)"
-        )
+  tidy_dagitty() |>
+  node_status() |>
+  ggplot(
+    aes(x, y, xend = xend, yend = yend, color = status)
+  ) +
+  geom_dag_edges_arc(
+    curvature = c(rep(0, 7), .2, 0, .2, .2, 0),
+    edge_colour = "grey70"
+  ) +
+  geom_dag_point() +
+  geom_dag_label_repel(seed = 1602) +
+  scale_color_okabe_ito(na.value = "grey90") +
+  theme_dag() +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text()
+  ) +
+  coord_cartesian(clip = "off") +
+  scale_x_continuous(
+    limits = c(-2.25, 2.25),
+    breaks = c(-2, -1, 0, 1, 2),
+    labels = c(
+      "\n(one year ago)",
+      "\n(6 months ago)",
+      "\n(3 months ago)",
+      "8am-9am\n(Today)",
+      "9am-10am\n(Today)"
     )
+  )
 ```
 
 ## *Your Turn 1*
 
 ### Fit a model using `lm()` with `wait_minutes_posted_avg` as the outcome and the confounders identified in the DAG.
+
 ### Use `augment()` to add model predictions to the data frame
+
 ### In `wt_ate()`, calculate the weights using `.fitted` and `wait_minutes_posted_avg`
 
 `r countdown::countdown(minutes = 5)`
@@ -204,6 +229,7 @@ dagify(
 
 ```{r}
 #| include: false
+
 eight <- seven_dwarfs_train_2018 |>
   filter(wait_hour == 8) |>
   select(-wait_minutes_actual_avg)
@@ -220,8 +246,10 @@ wait_times <- eight |>
 ```{r}
 post_time_model <- lm(
   wait_minutes_posted_avg ~
-    park_close + park_extra_magic_morning +
-    park_temperature_high + park_ticket_season,
+    park_close +
+    park_extra_magic_morning +
+    park_temperature_high +
+    park_ticket_season,
   data = wait_times
 )
 ```
@@ -231,17 +259,20 @@ post_time_model <- lm(
 ```{r}
 wait_times_wts <- post_time_model |>
   augment(data = wait_times) |>
-  mutate(wts = wt_ate(
-    .fitted,
-    wait_minutes_posted_avg,
-    exposure_type = "continuous"
-  ))
+  mutate(
+    wts = wt_ate(
+      .fitted,
+      wait_minutes_posted_avg,
+      exposure_type = "continuous"
+    )
+  )
 ```
 
 ## *Stabilizing extreme weights*
 
 ```{r}
 #| echo: false
+
 nhefs_wts |>
   ggplot(aes(wts)) +
   geom_density(col = "#E69F00", fill = "#E69F0095") +
@@ -260,20 +291,24 @@ nhefs_wts |>
 
 ```{r}
 #| code-line-numbers: "|7"
+
 nhefs_swts <- nhefs_model |>
   augment(data = nhefs_light_smokers) |>
-  mutate(swts = wt_ate(
-    .fitted,
-    smkintensity82_71,
-    exposure_type = "continuous",
-    stabilize = TRUE
-  ))
+  mutate(
+    swts = wt_ate(
+      .fitted,
+      smkintensity82_71,
+      exposure_type = "continuous",
+      stabilize = TRUE
+    )
+  )
 ```
 
 ## Stabilizing extreme weights
 
 ```{r}
 #| echo: false
+
 ggplot(nhefs_swts, aes(swts)) +
   geom_density(col = "#E69F00", fill = "#E69F0095") +
   scale_x_log10() +
@@ -300,12 +335,14 @@ mean(nhefs_swts$swts)
 ```{r}
 wait_times_swts <- post_time_model |>
   augment(data = wait_times) |>
-  mutate(swts = wt_ate(
-    .fitted,
-    wait_minutes_posted_avg,
-    exposure_type = "continuous",
-    stabilize = TRUE
-  ))
+  mutate(
+    swts = wt_ate(
+      .fitted,
+      wait_minutes_posted_avg,
+      exposure_type = "continuous",
+      stabilize = TRUE
+    )
+  )
 ```
 
 ## Checking balance {background-color="#23373B"}
@@ -342,6 +379,7 @@ balance_metrics
 
 ```{r}
 #| echo: false
+
 balance_metrics |>
   filter(metric == "correlation") |>
   ggplot(aes(x = estimate, y = variable, group = method, color = method)) +
@@ -361,6 +399,7 @@ balance_metrics |>
 
 ```{r}
 #| code-line-numbers: "|3"
+
 nhefs_ipw_model <- lm(
   wt82_71 ~ smkintensity82_71,
   weights = swts,
@@ -368,10 +407,11 @@ nhefs_ipw_model <- lm(
 )
 ```
 
----
+--------------------------------------------------------------------------------
 
 ```{r}
 #| code-line-numbers: "|4"
+
 nhefs_ipw_model |>
   tidy() |>
   filter(term == "smkintensity82_71") |>
@@ -475,6 +515,7 @@ nhefs_ipw <- ipw(
 
 ```{r}
 #| output-location: slide
+
 dose_response <- nhefs_ipw |>
   as_conditional() |>
   # marginaleffects needs the data to build the grid
@@ -492,6 +533,7 @@ dose_response
 
 ```{r}
 #| echo: false
+
 ggplot(dose_response, aes(smkintensity82_71, estimate)) +
   geom_ribbon(
     aes(ymin = conf.low, ymax = conf.high),

@@ -8,8 +8,9 @@ format: "kakashi-revealjs"
 ```{r}
 #| label: setup
 #| include: false
+
 options(
-  tibble.max_extra_cols = 6, 
+  tibble.max_extra_cols = 6,
   tibble.width = 60
 )
 
@@ -22,8 +23,9 @@ set.seed(100111)
 
 ```{r}
 #| echo: false
+
 library(ggdag)
-ggdag_confounder_triangle(x_y_associated = TRUE) + 
+ggdag_confounder_triangle(x_y_associated = TRUE) +
   theme_dag() +
   expand_plot(expansion(.2), expansion(.2))
 ```
@@ -32,7 +34,8 @@ ggdag_confounder_triangle(x_y_associated = TRUE) +
 
 ```{r}
 #| echo: false
-ggdag_collider_triangle() + 
+
+ggdag_collider_triangle() +
   theme_dag() +
   expand_plot(expansion(.2), expansion(.2))
 ```
@@ -41,11 +44,12 @@ ggdag_collider_triangle() +
 
 ```{r}
 #| echo: false
+
 ggdag_adjust(
-  collider_triangle(), 
-  "m", 
+  collider_triangle(),
+  "m",
   collider_lines = FALSE
-) + 
+) +
   theme_dag() +
   theme(legend.position = "none") +
   expand_plot(expansion(.2), expansion(.2)) +
@@ -56,7 +60,7 @@ ggdag_adjust(
 
 ```{r}
 set.seed(1234)
-collider_data <- collider_triangle() |> 
+collider_data <- collider_triangle() |>
   simulate_data(-.6)
 ```
 
@@ -70,20 +74,21 @@ collider_data
 
 ```{r}
 #| echo: false
+
 fit_model <- function(fmla) {
-  lm(fmla, data = collider_data) |> 
-    broom::tidy(conf.int = TRUE) |> 
-    dplyr::filter(term == "x") |> 
-    dplyr::mutate(formula = as.character(fmla)[3]) |> 
+  lm(fmla, data = collider_data) |>
+    broom::tidy(conf.int = TRUE) |>
+    dplyr::filter(term == "x") |>
+    dplyr::mutate(formula = as.character(fmla)[3]) |>
     dplyr::select(formula, estimate, conf.low, conf.high)
 }
 
 bind_rows(
   fit_model(y ~ x),
   fit_model(y ~ x + m)
-) |> 
+) |>
   ggplot(aes(x = estimate, y = formula, xmin = conf.low, xmax = conf.high)) +
-  geom_vline(xintercept = 0, linewidth = 1, color = "grey80") + 
+  geom_vline(xintercept = 0, linewidth = 1, color = "grey80") +
   geom_pointrange(color = "steelblue", size = 0.75) +
   theme_minimal(18) +
   labs(
@@ -96,19 +101,35 @@ bind_rows(
 
 ```{r}
 #| echo: false
-l2fu <- dagify(follow_up ~ symptoms,
-       symptoms ~ new_rx + dx_severity,
-       cd4 ~ dx_severity,
-       labels = c(
-         follow_up = "Follow-Up",
-         symptoms = "Symptoms",
-         new_rx = "New HIV Drug",
-         dx_severity = "Underlying \nHIV Severity",
-         cd4 = "CD4 Count"
-       ), exposure = "new_rx", outcome = "cd4")
+
+l2fu <- dagify(
+  follow_up ~ symptoms,
+  symptoms ~ new_rx + dx_severity,
+  cd4 ~ dx_severity,
+  labels = c(
+    follow_up = "Follow-Up",
+    symptoms = "Symptoms",
+    new_rx = "New HIV Drug",
+    dx_severity = "Underlying \nHIV Severity",
+    cd4 = "CD4 Count"
+  ),
+  exposure = "new_rx",
+  outcome = "cd4"
+)
 
 l2fu |>
-  ggdag_adjust("follow_up", layout = "mds", use_text = FALSE, collider_lines = FALSE) + geom_dag_text_repel(aes(label = label), color = "black", point.padding = 100, seed = 1) + 
+  ggdag_adjust(
+    "follow_up",
+    layout = "mds",
+    use_text = FALSE,
+    collider_lines = FALSE
+  ) +
+  geom_dag_text_repel(
+    aes(label = label),
+    color = "black",
+    point.padding = 100,
+    seed = 1
+  ) +
   theme_dag() +
   theme(legend.position = "none") +
   expand_plot() +
@@ -119,6 +140,7 @@ l2fu |>
 
 ```{r}
 #| echo: false
+
 cd4_labels <- c(
   cd4_missing = "Missingness \nin CD4 Count",
   symptoms = "Symptoms",
@@ -166,6 +188,7 @@ missing_cd4 |>
 
 ```{r}
 #| echo: false
+
 missing_cd4_benign <- dagify(
   cd4_missing ~ new_rx + unknown,
   symptoms ~ new_rx + dx_severity,
@@ -232,7 +255,7 @@ missing_cd4_benign |>
 2. Create weights using inverse probability strategy
 3. Use weights in your causal model
 
-## {background-color="#23373B" .large .center}
+## {.large .center background-color="#23373B"}
 
 ### We won't do it here, but you can include many types of weights in a given model. Just take their product, e.g. *multiply inverse propensity of treatment weights by inverse propensity of censoring weights*.
 

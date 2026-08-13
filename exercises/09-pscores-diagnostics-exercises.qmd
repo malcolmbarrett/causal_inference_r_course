@@ -3,9 +3,9 @@ title: "Propensity Score Diagnostics"
 format: html
 ---
 
-
 ```{r}
 #| label: setup
+
 library(tidyverse)
 library(broom)
 library(touringplans)
@@ -22,7 +22,9 @@ seven_dwarfs <- seven_dwarfs_train_2018 |>
   filter(wait_hour == 9)
 
 propensity_model <- glm(
-  park_extra_magic_morning ~ park_ticket_season + park_close + park_temperature_high,
+  park_extra_magic_morning ~ park_ticket_season +
+    park_close +
+    park_temperature_high,
   data = seven_dwarfs,
   family = binomial()
 )
@@ -40,10 +42,10 @@ Calculate the balance metrics with and without weights
 balance_metrics <- seven_dwarfs_ps |>
   mutate(park_close = as.numeric(park_close)) |>
   check_balance(
-  .vars = ____,
-  .exposure = ____,
-  .weights = ____
-)
+    .vars = ____,
+    .exposure = ____,
+    .weights = ____
+  )
 ```
 
 Create the Love Plot using ggplot and halfmoon
@@ -102,17 +104,22 @@ Create a weighted table for the seven dwarfs dataset given your weights
 3. Use `add_ess_header()` to report the effective sample size for each group
 4. Use `add_overall(last = TRUE)` to add the overall column at the end
 
-
 ```{r}
 library(survey)
 library(gtsummary)
 seven_dwarfs_ps |>
-  select(park_extra_magic_morning, park_ticket_season, park_close, park_temperature_high, w_ate) |>
-______(
-  ids = ~1,
-  data = _,
-  weights = ~____
-) |>
+  select(
+    park_extra_magic_morning,
+    park_ticket_season,
+    park_close,
+    park_temperature_high,
+    w_ate
+  ) |>
+  ______(
+    ids = ~1,
+    data = _,
+    weights = ~____
+  ) |>
   ______(
     by = ____,
     include = -w_ate
@@ -120,5 +127,3 @@ ______(
   ______() |>
   add_overall(last = TRUE)
 ```
-
-
