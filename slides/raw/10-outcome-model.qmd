@@ -1,0 +1,314 @@
+---
+title: "Fitting the outcome model"
+author: "Malcolm Barrett"
+institute: "Stanford University"
+format: "kakashi-revealjs"
+---
+
+```{r}
+#| label: setup
+#| include: false
+options(
+  tibble.max_extra_cols = 6,
+  tibble.width = 60
+)
+library(tidyverse)
+library(broom)
+library(propensity)
+library(causalworkshop)
+library(marginaleffects)
+
+set.seed(1234)
+```
+
+## Outcome Model {.large}
+
+```{r}
+#| eval: false
+library(broom)
+
+lm(outcome ~ exposure, data = df, weights = wts) |>
+  tidy()
+```
+
+. . .
+
+✅ This will get us the point estimate
+
+. . .
+
+❌ This will NOT get us the correct confidence intervals
+
+. . .
+
+📦 There are three other approaches we will consider
+
+## Three ways to estimate the uncertainty
+
+::: {.small}
+::: nonincremental
+1. **A bootstrap**: correct and general purpose, but slow
+2. **A robust standard error**: a sandwich estimator for the outcome model alone
+3. **A propensity-aware sandwich**: correct and fast
+:::
+:::
+
+. . .
+
+The bootstrap is still worth knowing: it also solves problems that have no closed-form solution
+
+## 1. Create a function to run your analysis once on a sample of your data
+
+::: {.small}
+
+```{r}
+#| code-line-numbers: "|1-2|5-9|12-14|17-18"
+fit_ipw <- function(.split, ...) {
+  .df <- as.data.frame(.split)
+
+  # fit propensity score model
+  propensity_model <- glm(
+    net ~ income + health + temperature,
+    family = binomial(),
+    data = .df
+  )
+
+  # calculate inverse probability weights
+  .df <- propensity_model |>
+    augment(type.predict = "response", data = .df) |>
+    mutate(wts = wt_ate(.fitted, net, exposure_type = "binary"))
+
+  # fit correctly bootstrapped ipw model
+  lm(malaria_risk ~ net, data = .df, weights = wts) |>
+    tidy()
+}
+```
+:::
+
+## 2. Use {rsample} to bootstrap our causal effect
+
+```{r}
+#| code-line-numbers: "|4-8"
+#| output-location: slide
+library(rsample)
+
+# fit ipw model to bootstrapped samples
+bootstrapped_net_data <- bootstraps(
+  net_data,
+  times = 1000,
+  apparent = TRUE
+)
+
+bootstrapped_net_data
+```
+
+## 2. Use {rsample} to bootstrap our causal effect
+
+```{r}
+fit_ipw(bootstrapped_net_data$splits[[1]])
+```
+
+## 2. Use {rsample} to bootstrap our causal effect
+
+```{r}
+#| cache: true
+#| output-location: slide
+#| code-line-numbers: "|2"
+ipw_results <- bootstrapped_net_data |>
+  mutate(boot_fits = map(splits, fit_ipw))
+
+ipw_results
+```
+
+## 2. Use {rsample} to bootstrap our causal effect
+
+```{r}
+#| echo: false
+ipw_results |>
+  # remove the original data set results
+  filter(id != "Apparent") |>
+  mutate(
+    estimate = map_dbl(
+      boot_fits,
+      # pull the `estimate` for `netTRUE` for each fit
+      \(.fit) .fit |>
+        filter(term == "netTRUE") |>
+        pull(estimate)
+    )
+  ) |>
+  ggplot(aes(estimate)) +
+  geom_histogram(bins = 30, fill = "#D55E00FF", color = "white", alpha = 0.8) +
+  theme_minimal()
+```
+
+
+## 3. Pull out the causal effect
+
+```{r}
+#| code-line-numbers: "|2"
+#| output-location: fragment
+# get t-statistic-based CIs
+boot_estimate <- int_t(ipw_results, boot_fits) |>
+  filter(term == "netTRUE")
+
+boot_estimate
+```
+
+## Fit both models on the full data {.small}
+
+```{r}
+#| code-line-numbers: "|1-5|7-9|11"
+propensity_model <- glm(
+  net ~ income + health + temperature,
+  family = binomial(),
+  data = net_data
+)
+
+net_data_wts <- propensity_model |>
+  augment(type.predict = "response", data = net_data) |>
+  mutate(wts = wt_ate(.fitted, net, exposure_type = "binary"))
+
+ipw_model <- lm(malaria_risk ~ net, data = net_data_wts, weights = wts)
+```
+
+## Robust standard errors
+
+The sandwich estimator gets its name from the form of the variance it calculates: a "meat" matrix built from the variability of each observation's residuals, sandwiched between two copies of a "bread" matrix that comes from the design of the model
+
+. . .
+
+When the model's assumptions hold, the bread and meat combine to give the usual model-based variance
+
+. . .
+
+When they do not, as with IPW weights, the sandwich form still gives a consistent variance estimate
+
+. . .
+
+That is why these are called "robust" standard errors
+
+## Robust standard errors
+
+```{r}
+#| output-location: fragment
+vcov(ipw_model)
+```
+
+. . .
+
+`vcov()` returns the variance-covariance matrix that `tidy()` and `summary()` use under the hood; it treats the weights as fixed, which they are not
+
+## Robust standard errors
+
+```{r}
+#| output-location: fragment
+library(sandwich)
+
+sandwich(ipw_model)
+```
+
+. . .
+
+For the treatment coefficient, the sandwich variance is about 1.5 times the model-based one, so the model-based SE understates the uncertainty; for the intercept, it is smaller
+
+## Robust standard errors
+
+```{r}
+#| output-location: fragment
+robust_se <- avg_comparisons(ipw_model, variables = "net", vcov = "HC3")
+
+robust_se
+```
+
+::: {.callout-note}
+`avg_comparisons()` returns a marginal effect: the average of the predicted outcome difference across the observed covariate distribution. `vcov = "HC3"` requests the HC3 variant of the sandwich. We will see more of marginaleffects when we get to g-computation.
+:::
+
+. . .
+
+❌ Robust SEs account for the weights, but not for estimating them
+
+## ipw(): correct and fast
+
+::: nonincremental
+- `ipw()` uses a sandwich estimator that also accounts for the uncertainty in
+  the propensity score model
+- Bring your own models: you fit the propensity score and outcome models
+  yourself, then supply them to `ipw()`
+:::
+
+. . .
+
+```{r}
+ipw_fit <- ipw(propensity_model, ipw_model)
+```
+
+## ipw(): correct and fast {.small}
+
+```{r}
+ipw_fit
+```
+
+. . .
+
+`ipw()` reports the estimand along with the estimate
+
+## Comparing the three approaches
+
+```{r}
+#| echo: false
+bind_rows(
+  "bootstrap" = boot_estimate |>
+    select(estimate = .estimate, conf.low = .lower, conf.high = .upper),
+  "HC3 robust SE" = robust_se |>
+    tidy() |>
+    select(estimate, conf.low, conf.high),
+  "ipw()" = ipw_fit |>
+    tidy(conf.int = TRUE) |>
+    select(estimate, conf.low, conf.high),
+  .id = "method"
+)
+```
+
+. . .
+
+`ipw()` fits each model once and takes a fraction of a second; the bootstrap fits 1,001 pairs of models
+
+## *Your Turn*
+
+`r countdown::countdown(minutes = 10)`
+
+### Create a function called `fit_ipw` that fits the propensity score model and the weighted outcome model for the effect between `park_extra_magic_morning` and `wait_minutes_posted_avg`
+
+### Using the `bootstraps()` and `int_t()` functions to estimate the final effect.
+
+### Fitting both models on the full data and using `ipw()` to compare the two intervals.
+
+## Binary outcomes
+
+```{r}
+#| code-line-numbers: "|1-2|4-11|9"
+net_data_wts <- net_data_wts |>
+  mutate(risk_over_50 = malaria_risk > 50)
+
+binary_outcome_model <- glm(
+  risk_over_50 ~ net,
+  data = net_data_wts,
+  weights = wts,
+  # quasibinomial() avoids a warning about non-integer successes
+  family = quasibinomial()
+)
+```
+
+## Binary outcomes: all three effects
+
+```{r}
+#| output-location: fragment
+ipw(propensity_model, binary_outcome_model) |>
+  tidy(conf.int = TRUE, exponentiate = TRUE) |>
+  select(term, estimate, conf.low, conf.high)
+```
+
+. . .
+
+`ipw()` reports the risk difference, risk ratio, and odds ratio, with standard errors that account for the propensity score model

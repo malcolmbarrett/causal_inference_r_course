@@ -1,0 +1,161 @@
+---
+title: "Outcome Model"
+format: html
+---
+
+
+```{r}
+#| label: setup
+library(tidyverse)
+library(broom)
+library(touringplans)
+library(rsample)
+library(propensity)
+
+seven_dwarfs <- seven_dwarfs_train_2018 |>
+  filter(wait_hour == 9)
+```
+
+We are interested in examining the relationship between whether there were "Extra Magic Hours" in the morning (the **exposure**) and the average wait time for the Seven Dwarfs Mine Train the same day between 9am and 10am (the **outcome**).
+
+## Your turn 1
+
+Create a function called `fit_ipw` that fits the propensity score model and incorporates the ATE weights (as calculated in the previous exercises), then uses the weights in a weighted outcome model.
+
+```{r}
+fit_ipw <- function(.split, ...) {
+  .df <- ____
+
+  # fit propensity score model
+
+  # calculate ATE weights
+
+  # fit correctly bootstrapped ipw model
+  lm(___ ~ ___, data = .df, weights = ___) |>
+    tidy()
+}
+```
+
+Bootstrap this result 1000 times.
+
+```{r}
+set.seed(1234)
+
+ipw_results <- ____(___, 1000, apparent = TRUE) |>
+  mutate(boot_fits = map(splits, _____))
+```
+
+Check out the distribution of estimates (**no need to change this code**)
+
+```{r}
+ipw_results |>
+  mutate(
+    estimate = map_dbl(
+      boot_fits,
+      # pull the `estimate` for `park_extra_magic_morning` for each fit
+      \(.fit) .fit |>
+        filter(term == "park_extra_magic_morning") |>
+        pull(estimate)
+    )
+  ) |>
+  ggplot(aes(estimate)) +
+  geom_histogram(bins = 30, fill = "#D55E00FF", color = "white", alpha = 0.8) +
+  theme_minimal()
+```
+
+Calculate the confidence interval
+
+```{r}
+boot_estimate <- ____(____, ____) |>
+  filter(term == ____)
+
+boot_estimate
+```
+
+## Your turn 2
+
+Fit both models on the full data: the same propensity score model and weighted outcome model you wrote inside `fit_ipw()`, fit once on `seven_dwarfs` rather than on a bootstrap sample.
+
+```{r}
+propensity_model <- glm(
+  ____ ~ park_ticket_season + park_close + park_temperature_high,
+  data = seven_dwarfs,
+  family = binomial()
+)
+
+seven_dwarfs_wts <- propensity_model |>
+  augment(type.predict = "response", data = seven_dwarfs) |>
+  mutate(wts = wt_ate(.fitted, ____, exposure_type = "binary"))
+
+ipw_model <- lm(___ ~ ___, data = seven_dwarfs_wts, weights = ___)
+```
+
+Next, supply both models to `ipw()`, which uses a sandwich estimator that also accounts for the uncertainty in the propensity score model.
+
+It is fast and reports the estimand along with the estimate.
+
+```{r}
+ipw_fit <- ipw(____, ____)
+
+ipw_fit
+```
+
+Compare the confidence interval from `ipw_fit` to the bootstrap interval in `boot_estimate`: they should roughly agree.
+
+**Stretch goal**: Now estimate the effect using matching.
+
+```{r}
+library(MatchIt)
+
+matched_dwarfs <- matchit(
+  park_extra_magic_morning ~ park_ticket_season +
+    park_close +
+    park_temperature_high,
+  data = seven_dwarfs
+)
+
+matched_data <- get_matches(matched_dwarfs)
+
+matched_outcome <- lm(___ ~ ___, data = ____)
+```
+
+Bootstrapping matched data the same way is not valid: matching induces a dependence between matched pairs, and resampling rows breaks it. There are two valid routes.
+
+The first route is a cluster-robust standard error, clustered within matched pairs. `get_matches()` returns a `subclass` column that identifies each pair; pass it to `vcovCL()` as a formula.
+
+```{r}
+library(sandwich)
+
+vcl <- vcovCL(____, cluster = ~____)
+
+tibble(
+  estimate = coef(matched_outcome)[["park_extra_magic_morning"]],
+  robust_se = sqrt(vcl["park_extra_magic_morning", "park_extra_magic_morning"]),
+  conf.low = estimate - 1.96 * robust_se,
+  conf.high = estimate + 1.96 * robust_se
+)
+```
+
+The second route is a cluster bootstrap: resample whole matched pairs rather than rows, and do not re-run `matchit()` inside the bootstrap. `rsample::group_bootstraps()` creates this pair-level bootstrap when you pass it `subclass` as the group variable.
+
+```{r}
+set.seed(1234)
+
+fit_matched <- function(.split, ...) {
+  .df <- as.data.frame(.split)
+  lm(___ ~ ___, data = .df) |>
+    tidy()
+}
+
+cluster_boots <- ____(
+  matched_data,
+  group = ____,
+  times = 1000,
+  apparent = TRUE
+)
+
+cluster_results <- cluster_boots |>
+  mutate(boot_fits = map(splits, ____))
+
+int_t(cluster_results, boot_fits)
+```

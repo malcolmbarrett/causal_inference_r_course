@@ -1,0 +1,694 @@
+---
+title: "Using Propensity Scores"
+author: "Lucy D'Agostino McGowan"
+institute: "Wake Forest University"
+format: kakashi-revealjs
+---
+
+```{r}
+#| include: false
+options(
+  tibble.max_extra_cols = 6,
+  tibble.width = 60
+)
+```
+
+## Propensity scores {.large background-color="#23373B"}
+
+Matching
+
+Weighting
+
+Stratification
+
+Direct Adjustment
+
+...
+
+##
+
+```{r}
+#| echo: false
+knitr::include_graphics("img/estimands-cake.png")
+```
+
+::: tiny
+Image source: Simon Grund
+:::
+
+## Propensity scores {.large background-color="#23373B"}
+
+**Matching**
+
+Weighting
+
+Stratification
+
+Direct Adjustment
+
+...
+
+## Target estimands
+
+```{r}
+#| include: false
+library(tidyverse)
+library(broom)
+library(causalworkshop)
+propensity_model <- glm(
+  net ~ income + health + temperature,
+  family = binomial(),
+  data = net_data
+)
+```
+
+### *Average Treatment Effect (ATE)*
+
+$$\tau = E[Y(1) - Y(0)]$$
+
+```{r}
+#| echo: false
+#| fig.height: 2.0
+set.seed(10)
+p <- tibble(
+  x = c(runif(10, 0, 0.9), runif(10, 0.1, 1)),
+  y = rep(c(1, 0), each = 10),
+  col = rep(c("Treated", "Control"), each = 10)
+)
+set.seed(10)
+ggplot(p, aes(x = x, y = y, color = col)) +
+  geom_text(aes(label = col), position = "jitter") +
+  theme(legend.position = "none",
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  scale_color_manual(values = c("cornflower blue", "orange")) +
+  labs(x = "", y = "")
+```
+
+## Target estimands
+
+<table style="width:99%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 70%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><p>Estimand</p></th>
+<th><p>Target population</p></th>
+<th><p>Example Research Question</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>ATE</p></td>
+<td><p>Full population</p></td>
+<td><p><em>Should we decide whether to have extra magic hours all mornings to change the posted wait time for Seven Dwarfs Mine Train between 9-10 AM?</em></p>
+<p><em>Should a specific policy be applied to all eligible observations?</em></p></td>
+</tr>
+</tbody>
+</table>
+
+## Target estimands
+
+### Average Treatment Effect among the Treated (ATT)
+
+$$\tau = E[Y(1) - Y(0) | Z = 1]$$
+
+```{r}
+#| echo: false
+#| fig.height: 3.0
+set.seed(10)
+p |>
+  mutate(color = ifelse(x > 0.8, "grey", col)) |>
+ggplot(aes(x = x, y = y, color = color)) +
+  geom_text(aes(label = col), position = "jitter") +
+  theme(legend.position = "none",
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  scale_color_manual(values = c("cornflower blue", "grey", "orange")) +
+  labs(x = "", y = "") +
+  geom_vline(xintercept = c(0, 0.8))
+```
+
+## Target estimands
+
+<table style="width:99%;">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 18%" />
+<col style="width: 62%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><p>Estimand</p></th>
+<th><p>Target population</p></th>
+<th><p>Example Research Question</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>ATT</p></td>
+<td><p>Exposed (treated) observations</p></td>
+<td><p><em>Should we stop extra magic hours to change the posted wait time for Seven Dwarfs Mine Train between 9-10 AM?</em></p>
+<p><em>Should we stop our marketing campaign to those currently receiving it?</em></p>
+<p><em>Should medical providers stop recommending treatment for those currently receiving it?</em></p></td>
+</tr>
+</tbody>
+</table>
+
+## Matching in R (ATT)
+
+```{r}
+#| output-location: fragment
+#| code-line-numbers: "|2|3-4|"
+library(MatchIt)
+m <- matchit(
+  net_num ~ income + health + temperature,
+  data = net_data
+)
+m
+```
+
+## Matching in R (ATT)
+
+```{r}
+#| output-location: fragment
+matched_data <- get_matches(m, id = "i")
+as_tibble(matched_data)
+```
+
+## Target estimands
+
+### *Average Treatment Effect among the Unexposed / Controls (ATU / ATC)*
+
+$$\tau = E[Y(1) - Y(0) | Z = 0]$$
+
+```{r}
+#| echo: false
+#| fig.height: 3.0
+set.seed(10)
+p |>
+  mutate(color = ifelse(x < 0.1, "grey", col)) |>
+ggplot(aes(x = x, y = y, color = color)) +
+  geom_text(aes(label = col), position = "jitter") +
+  theme(legend.position = "none",
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  scale_color_manual(values = c("cornflower blue", "grey", "orange")) +
+  labs(x = "", y = "") +
+  geom_vline(xintercept = c(0.115, 1))
+```
+
+## Target estimands
+
+<table style="width:99%;">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 63%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><p>Estimand</p></th>
+<th><p>Target population</p></th>
+<th><p>Example Research Question</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>ATU</p></td>
+<td><p>Unexposed (control) observations</p></td>
+<td><p><em>Should we add extra magic hours for all days to change the posted wait time for Seven Dwarfs Mine Train between 9-10 AM?</em></p>
+<p><em>Should we extend our marketing campaign to those not receiving it?</em></p>
+<p><em>Should medical providers extend treatment to those not currently receiving it?</em></p></td>
+</tr>
+</tbody>
+</table>
+
+## Matching in R (ATU)
+
+```{r}
+#| output-location: fragment
+#| code-line-numbers: "|4"
+m <- matchit(
+  net_num ~ income + health + temperature,
+  data = net_data,
+  estimand = "ATC"
+)
+m
+```
+
+`matchit()` spells this estimand `ATC`
+
+## Target estimands
+
+### *Average Treatment Effect among the Matched (ATM)*
+
+```{r}
+#| echo: false
+#| fig.height: 3.0
+set.seed(10)
+p |>
+  mutate(color = ifelse(x < 0.1 | x > 0.8, "grey", col)) |>
+ggplot(aes(x = x, y = y, color = color)) +
+  geom_text(aes(label = col), position = "jitter") +
+  theme(legend.position = "none",
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  scale_color_manual(values = c("cornflower blue", "grey", "orange")) +
+  labs(x = "", y = "") +
+  geom_vline(xintercept = c(0.115, 0.8))
+```
+
+## Target estimands
+
+<table style="width:99%;">
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 71%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><p>Estimand</p></th>
+<th><p>Target population</p></th>
+<th><p>Example Research Question</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>ATM</p></td>
+<td><p>Evenly matchable</p></td>
+<td><p><em>Are there some days we should change whether we are offering extra magic hours in order to change the posted wait time for Seven Dwarfs Mine Train between 9-10 AM?</em></p>
+<p><em>Is there an effect of the exposure for some observations?</em></p>
+<p><em>Should those at clinical equipoise receive treatment?</em></p></td>
+</tr>
+</tbody>
+</table>
+
+## Matching in R (ATM)
+
+```{r}
+#| code-line-numbers: "|4-5"
+#| output-location: slide
+m <- matchit(
+  net_num ~ income + health + temperature,
+  data = net_data,
+  link = "linear.logit",
+  caliper = 0.1
+)
+m
+```
+
+. . .
+
+The caliper is the largest difference between two observations we accept as a match, measured in standard deviations of the propensity score (here, on the linear logit scale). Observations that cannot be matched within it are discarded
+
+## Matching in R (ATM)
+
+```{r}
+matched_data <- get_matches(m, id = "i")
+as_tibble(matched_data)
+```
+
+## *Your Turn 1*
+
+```{r}
+#| echo: false
+#| eval: true
+countdown::countdown(minutes = 6)
+```
+
+### Using the propensity scores you created in the previous exercise, create a "matched" data set using the ATM method with a caliper of 0.2.
+
+## Propensity scores {.large background-color="#23373B"}
+
+Matching
+
+**Weighting**
+
+Stratification
+
+Direct Adjustment
+
+...
+
+## Matching or weighting?
+
+* Weighting is statistically more efficient; we recommend it when possible
+* Matching has a distinct advantage: it's easy to understand
+
+## Histogram of propensity scores
+
+```{r}
+#| include: false
+library(propensity)
+df <- propensity_model |>
+  augment(type.predict = "response", data = net_data) |>
+  mutate(
+    w_ate = wt_ate(.fitted, net),
+    w_att = wt_att(.fitted, net),
+    w_atu = wt_atu(.fitted, net),
+    w_atm = wt_atm(.fitted, net),
+    w_ato = wt_ato(.fitted, net),
+    net = factor(net)
+  )
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+library(halfmoon)
+ggplot(df, aes(.fitted)) +
+  geom_mirror_histogram(bins = 50, aes(group = net)) +
+  geom_hline(yintercept = 0, lwd = 0.5) +
+  ylab("count") +
+  xlab("propensity score") +
+  scale_y_continuous(labels = abs) +
+  theme(legend.position = "bottom")
+```
+
+## Target estimands: ATE {background-color="#23373B"}
+
+Average Treatment Effect (ATE)
+
+$$\Large w_{ATE} = \frac{Z_i}{p_i} + \frac{1-Z_i}{1 - p_i}$$
+
+```{r}
+#| eval: false
+(Z / p) + ((1 - Z) / (1 - p))
+```
+
+
+
+## Tilting functions {background-color="#23373B"}
+
+```{r}
+#| include: false
+tilt_df <- tibble(p = seq(0.01, 0.99, by = 0.01)) |>
+  mutate(
+    ATE = 1,
+    ATT = p,
+    ATU = 1 - p,
+    ATM = pmin(p, 1 - p),
+    ATO = p * (1 - p)
+  ) |>
+  pivot_longer(-p, names_to = "estimand", values_to = "tilt") |>
+  mutate(
+    tilting = tilt,
+    treated = tilt / p,
+    untreated = tilt / (1 - p)
+  ) |>
+  pivot_longer(
+    c(tilting, treated, untreated),
+    names_to = "panel",
+    values_to = "value"
+  ) |>
+  mutate(
+    panel = factor(
+      panel,
+      levels = c("tilting", "treated", "untreated"),
+      labels = c(
+        "tilting function",
+        "weights (treated)",
+        "weights (untreated)"
+      )
+    )
+  )
+
+plot_tilt <- function(.estimand) {
+  tilt_df |>
+    filter(estimand == .estimand) |>
+    ggplot(aes(p, value)) +
+    geom_line(linewidth = 1.1) +
+    facet_wrap(~panel, scales = "free_y") +
+    labs(x = "propensity score", y = NULL) +
+    expand_limits(y = 0)
+}
+```
+
+Every weight is the ATE weight times a **tilting function**, $h(p_i)$
+
+$$\Large w_i = \frac{h(p_i)Z_i}{p_i} + \frac{h(p_i)(1-Z_i)}{1 - p_i}$$
+
+The tilting function reshapes the population we are targeting
+
+::: {.fragment}
+
+The tilting function is $h(p_i) = 1$: the population is unchanged and the weights are unbounded
+
+:::
+
+## ATE tilting function
+
+```{r}
+#| echo: false
+plot_tilt("ATE")
+```
+
+## ATE
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+ggplot(df, aes(.fitted)) +
+  geom_mirror_histogram(bins = 50, aes(group = net)) +
+  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_ate), alpha = 0.5) +
+  geom_hline(yintercept = 0, lwd = 0.5) +
+  ylab("count") +
+  xlab("propensity score") +
+  scale_y_continuous(labels = abs) +
+  scale_fill_manual(values = c("green", "blue")) +
+  theme(legend.position = "bottom")
+```
+
+## Target estimands: ATT & ATU {background-color="#23373B"}
+
+. . .
+
+Average Treatment Effect Among the Treated (ATT) $$\Large w_{ATT} = \frac{p_i Z_i}{p_i} + \frac{p_i (1-Z_i)}{1-p_i}$$
+
+```{r}
+#| eval: false
+((p * Z) / p) + ((p * (1 - Z)) / (1 - p))
+```
+
+The tilting function is $h(p_i) = p_i$: the treated get a weight of 1
+
+## Target estimands: ATT & ATU {background-color="#23373B"}
+
+Average Treatment Effect Among the Unexposed (ATU) $$\Large w_{ATU} = \frac{(1-p_i)Z_i}{p_i} + \frac{(1-p_i)(1-Z_i)}{(1-p_i)}$$
+
+```{r}
+#| eval: false
+(((1 - p) * Z) / p) + (((1 - p) * (1 - Z)) / (1 - p))
+```
+
+The tilting function is $h(p_i) = 1 - p_i$: the untreated get a weight of 1
+
+## ATT
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+ggplot(df, aes(.fitted)) +
+  geom_mirror_histogram(bins = 50, aes(group = net)) +
+  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_att), alpha = 0.5) +
+  geom_hline(yintercept = 0, lwd = 0.5) +
+  ylab("count") +
+  xlab("propensity score") +
+  scale_y_continuous(labels = abs) +
+  scale_fill_manual(values = c("green", "blue")) +
+  theme(legend.position = "bottom")
+```
+
+## ATU
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+ggplot(df, aes(.fitted)) +
+  geom_mirror_histogram(bins = 50, aes(group = net)) +
+  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_atu), alpha = 0.5) +
+  geom_hline(yintercept = 0, lwd = 0.5) +
+  ylab("count") +
+  xlab("propensity score") +
+  scale_y_continuous(labels = abs) +
+  scale_fill_manual(values = c("green", "blue")) +
+  theme(legend.position = "bottom")
+```
+
+## Target estimands: ATM & ATO {background-color="#23373B"}
+
+. . .
+
+Average Treatment Effect Among the Evenly Matchable (ATM) $$\Large w_{ATM} = \frac{\min \{p_i, 1-p_i\}}{Z_ip_i + (1-Z_i)(1-p_i)}$$
+
+```{r}
+#| eval: false
+pmin(p, 1 - p) / (Z * p + (1 - Z) * (1 - p))
+```
+
+The tilting function is $h(p_i) = \min \{p_i, 1-p_i\}$: a triangle peaking at 0.5
+
+## ATM tilting function
+
+```{r}
+#| echo: false
+plot_tilt("ATM")
+```
+
+## Target estimands: ATM & ATO {background-color="#23373B"}
+
+Average Treatment Effect Among the Overlap Population $$\Large w_{ATO} = (1-p_i)Z_i + p_i(1-Z_i)$$
+
+```{r}
+#| eval: false
+(1 - p) * Z + p * (1 - Z)
+```
+
+The tilting function is $h(p_i) = p_i(1-p_i)$: smooth, peaking at 0.5, and the weights are bounded by 0 and 1
+
+## ATO tilting function
+
+```{r}
+#| echo: false
+plot_tilt("ATO")
+```
+
+## Target estimands
+
+| Estimand | Target population  | Example Research Question |
+|----------|--------------------|---------------------------|
+| ATO     | Overlap population | *Same as ATM*             |
+
+We will compare these populations with the effective sample size when we check balance
+
+## ATM
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+ggplot(df, aes(.fitted)) +
+  geom_mirror_histogram(bins = 50, aes(group = net)) +
+  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_atm), alpha = 0.5) +
+  geom_hline(yintercept = 0, lwd = 0.5) +
+  ylab("count") +
+  xlab("propensity score") +
+  scale_y_continuous(labels = abs) +
+  scale_fill_manual(values = c("green", "blue")) +
+  theme(legend.position = "bottom")
+```
+
+## ATO
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+ggplot(df, aes(.fitted)) +
+  geom_mirror_histogram(bins = 50, aes(group = net)) +
+  geom_mirror_histogram(bins = 50, aes(fill = net, weight = w_ato), alpha = 0.5) +
+  geom_hline(yintercept = 0, lwd = 0.5) +
+  ylab("count") +
+  xlab("propensity score") +
+  scale_y_continuous(labels = abs) +
+  scale_fill_manual(values = c("green", "blue")) +
+  theme(legend.position = "bottom")
+```
+
+## ATE in R ![](img/hex/propensity.png){.absolute top="0" right="0" width="140"}
+
+<br />
+
+Average Treatment Effect (ATE) $w_{ATE} = \frac{Z_i}{p_i} + \frac{1-Z_i}{1 - p_i}$
+
+```{r}
+#| code-line-numbers: "|4"
+library(propensity)
+df <- propensity_model |>
+  augment(type.predict = "response", data = net_data) |>
+  mutate(w_ate = wt_ate(.fitted, net))
+```
+
+## Extreme weights
+
+* The minimum of the ATE weights is 1, but the maximum is unbounded
+* The closer the probability of the observed exposure is to 0, the higher the weight
+* **Extreme weights** *destabilize* our estimate, resulting in worse precision and potentially worse bias
+
+## Extreme weights
+
+```{r}
+#| output-location: slide
+df |>
+  arrange(desc(w_ate)) |>
+  select(net, income, health, temperature, .fitted, w_ate)
+```
+
+## Stabilized weights
+
+```{r}
+#| output-location: fragment
+#| code-line-numbers: "|3"
+df <- df |>
+  mutate(
+    sw_ate = wt_ate(.fitted, net, stabilize = TRUE)
+  )
+
+df |>
+  summarize(mean = mean(sw_ate), min = min(sw_ate), max = max(sw_ate))
+```
+
+. . .
+
+Stabilizing puts the marginal probability of the observed exposure in the numerator: the proportion exposed for exposed units, the proportion unexposed for unexposed units
+
+## Trimming and truncation
+
+* **Trimming**: set an acceptable range of the propensity score and drop the observations outside it
+* **Truncation**: set the values outside the range to the minimum or maximum of the range
+* Some authors use these terms interchangeably, or with the opposite meanings
+
+## Trimming and truncation in R
+
+```{r}
+#| output-location: slide
+#| code-line-numbers: "|3-4|5|6"
+df <- df |>
+  mutate(
+    trimmed_ps = ps_trim(.fitted, method = "adaptive") |>
+      ps_refit(propensity_model),
+    trimmed = is_unit_trimmed(trimmed_ps),
+    trunc_ps = ps_trunc(.fitted, method = "pctl", lower = 0.01, upper = 1)
+  )
+
+df |>
+  select(net, income, health, temperature, .fitted, trimmed) |>
+  filter(trimmed)
+```
+
+## Trimming and truncation
+
+* Trimming and truncation, like using a caliper, change the population we are making inferences about
+* The tilting function is 0 for the observations we trimmed and 1 for the ones that remain
+* You can think of the resulting estimand as another type of overlap population
+
+## *Your Turn 2*
+
+```{r}
+#| echo: false
+#| eval: true
+countdown::countdown(minutes = 6)
+```
+
+### Using the propensity scores you created in the previous exercise, add the ATE weights to your data frame
+
+### *Stretch*: Using the same propensity scores, create ATM weights

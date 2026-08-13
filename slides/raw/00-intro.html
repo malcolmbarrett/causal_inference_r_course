@@ -6,8 +6,8 @@
 <script src="00-intro_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="00-intro_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="00-intro_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="00-intro_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<link href="00-intro_files/libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
 
   <title>Causal Inference in R: Introduction</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,6 +16,9 @@
   <link rel="stylesheet" href="00-intro_files/libs/revealjs/dist/reset.css">
   <link rel="stylesheet" href="00-intro_files/libs/revealjs/dist/reveal.css">
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -28,7 +31,7 @@
       vertical-align: middle;
     }
   </style>
-  <link rel="stylesheet" href="00-intro_files/libs/revealjs/dist/theme/quarto-aac8c9227b08918aec88d28519f1f1ca.css">
+  <link rel="stylesheet" href="00-intro_files/libs/revealjs/dist/theme/quarto-f3805f66672ef64978618ca456565276.css">
   <link href="00-intro_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="00-intro_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="00-intro_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -136,7 +139,7 @@
 <h2><code>&gt; who_are_we(c("lucy", "malcolm", "travis"))</code></h2>
 <div class="cell" data-layout-align="center">
 <style type="text/css">
-img {
+img.rounded-circle {
   height: 250px;
   width: 250px;
   border-radius: 50%;
@@ -167,37 +170,80 @@ img {
 <ol type="1">
 <li class="fragment">Describe</li>
 <li class="fragment">Predict</li>
-<li class="fragment">Explain</li>
+<li class="fragment">Explain (causal inference)</li>
 </ol>
 </section>
 <section id="section" class="slide level2 center" data-background-color="#23373B">
+<h2></h2>
+<blockquote>
+<p>Our results suggest that “Schrödinger’s causal inference,” where studies avoid stating (or even explicitly deny) an interest in estimating causal effects yet are otherwise embedded with causal intent, inference, implications, and recommendations, is common.</p>
+</blockquote>
+<div class="small">
+<p>Haber et al., <em>American Journal of Epidemiology</em>, 2022</p>
+</div>
+</section>
+<section id="causal-language-in-health-research" class="slide level2" data-background-color="#23373B">
+<h2>Causal language in health research</h2>
+<ul>
+<li class="fragment">Only around <strong>1%</strong> of studies used the root word “cause” at all</li>
+<li class="fragment">A <strong>third</strong> of studies had action recommendations</li>
+<li class="fragment">Researchers rated <strong>80%</strong> of those recommendations as having at least some causal implication</li>
+</ul>
+</section>
+<section id="section-1" class="slide level2 center" data-background-color="#23373B">
 <h2></h2>
 <h3 id="normal-regression-estimates-associations.-but-we-want-counterfactual-causal-estimates">Normal regression estimates associations. But we want <em>counterfactual, causal</em> estimates:</h3>
 <p><br></p>
 <h3 id="what-would-happen-if-everyone-in-the-study-were-exposed-to-x-vs-if-no-one-was-exposed.">What would happen if <em>everyone</em> in the study were exposed to x vs if <em>no one</em> was exposed.</h3>
 </section>
-<section id="section-1" class="slide level2 center" data-background-color="#23373B">
+<section id="section-2" class="slide level2 center" data-background-color="#23373B">
 <h2></h2>
-<h3 id="for-causal-inference-we-need-to-make-sometimes-unverifiable-assumptions.">For causal inference, we need to make sometimes unverifiable assumptions.</h3>
+<h3 id="for-causal-inference-we-need-to-make-sometimes-unverifiable-assumptions-to-imbue-statistical-results-with-causal-meaning">For causal inference, we need to make sometimes unverifiable assumptions to imbue statistical results with causal meaning</h3>
+</section>
+<section id="diagramming-a-causal-claim" class="slide level2">
+<h2>Diagramming a causal claim</h2>
+
+<img data-src="img/sentence-diagram-1.png" class="r-stretch"></section>
+<section id="does-smoking-cause-lung-cancer" class="slide level2">
+<h2>Does smoking cause lung cancer?</h2>
+
+<img data-src="img/sentence-diagram-2.png" class="r-stretch"></section>
+<section id="a-more-specific-causal-claim" class="slide level2">
+<h2>A more specific causal claim</h2>
+
+<img data-src="img/sentence-diagram-3.png" class="r-stretch"></section>
+<section id="causal-analysis-terminology" class="slide level2">
+<h2>Causal analysis terminology</h2>
+
+<img data-src="img/sentence-diagram-4.png" class="r-stretch"></section>
+<section id="section-3" class="slide level2 center" data-background-color="#23373B">
+<h2></h2>
+<h3 id="does-the-answer-match-the-question">Does the answer match the question?</h3>
 <p><br></p>
-<h3 id="today-well-focus-on-the-assumption-of-no-confounding.">Today, we’ll focus on the assumption of <em>no confounding</em>.</h3>
+<h3 id="for-people-who-smoke-15-cigarettes-a-day-does-reducing-smoking-by-50-reduce-the-lung-cancer-risk-over-5-10-years"><em>For people who smoke 15+ cigarettes a day, does reducing smoking by 50% reduce the lung cancer risk over 5-10 years?</em></h3>
 </section>
 <section id="tools-for-causal-inference" class="slide level2" data-background-color="#23373B">
 <h2>Tools for causal inference</h2>
+<div class="small">
 <ul>
-<li class="fragment">Causal diagrams</li>
-<li class="fragment">Propensity score weighting</li>
-<li class="fragment">Propensity score matching</li>
-<li class="fragment">G-methods &amp; friends</li>
+<li class="fragment"><strong>Causal diagrams</strong>: state our assumptions about the causal structure</li>
+<li class="fragment"><strong>Propensity score weighting</strong>: reweight units to create a pseudo-population where exchangeability holds</li>
+<li class="fragment"><strong>Propensity score matching</strong>: find comparable treated and untreated units</li>
+<li class="fragment"><strong>G-computation</strong>: fit an outcome model, then marginalize over the covariates</li>
+<li class="fragment"><strong>Doubly robust methods</strong>: fit both models; only one needs to be correct. Includes TMLE</li>
 </ul>
+</div>
 </section>
-<section id="other-tools-for-causal-inference" class="slide level2" data-background-color="#23373B">
-<h2>Other tools for causal inference</h2>
+<section id="tools-that-make-other-assumptions" class="slide level2" data-background-color="#23373B">
+<h2>Tools that make other assumptions</h2>
+<div class="small">
 <ul>
-<li class="fragment">Randomized trials</li>
-<li class="fragment">Instrumental variables &amp; friends</li>
-<li class="fragment">TMLE and other ML for causal inference</li>
+<li class="fragment"><strong>Instrumental variables</strong>: a variable affects the treatment but does not directly affect the outcome except through the treatment</li>
+<li class="fragment"><strong>Regression discontinuity</strong>: a cutoff determines who gets the treatment, and individuals just above or below it are comparable</li>
+<li class="fragment"><strong>Difference-in-differences</strong>: the treated and untreated groups would have followed the same trend without the treatment</li>
+<li class="fragment"><strong>Synthetic controls</strong>: a weighted combination of untreated units approximates the treated unit’s outcome without the treatment</li>
 </ul>
+</div>
 </section>
 <section id="resources" class="slide level2" data-background-color="#23373B">
 <h2>Resources</h2>
@@ -396,7 +442,7 @@ img {
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -508,13 +554,14 @@ img {
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy

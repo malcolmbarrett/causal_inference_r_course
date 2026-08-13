@@ -1,0 +1,75 @@
+---
+title: "Tipping Point Sensitivity Analyses"
+format: html
+---
+
+```{r}
+#| label: setup
+library(tidyverse)
+library(ggdag)
+library(touringplans)
+library(tipr)
+
+seven_dwarfs <- seven_dwarfs_train_2018 |>
+  filter(wait_hour == 9)
+```
+
+We are interested in examining the relationship between whether there were "Extra Magic Hours" in the morning (the **exposure**) and the average wait time for the Seven Dwarfs Mine Train the same day between 9am and 10am (the **outcome**).
+
+## Your turn 1
+
+If the DAG for this question is right, some relationships in the data should be null.
+
+Build the DAG (**no need to change this code**)
+
+```{r}
+emm_wait_dag <- dagify(
+  wait_minutes_posted_avg ~ park_extra_magic_morning +
+    park_close +
+    park_ticket_season +
+    park_temperature_high,
+  park_extra_magic_morning ~ park_close +
+    park_ticket_season +
+    park_temperature_high,
+  exposure = "park_extra_magic_morning",
+  outcome = "wait_minutes_posted_avg"
+)
+```
+
+Ask the DAG which relationships it says should be null.
+
+```{r}
+____(emm_wait_dag) |>
+  unnest(conditioned_on)
+```
+
+Test those implied nulls against the data. `type = "cis.loess"` calculates the residuals with non-linear models, and the results should be around 0 if the DAG is right.
+
+```{r}
+____(
+  emm_wait_dag,
+  data = seven_dwarfs |>
+    mutate(
+      across(where(is.character), factor),
+      park_close = as.numeric(park_close)
+    ) |>
+    as.data.frame(),
+  type = "cis.loess",
+  # use 200 bootstrapped samples to calculate CIs
+  R = 200
+) |>
+  ____()
+```
+
+Which relationships should be null, and do they hold in the data? For any that do not, consider the two explanations: a missing arrow between the two variables, or chance. Adding arrows is reasonable, but be cautious about overfitting the DAG to the data, and report your original DAG as well if you change it.
+
+## Your turn 2
+
+Use the `tip_coef()` function to conduct a sensitivity analysis for the estimate you calculated in `exercises/10-outcome-model-exercises.qmd`. Use the lower bound of the confidence interval for the effect and `0.1` for the exposure-confounder effect.
+
+`tip_coef()` describes a continuous unmeasured confounder on a unit-variance scale, so `0.1` means the confounder differs by a tenth of a standard deviation between days with and without Extra Magic Hours.
+
+```{r}
+
+```
+

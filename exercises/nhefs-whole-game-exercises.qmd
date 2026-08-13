@@ -111,14 +111,14 @@ Let's visualize our assumptions with `ggdag()`.
 
 ```{r}
 smk_wt_dag |>
-  ggdag(text = FALSE, use_labels = "label")
+  ggdag(use_text = FALSE, use_labels = TRUE)
 ```
 
 What do we need to control for to estimate an unbiased effect of quitting smoking on weight gain? In many DAGs, there will be many sets of variables--called adjustment sets--that will give us the right effect (assuming our DAG is correct--a big, unverifiable assumption!). `ggdag_adjustment_set()` can help you visualize them. Here, there's only one adjustment set: we need to control for everything! While we're add it, since a {ggdag} plot is just a {ggplot2} plot, let's clean it up a bit, too.
 
 ```{r}
 smk_wt_dag |>
-  ggdag_adjustment_set(text = FALSE, use_labels = "label") +
+  ggdag_adjustment_set(use_text = FALSE, use_labels = TRUE) +
   theme_dag() +
   scale_color_okabe_ito(order = c(1, 5)) + 
   scale_fill_okabe_ito(order = c(1, 5))

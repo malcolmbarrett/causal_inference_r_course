@@ -1,0 +1,360 @@
+---
+title: "Propensity Scores"
+author: "Lucy D'Agostino McGowan"
+institute: "Wake Forest University"
+format: "kakashi-revealjs"
+---
+
+## Observational Studies {background-color="#23373B"}
+
+```{r}
+#| include: false
+options(
+  tibble.max_extra_cols = 6,
+  tibble.width = 60
+)
+```
+
+![](img/obs-studies-3.png)
+
+## {background-color="#23373B"}
+
+![](img/trt.png)
+
+## {background-color="#23373B"}
+
+![](img/trt-conf.png)
+
+## Confounding {background-color="#23373B"}
+
+
+![](img/conf-2.png)
+
+
+## Confounding {background-color="#23373B"}
+
+![](img/conf-3.png)
+
+
+## What part of the DAG do we want to try to deal with?
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(ggdag)
+library(ggokabeito)
+
+coord_dag <- list(
+  x = c(z = 0, x = 1, y = 2),
+  y = c(z = 0.5, x = 0, y = 0)
+)
+
+labels <- c(
+  x = "Exposure",
+  y = "Outcome",
+  z = "Confounder"
+)
+
+dag <- dagify(
+  y ~ x + z,
+  x ~ z,
+  coords = coord_dag,
+  labels = labels,
+  exposure = "x",
+  outcome = "y"
+) |>
+  tidy_dagitty() |>
+  node_status()
+
+dag_base <- dag |>
+  ggplot(
+    aes(x, y, xend = xend, yend = yend, color = status)
+  ) +
+  geom_dag_point() +
+  scale_color_okabe_ito(na.value = "grey90") +
+  theme_dag() +
+  theme(legend.position = "none")
+
+dag_base + geom_dag_edges()
+```
+
+## What part of the DAG do we want to try to deal with?
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+# Propensity score approach - highlight z -> x
+dag_base +
+  geom_dag_edges(edge_color = "grey80") +
+  geom_dag_edges(
+    data_directed = \(.x) filter(.x, to == "x"),
+    edge_width = 1.1
+  )
+```
+
+## What part of the DAG do we want to try to deal with?
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+# Outcome model approach - highlight z -> y
+dag_base +
+  geom_dag_edges(edge_color = "grey80") +
+  geom_dag_edges(
+    data_directed = \(.x) filter(.x, name == "z", to == "y"),
+    edge_width = 1.1
+  )
+```
+
+## Which relationship should we model?
+
+* Paths into the exposure: **propensity scores**
+* Paths into the outcome: **outcome models**
+* Both: **doubly robust** estimators
+
+## The hidden experiment
+
+* Imagine the exposure had been randomized with a probability of 0.5
+* Then the arrows into the exposure wouldn't exist
+* In an experiment, the propensity score is *known*: `rbinom(1, 1, 0.5)`
+
+## The hidden experiment
+
+* Now imagine randomizing the exposure *within levels of the confounders*
+* Still a randomized experiment, but the probability of exposure depends on the covariates
+* This gives us **conditional exchangeability**
+
+## The hidden experiment
+
+* In observational data, these probabilities are not known
+* But *something* determined who was exposed: what was that decision process?
+* Domain knowledge and statistics can estimate it: the **propensity score**
+
+## Propensity scores
+
+Rosenbaum and Rubin showed in observational studies, conditioning on **propensity scores** can lead to unbiased estimates of the exposure effect
+
+1. There are no unmeasured confounders
+2. Every subject has a nonzero probability of receiving either exposure
+
+## Propensity scores
+
+* Fit a **logistic regression** predicting exposure using known covariates
+
+::: {.fragment}
+$$Pr(exposure = 1) = \frac{1}{1+\exp(-X\beta)}$$
+:::
+
+* Each individuals' predicted values are the **propensity scores**
+
+## Propensity scores
+
+```{r}
+#| message: false
+#| warning: false
+library(tidyverse)
+library(broom)
+library(causalworkshop)
+library(halfmoon)
+```
+
+## Propensity scores
+
+```{r}
+#| eval: false
+glm(
+  exposure ~ confounder_1 + confounder_2 + confounder_3 + ...,
+  data = df,
+  family = binomial()
+)
+```
+
+---
+
+## Propensity scores
+
+```{r}
+#| eval: false
+#| code-line-numbers: "|6"
+glm(
+  exposure ~ confounder_1 + confounder_2 + confounder_3 + ...,
+  data = df,
+  family = binomial()
+) |>
+  augment(type.predict = "response", data = df)
+```
+
+## Propensity scores {background-color="#23373B"}
+
+![](img/pscores.png)
+
+## Propensity scores
+
+```{r}
+propensity_model <- glm(
+  net ~ income + health + temperature,
+  data = net_data,
+  family = binomial()
+)
+
+net_data_ps <- propensity_model |>
+  augment(type.predict = "response", data = net_data)
+```
+
+## Calibration ![](img/hex/halfmoon.png){.absolute top=0 right=0 width=140}
+
+<br />
+<br />
+
+If we look at all the households with a predicted probability of 0.3, about 30% of them should use a net
+
+```{r}
+#| output-location: slide
+plot_model_calibration(
+  propensity_model,
+  method = "windowed",
+  window_size = 0.15
+)
+```
+
+## ROC curve ![](img/hex/halfmoon.png){.absolute top=0 right=0 width=140}
+
+<br />
+<br />
+
+How well does the model discriminate between the exposed and the unexposed?
+
+```{r}
+#| output-location: slide
+net_data_ps |>
+  check_model_roc_curve(net, .fitted) |>
+  plot_model_roc_curve()
+```
+
+## AUC
+
+```{r}
+check_model_auc(net_data_ps, .exposure = net, .fitted = .fitted)
+```
+
+* Perfect discrimination would be a violation of **positivity**
+* Values between 0.6 and 0.8 usually mean we've picked up enough signal to adjust for
+
+## AUC
+
+* There is no clear cutoff for a "good" AUC in causal inference
+* A randomized trial has an expected AUC of 0.5
+* We are not trying to optimize the AUC; we use it as a **diagnostic**
+
+## Example: The Seven Dwarfs Mine Train {.small}
+
+:::: {.columns}
+
+::: {.column width="50%"}
+<img src="img/Mickey_and_Walt_Disney.jpg" height="300"></img>
+
+Photo by Anna [CC-BY-SA-4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.en)
+:::
+
+::: {.column width="50%"}
+Historically, guests who stayed in a Walt Disney World resort hotel were able to access the park during "Extra Magic Hours" during which the park was closed to all other guests.
+
+These extra hours could be in the morning or evening.
+
+The Seven Dwarfs Mine Train is a ride at Walt Disney World's Magic Kingdom. Typically, each day Magic Kingdom may or may not be selected to have these "Extra Magic Hours".
+:::
+
+::::
+
+## {background-color="#23373B" .large .center}
+
+*We are interested in examining the relationship between whether there were* **"Extra Magic Hours"** *in the morning and* **the average posted wait time** *for the Seven Dwarfs Mine Train the same day between 9 AM and 10 AM in 2018.*
+
+---
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig.height: 4.0
+library(tidyverse)
+library(ggdag)
+library(ggokabeito)
+
+geom_dag_label_repel <- function(..., seed = 10) {
+  ggdag::geom_dag_label_repel(
+    aes(x, y, label = label),
+    box.padding = 1.25,
+    inherit.aes = FALSE,
+    max.overlaps = Inf,
+    family = "sans",
+    seed = seed,
+    label.size = NA,
+    label.padding = 0.1,
+    size = 14 / 3,
+    ...
+  )
+}
+
+coord_dag <- list(
+  x = c(season = 0, close = 0, weather = -1, emm = 1, posted_wait = 2),
+  y = c(season = -1, close = 1, weather = 0, emm = 0, posted_wait = 0)
+)
+
+labels <- c(
+  emm = "Extra Magic Morning",
+  posted_wait = "Average wait",
+  season = "Ticket Season",
+  weather = "Historic high temperature",
+  close = "Time park closed"
+)
+
+dagify(
+  posted_wait ~ emm + close + season + weather,
+  emm ~ weather + close + season,
+  coords = coord_dag,
+  labels = labels,
+  exposure = "emm",
+  outcome = "posted_wait"
+) |>
+  tidy_dagitty() |>
+  node_status() |>
+  ggplot(
+    aes(x, y, xend = xend, yend = yend, color = status)
+  ) +
+  geom_dag_edges_arc(curvature = c(rep(0, 6), .3)) +
+  geom_dag_point() +
+  geom_dag_label_repel(seed = 1630) +
+  scale_color_okabe_ito(na.value = "grey90") +
+  theme_dag() +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text()
+  ) +
+  coord_cartesian(clip = "off") +
+  scale_x_continuous(
+    limits = c(-1.25, 2.25),
+    breaks = c(-1, 0, 1, 2),
+    labels = c(
+      "\n(one year ago)",
+      "\n(6 months ago)",
+      "\n(3 months ago)",
+      "9am - 10am\n(Today)"
+    )
+  )
+```
+
+## *Your turn*
+
+`r countdown::countdown(minutes = 8)`
+
+### Using the confounders identified in the previous DAG, fit a propensity score model for `park_extra_magic_morning`
+
+### Check the calibration, ROC curve, and AUC of your model
+
+### *Stretch*: Create two histograms, one of the propensity scores for days with extra morning magic hours and one for those without
