@@ -330,7 +330,7 @@ Malcolm Barrett
 <h3 id="fit-a-model-using-lm-with-wait_minutes_posted_avg-as-the-outcome-and-the-confounders-identified-in-the-dag.">Fit a model using <code>lm()</code> with <code>wait_minutes_posted_avg</code> as the outcome and the confounders identified in the DAG.</h3>
 <h3 id="use-augment-to-add-model-predictions-to-the-data-frame">Use <code>augment()</code> to add model predictions to the data frame</h3>
 <h3 id="in-wt_ate-calculate-the-weights-using-.fitted-and-wait_minutes_posted_avg">In <code>wt_ate()</code>, calculate the weights using <code>.fitted</code> and <code>wait_minutes_posted_avg</code></h3>
-<p><countdown-timer class="countdown" id="timer_6fb92bda" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_45404b6d" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-1-1" class="slide level2">
 <h2><em>Your Turn 1</em></h2>
@@ -397,7 +397,7 @@ Malcolm Barrett
 <section id="your-turn-2" class="slide level2">
 <h2><em>Your Turn 2</em></h2>
 <h3 id="re-fit-the-above-using-stabilized-weights">Re-fit the above using stabilized weights</h3>
-<p><countdown-timer class="countdown" id="timer_a6af42c4" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_495ccbfb" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-2-1" class="slide level2">
 <h2><em>Your Turn 2</em></h2>
@@ -467,33 +467,29 @@ Malcolm Barrett
 <li class="fragment">Use <code>ipw()</code> for standard errors that account for the weights</li>
 </ol>
 </section>
-<section class="slide level2">
-
+<section id="fit-the-outcome-model" class="slide level2">
+<h2>Fit the outcome model</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17" data-code-line-numbers="|3,8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href=""></a><span class="fu">lm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17" data-code-line-numbers="|3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href=""></a>nhefs_ipw_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
 <span id="cb17-2"><a href=""></a>  wt82_71 <span class="sc">~</span> smkintensity82_71,</span>
 <span id="cb17-3"><a href=""></a>  <span class="at">weights =</span> swts,</span>
 <span id="cb17-4"><a href=""></a>  <span class="at">data =</span> nhefs_swts</span>
-<span id="cb17-5"><a href=""></a>) <span class="sc">|&gt;</span></span>
-<span id="cb17-6"><a href=""></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span></span>
-<span id="cb17-7"><a href=""></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"smkintensity82_71"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb17-8"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">estimate =</span> estimate <span class="sc">*</span> <span class="sc">-</span><span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb17-5"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section class="slide level2">
+
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18" data-code-line-numbers="|4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href=""></a>nhefs_ipw_model <span class="sc">|&gt;</span></span>
+<span id="cb18-2"><a href=""></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span></span>
+<span id="cb18-3"><a href=""></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"smkintensity82_71"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb18-4"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">estimate =</span> estimate <span class="sc">*</span> <span class="sc">-</span><span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 5
   term              estimate std.error statistic    p.value
   &lt;chr&gt;                &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
 1 smkintensity82_71    0.965    0.0206     -4.68 0.00000323</code></pre>
 </div>
-</div>
-</section>
-<section id="fit-the-outcome-model" class="slide level2">
-<h2>Fit the outcome model</h2>
-<div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href=""></a>nhefs_ipw_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
-<span id="cb19-2"><a href=""></a>  wt82_71 <span class="sc">~</span> smkintensity82_71,</span>
-<span id="cb19-3"><a href=""></a>  <span class="at">weights =</span> swts,</span>
-<span id="cb19-4"><a href=""></a>  <span class="at">data =</span> nhefs_swts</span>
-<span id="cb19-5"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="estimate-the-effect-with-ipw" class="slide level2">
@@ -531,22 +527,23 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </section>
 <section id="your-turn-3" class="slide level2">
 <h2><em>Your Turn 3</em></h2>
-<h3 id="estimate-the-relationship-between-posted-wait-times-and-actual-wait-times-using-the-stabilized-weights-we-just-created.">Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created.</h3>
-<h3 id="fit-the-same-outcome-model-again-saving-it-to-an-object">Fit the same outcome model again, saving it to an object</h3>
+<h3 id="estimate-the-relationship-between-posted-wait-times-and-actual-wait-times-using-the-stabilized-weights-we-just-created-saving-the-model-to-an-object">Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created, saving the model to an object</h3>
 <h3 id="use-ipw-to-estimate-the-effect-with-standard-errors-that-account-for-the-weights-then-as_conditional-to-switch-readings">Use <code>ipw()</code> to estimate the effect with standard errors that account for the weights, then <code>as_conditional()</code> to switch readings</h3>
-<p><countdown-timer class="countdown" id="timer_d1d26b53" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_df02f5db" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-3-1" class="slide level2">
 <h2><em>Your Turn 3</em></h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href=""></a><span class="fu">lm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href=""></a>ipw_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
 <span id="cb23-2"><a href=""></a>  wait_minutes_actual_avg <span class="sc">~</span> wait_minutes_posted_avg,</span>
 <span id="cb23-3"><a href=""></a>  <span class="at">weights =</span> swts,</span>
 <span id="cb23-4"><a href=""></a>  <span class="at">data =</span> wait_times_swts</span>
-<span id="cb23-5"><a href=""></a>) <span class="sc">|&gt;</span></span>
-<span id="cb23-6"><a href=""></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span></span>
-<span id="cb23-7"><a href=""></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"wait_minutes_posted_avg"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb23-8"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">estimate =</span> estimate <span class="sc">*</span> <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb23-5"><a href=""></a>)</span>
+<span id="cb23-6"><a href=""></a></span>
+<span id="cb23-7"><a href=""></a>ipw_model <span class="sc">|&gt;</span></span>
+<span id="cb23-8"><a href=""></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span></span>
+<span id="cb23-9"><a href=""></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"wait_minutes_posted_avg"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb23-10"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">estimate =</span> estimate <span class="sc">*</span> <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 5
   term                  estimate std.error statistic p.value
@@ -558,13 +555,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <section id="your-turn-3-2" class="slide level2">
 <h2><em>Your Turn 3</em></h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href=""></a>ipw_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
-<span id="cb25-2"><a href=""></a>  wait_minutes_actual_avg <span class="sc">~</span> wait_minutes_posted_avg,</span>
-<span id="cb25-3"><a href=""></a>  <span class="at">weights =</span> swts,</span>
-<span id="cb25-4"><a href=""></a>  <span class="at">data =</span> wait_times_swts</span>
-<span id="cb25-5"><a href=""></a>)</span>
-<span id="cb25-6"><a href=""></a></span>
-<span id="cb25-7"><a href=""></a>ipw_fit <span class="ot">&lt;-</span> <span class="fu">ipw</span>(post_time_model, ipw_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href=""></a>ipw_fit <span class="ot">&lt;-</span> <span class="fu">ipw</span>(post_time_model, ipw_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <h3 id="ipw-reports-the-effect-of-one-more-minute-so-multiply-by-10-to-compare"><code>ipw()</code> reports the effect of one more minute, so multiply by 10 to compare</h3>
 </section>

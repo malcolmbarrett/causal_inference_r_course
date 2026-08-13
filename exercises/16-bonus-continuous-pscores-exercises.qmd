@@ -174,22 +174,18 @@ Here, the mean is somewhat above 1. Propensity score weights for continuous expo
 
 Now, let's fit the outcome model!
 
-1. Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created.
+1. Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created, saving the model so we can pass it to `ipw()`.
 
 ```{r}
-lm(___ ~ ___, weights = ___, data = wait_times_swts) |>
+ipw_model <- lm(___ ~ ___, weights = ___, data = wait_times_swts)
+
+ipw_model |>
   tidy() |>
   filter(term == "wait_minutes_posted_avg") |>
   mutate(estimate = estimate * 10)
 ```
 
-2. Fit the same outcome model again, saving it to an object so we can pass it to `ipw()`.
-
-```{r}
-ipw_model <- lm(___ ~ ___, weights = ___, data = wait_times_swts)
-```
-
-3. Supply the propensity score model and the outcome model to `ipw()`, which uses a sandwich estimator that also accounts for the uncertainty in the propensity score model.
+2. Supply the propensity score model and the outcome model to `ipw()`, which uses a sandwich estimator that also accounts for the uncertainty in the propensity score model.
 
 ```{r}
 ipw_fit <- ipw(____, ____)
@@ -199,7 +195,7 @@ ipw_fit
 
 `ipw()` reports the estimate for one more minute of posted wait time, so multiply it by 10 to compare it to the estimate above. The point estimate matches the weighted regression; what `ipw()` adds is a standard error that accounts for having estimated the weights.
 
-4. Switch to the conditional reading with `as_conditional()`.
+3. Switch to the conditional reading with `as_conditional()`.
 
 ```{r}
 as_conditional(____) |>

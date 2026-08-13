@@ -357,28 +357,25 @@ balance_metrics |>
 1. Use the stabilized weights in the outcome model. Nothing new here!
 2. Use `ipw()` for standard errors that account for the weights
 
----
-
-```{r}
-#| code-line-numbers: "|3,8"
-lm(
-  wt82_71 ~ smkintensity82_71,
-  weights = swts,
-  data = nhefs_swts
-) |>
-  tidy() |>
-  filter(term == "smkintensity82_71") |>
-  mutate(estimate = estimate * -10)
-```
-
 ## Fit the outcome model
 
 ```{r}
+#| code-line-numbers: "|3"
 nhefs_ipw_model <- lm(
   wt82_71 ~ smkintensity82_71,
   weights = swts,
   data = nhefs_swts
 )
+```
+
+---
+
+```{r}
+#| code-line-numbers: "|4"
+nhefs_ipw_model |>
+  tidy() |>
+  filter(term == "smkintensity82_71") |>
+  mutate(estimate = estimate * -10)
 ```
 
 ## Estimate the effect with `ipw()`
@@ -397,26 +394,11 @@ nhefs_ipw_fit
 
 ## *Your Turn 3*
 
-### Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created.
-
-### Fit the same outcome model again, saving it to an object
+### Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created, saving the model to an object
 
 ### Use `ipw()` to estimate the effect with standard errors that account for the weights, then `as_conditional()` to switch readings
 
 `r countdown::countdown(minutes = 5)`
-
-## *Your Turn 3*
-
-```{r}
-lm(
-  wait_minutes_actual_avg ~ wait_minutes_posted_avg,
-  weights = swts,
-  data = wait_times_swts
-) |>
-  tidy() |>
-  filter(term == "wait_minutes_posted_avg") |>
-  mutate(estimate = estimate * 10)
-```
 
 ## *Your Turn 3*
 
@@ -427,6 +409,15 @@ ipw_model <- lm(
   data = wait_times_swts
 )
 
+ipw_model |>
+  tidy() |>
+  filter(term == "wait_minutes_posted_avg") |>
+  mutate(estimate = estimate * 10)
+```
+
+## *Your Turn 3*
+
+```{r}
 ipw_fit <- ipw(post_time_model, ipw_model)
 ```
 
