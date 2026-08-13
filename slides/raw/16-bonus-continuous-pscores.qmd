@@ -319,8 +319,8 @@ wait_times_swts <- post_time_model |>
 ```{r}
 balance_metrics <- check_balance(
   nhefs_swts,
-  c(age, smokeintensity, smokeyrs, wt71),
-  smkintensity82_71,
+  .vars = c(age, smokeintensity, smokeyrs, wt71),
+  .exposure = smkintensity82_71,
   .weights = swts,
   exposure_type = "continuous"
 )
