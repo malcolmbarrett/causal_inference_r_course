@@ -435,9 +435,10 @@ nhefs_ipw <- ipw(
 
 ### The standard errors account for the estimated weights.
 
-## 4. Predict across the exposure range
+## 4. Predict across the exposure range {.small}
 
 ```{r}
+#| output-location: slide
 dose_response <- nhefs_ipw |>
   as_conditional() |>
   # marginaleffects needs the data to build the grid

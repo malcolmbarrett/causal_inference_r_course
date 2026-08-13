@@ -330,7 +330,7 @@ Malcolm Barrett
 <h3 id="fit-a-model-using-lm-with-wait_minutes_posted_avg-as-the-outcome-and-the-confounders-identified-in-the-dag.">Fit a model using <code>lm()</code> with <code>wait_minutes_posted_avg</code> as the outcome and the confounders identified in the DAG.</h3>
 <h3 id="use-augment-to-add-model-predictions-to-the-data-frame">Use <code>augment()</code> to add model predictions to the data frame</h3>
 <h3 id="in-wt_ate-calculate-the-weights-using-.fitted-and-wait_minutes_posted_avg">In <code>wt_ate()</code>, calculate the weights using <code>.fitted</code> and <code>wait_minutes_posted_avg</code></h3>
-<p><countdown-timer class="countdown" id="timer_cbb57a09" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_7dbb1fd6" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-1-1" class="slide level2">
 <h2><em>Your Turn 1</em></h2>
@@ -397,7 +397,7 @@ Malcolm Barrett
 <section id="your-turn-2" class="slide level2">
 <h2><em>Your Turn 2</em></h2>
 <h3 id="re-fit-the-above-using-stabilized-weights">Re-fit the above using stabilized weights</h3>
-<p><countdown-timer class="countdown" id="timer_fde5cad8" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_caf8063f" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-2-1" class="slide level2">
 <h2><em>Your Turn 2</em></h2>
@@ -486,7 +486,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <h3 id="estimate-the-relationship-between-posted-wait-times-and-actual-wait-times-using-the-stabilized-weights-we-just-created.">Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created.</h3>
 <h3 id="fit-the-same-outcome-model-again-saving-it-to-an-object">Fit the same outcome model again, saving it to an object</h3>
 <h3 id="use-ipw-to-estimate-the-effect-with-standard-errors-that-account-for-the-weights-then-as_conditional-to-switch-readings">Use <code>ipw()</code> to estimate the effect with standard errors that account for the weights, then <code>as_conditional()</code> to switch readings</h3>
-<p><countdown-timer class="countdown" id="timer_bb5bf17a" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_a8a00603" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-3-1" class="slide level2">
 <h2><em>Your Turn 3</em></h2>
@@ -595,7 +595,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <h3 id="the-standard-errors-account-for-the-estimated-weights.">The standard errors account for the estimated weights.</h3>
 </section>
-<section id="predict-across-the-exposure-range" class="slide level2">
+<section id="predict-across-the-exposure-range" class="slide level2 small">
 <h2>4. Predict across the exposure range</h2>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href=""></a>dose_response <span class="ot">&lt;-</span> nhefs_ipw <span class="sc">|&gt;</span></span>
@@ -607,6 +607,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <span id="cb29-7"><a href=""></a>  )</span>
 <span id="cb29-8"><a href=""></a></span>
 <span id="cb29-9"><a href=""></a>dose_response</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+<h3 id="the-predictions-along-the-exposure-grid-come-from-the-outcome-model-itself-so-we-switch-to-the-conditional-reading-first">The predictions along the exposure grid come from the outcome model itself, so we switch to the conditional reading first</h3>
+</section>
+<section id="predict-across-the-exposure-range-output" class="slide level2 small output-location-slide"><h2>4. Predict across the exposure range</h2><div class="cell output-location-slide" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
 <pre><code>
  smkintensity82_71 Estimate Std. Error     z Pr(&gt;|z|)    S 2.5 % 97.5 %
@@ -623,10 +628,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
                 25     1.12      1.828 0.613    0.540  0.9 -2.46   4.70
 Type: response</code></pre>
 </div>
-</div>
-<h3 id="the-predictions-along-the-exposure-grid-come-from-the-outcome-model-itself-so-we-switch-to-the-conditional-reading-first">The predictions along the exposure grid come from the outcome model itself, so we switch to the conditional reading first</h3>
-</section>
-<section id="the-causal-dose-response-function" class="slide level2">
+</div></section><section id="the-causal-dose-response-function" class="slide level2">
 <h2>The causal dose-response function</h2>
 
 <img data-src="16-bonus-continuous-pscores_files/figure-revealjs/unnamed-chunk-27-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
