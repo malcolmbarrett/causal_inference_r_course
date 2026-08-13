@@ -102,6 +102,15 @@ ipw_fit
 
 Compare the confidence interval from `ipw_fit` to the bootstrap interval in `boot_estimate`: they should roughly agree.
 
+Read the `Effects` line in the print: `ipw()` reports the marginal reading, the population-averaged causal contrast. Switch to the conditional reading, the outcome model's coefficient table.
+
+```{r}
+as_conditional(____) |>
+  tidy(conf.int = TRUE)
+```
+
+The `park_extra_magic_morning` coefficient matches the marginal `diff` here because the outcome model is linear in the exposure with an identity link. The marginal reading is the estimand; the conditional reading is the regression table.
+
 **Stretch goal**: Now estimate the effect using matching.
 
 ```{r}
