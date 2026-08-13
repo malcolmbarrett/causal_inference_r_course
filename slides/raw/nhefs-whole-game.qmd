@@ -42,7 +42,7 @@ set.seed(1234)
 
 ### **Do people who quit smoking gain weight?**
 
---------------------------------------------------------------------------------
+---
 
 ```{r}
 library(causaldata)
@@ -69,7 +69,7 @@ nhefs_complete_uc |>
   )
 ```
 
---------------------------------------------------------------------------------
+---
 
 ## Did those who quit smoking gain weight?
 
@@ -90,7 +90,7 @@ nhefs_complete_uc |>
 
 ### **draw your assumptions**
 
---------------------------------------------------------------------------------
+---
 
 ```{r}
 #| echo: false
@@ -157,7 +157,7 @@ smk_wt_dag |>
   theme_dag()
 ```
 
---------------------------------------------------------------------------------
+---
 
 ```{r}
 #| echo: false
@@ -174,7 +174,7 @@ smk_wt_dag |>
 
 ### What do I need to control for?
 
---------------------------------------------------------------------------------
+---
 
 ```{r}
 #| echo: false
@@ -258,7 +258,7 @@ smk_wt_dag |>
   guides(alpha = "none", edge_alpha = "none")
 ```
 
---------------------------------------------------------------------------------
+---
 
 ```{r}
 #| echo: false
@@ -406,7 +406,7 @@ nhefs_complete_uc |>
   theme_minimal(base_size = 20)
 ```
 
---------------------------------------------------------------------------------
+---
 
 ```{r}
 #| echo: false
@@ -444,7 +444,7 @@ ggplot(
   xlim(0, 0.3)
 ```
 
---------------------------------------------------------------------------------
+---
 
 ```{r}
 #| echo: false
@@ -510,7 +510,7 @@ ipw_estimate_robust <- ipw_model_robust |>
   filter(term == "qsmk")
 ```
 
---------------------------------------------------------------------------------
+---
 
 ## Let's fix our confidence intervals with robust SEs!
 
@@ -518,7 +518,7 @@ ipw_estimate_robust <- ipw_model_robust |>
 as_tibble(ipw_estimate_robust)
 ```
 
---------------------------------------------------------------------------------
+---
 
 ## Let's fix our confidence intervals with the bootstrap!
 

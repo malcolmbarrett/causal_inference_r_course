@@ -336,7 +336,7 @@ The Seven Dwarfs Mine Train is a ride at Walt Disney World's Magic Kingdom. Typi
 
 *We are interested in examining the relationship between whether there were* **"Extra Magic Hours"** *in the morning and* **the average wait time** *for the Seven Dwarfs Mine Train the same day between 9am and 10am.*
 
---------------------------------------------------------------------------------
+---
 
 ```{r}
 #| echo: false

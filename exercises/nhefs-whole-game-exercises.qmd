@@ -406,7 +406,7 @@ Our bootstrapped confidence intervals are wider, which is expected; remember tha
 
 So, we have a final estimate for our causal effect: on average, a person who quits smoking will gain 3.5 kg (95% CI 2.4 kg, 4.4 kg) versus if they had not quit smoking. What do you think? Is this estimate reliable? Did we do a good job addressing the assumptions we need to make for a causal effect, particularly that there is no confounding? How might you criticize this model, and what would you do differently? 
 
---------------------------------------------------------------------------------
+---
 
 # Take aways
 

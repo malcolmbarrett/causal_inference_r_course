@@ -239,7 +239,7 @@ boot_estimate <- int_bca(_______, results, .fn = fit_model)
 boot_estimate
 ```
 
---------------------------------------------------------------------------------
+---
 
 # Take aways
 

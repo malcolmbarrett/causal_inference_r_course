@@ -167,7 +167,7 @@ boot_estimate_cens <- int_bca(_______, results, .fn = fit_gcomp_cens)
 boot_estimate_cens
 ```
 
---------------------------------------------------------------------------------
+---
 
 # Take aways
 

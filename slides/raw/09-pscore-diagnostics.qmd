@@ -239,7 +239,7 @@ smds <- balance_metrics |>
 smds
 ```
 
---------------------------------------------------------------------------------
+---
 
 ## Plotting SMDs ![](img/hex/halfmoon.png){.absolute top=0 right=0 width=140}
 

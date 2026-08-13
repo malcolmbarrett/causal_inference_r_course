@@ -254,7 +254,7 @@ dose_response |>
 
 The grid runs from 10 to 80 minutes because that is about the range of posted wait times we observe; asking for predictions outside it would make the spline extrapolate. Notice how much of the plot the confidence band takes up, and compare that to the interval you got in Your Turn 4.
 
---------------------------------------------------------------------------------
+---
 
 # Take aways
 
