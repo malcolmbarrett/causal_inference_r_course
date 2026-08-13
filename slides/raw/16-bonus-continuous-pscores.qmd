@@ -488,8 +488,8 @@ dose_response <- nhefs_ipw |>
   as_conditional() |>
   # marginaleffects needs the data to build the grid
   set_modeldata(nhefs_swts) |>
-  predictions(
-    newdata = datagrid(smkintensity82_71 = -25:25)
+  avg_predictions(
+    variables = list(smkintensity82_71 = -25:25)
   )
 
 dose_response
