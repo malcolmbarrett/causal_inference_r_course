@@ -278,6 +278,132 @@ avg_comparisons(
 
 **We recommend g-computation over propensity scores for continuous exposures because of stability issues**
 
+## Does change in smoking intensity (`smkintensity82_71`) affect weight gain among lighter smokers?
+
+```{r}
+nhefs_light_smokers <- nhefs_complete |>
+  filter(smokeintensity <= 25)
+```
+
+## 1. Fit a model for `y ~ x + z`
+
+```{r}
+#| code-line-numbers: "|2|3-6"
+nhefs_gcomp_model <- lm(
+  wt82_71 ~ splines::ns(smkintensity82_71, df = 3) +
+    sex + race + age + I(age^2) +
+    education + smokeintensity + I(smokeintensity^2) +
+    smokeyrs + I(smokeyrs^2) + exercise + active +
+    wt71 + I(wt71^2),
+  data = nhefs_light_smokers
+)
+```
+
+G-computation still uses a single outcome model, and a continuous exposure lets us fit it flexibly with a natural spline. The remaining steps are identical, except that the levels of step 2 become the exposure values we choose to compare
+
+## 2 and 3. Set `smkintensity82_71` in each cloned data set
+
+```{r}
+#| code-line-numbers: "|3,7"
+#  set all participants to have no change in intensity
+unchanged_data <- nhefs_light_smokers |>
+  mutate(smkintensity82_71 = 0)
+
+#  set all participants to smoke 10 fewer cigarettes
+reduced_data <- nhefs_light_smokers |>
+  mutate(smkintensity82_71 = -10)
+```
+
+## 4. Make predictions using the model on the cloned data sets
+
+```{r}
+#| code-line-numbers: "|2-3,7-8"
+#  predict under the data where intensity is unchanged
+predicted_unchanged <- nhefs_gcomp_model |>
+  augment(newdata = unchanged_data) |>
+  select(unchanged = .fitted)
+
+#  predict under the data where everyone reduces by 10
+predicted_reduced <- nhefs_gcomp_model |>
+  augment(newdata = reduced_data) |>
+  select(reduced = .fitted)
+
+nhefs_predictions <- bind_cols(
+  predicted_unchanged,
+  predicted_reduced
+)
+```
+
+## 5. Calculate the estimate you want
+
+```{r}
+#| code-line-numbers: "|5"
+#| output-location: fragment
+nhefs_predictions |>
+  summarise(
+    mean_unchanged = mean(unchanged),
+    mean_reduced = mean(reduced),
+    difference = mean_reduced - mean_unchanged
+  )
+```
+
+## `avg_comparisons()` with chosen exposure values
+
+```{r}
+#| eval: false
+avg_comparisons(
+  nhefs_gcomp_model,
+  variables = list(smkintensity82_71 = c(-10, 0))
+)
+```
+
+```{r}
+#| echo: false
+avg_comparisons(
+  nhefs_gcomp_model,
+  variables = list(smkintensity82_71 = c(-10, 0))
+) |>
+  tidy() |>
+  select(estimate, std.error, conf.low, conf.high) |>
+  mutate(across(everything(), \(x) round(x, digits = 2)))
+```
+
+`avg_comparisons()` contrasts the higher value against the lower one, so the estimate is the mean at 0 minus the mean at -10. Reversing it gives the answer from step 5: reducing intensity by 10 cigarettes a day increases weight gain by 1.44 kg
+
+## Predict across the exposure range
+
+```{r}
+nhefs_dose_response <- avg_predictions(
+  nhefs_gcomp_model,
+  variables = list(smkintensity82_71 = seq(-25, 25, by = 5))
+)
+```
+
+With a continuous exposure, we don't have to settle for a single contrast: we can ask what the average weight gain would be at every value of the exposure
+
+## Predict across the exposure range {.small}
+
+```{r}
+nhefs_dose_response
+```
+
+## The causal dose-response function
+
+```{r}
+#| echo: false
+ggplot(nhefs_dose_response, aes(smkintensity82_71, estimate)) +
+  geom_ribbon(
+    aes(ymin = conf.low, ymax = conf.high),
+    fill = "#E69F0095"
+  ) +
+  geom_line(linewidth = 1, color = "#E69F00") +
+  theme_minimal(base_size = 20) +
+  labs(
+    x = "Change in smoking intensity",
+    y = "Weight gain (kg)"
+  )
+```
+
 ## Do *posted* wait times at 8 am affect *actual* wait times at 9 am?
 
 ```{r}

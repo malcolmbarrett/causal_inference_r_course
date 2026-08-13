@@ -19,6 +19,7 @@ library(causaldata)
 library(touringplans)
 library(propensity)
 library(marginaleffects)
+library(halfmoon)
 
 set.seed(1000)
 ```
@@ -307,33 +308,74 @@ wait_times_swts <- post_time_model |>
   ))
 ```
 
+## Checking balance {background-color="#23373B"}
+
+1. Weighting should break the association between the confounders and the exposure
+2. For a binary exposure, we check standardized mean differences
+3. For a continuous exposure, we check correlations and energy
+
+## Check balance with `check_balance()`
+
+```{r}
+balance_metrics <- check_balance(
+  nhefs_swts,
+  .vars = c(age, smokeintensity, smokeyrs, wt71),
+  .exposure = smkintensity82_71,
+  .weights = swts,
+  exposure_type = "continuous"
+)
+```
+
+### These are the continuous confounders; the categorical ones need dummy coding first
+
+### As in `wt_ate()`, `exposure_type` tells `check_balance()` the exposure is continuous
+
+## Check balance with `check_balance()`
+
+```{r}
+balance_metrics
+```
+
+### The weighted correlations are close to zero, and energy is smaller after weighting
+
+## Correlations before and after weighting
+
+```{r}
+#| echo: false
+balance_metrics |>
+  filter(metric == "correlation") |>
+  ggplot(aes(x = estimate, y = variable, group = method, color = method)) +
+  geom_love(vline_xintercept = 0) +
+  scale_color_okabe_ito() +
+  theme_minimal(base_size = 20) +
+  scale_x_continuous(breaks = c(-0.1, 0)) +
+  labs(x = "Correlation", y = NULL, color = NULL)
+```
+
 ## Fitting the outcome model {background-color="#23373B"}
 
 1. Use the stabilized weights in the outcome model. Nothing new here!
 2. Use `ipw()` for standard errors that account for the weights
 
----
-
-```{r}
-#| code-line-numbers: "|3,8"
-lm(
-  wt82_71 ~ smkintensity82_71,
-  weights = swts,
-  data = nhefs_swts
-) |>
-  tidy() |>
-  filter(term == "smkintensity82_71") |>
-  mutate(estimate = estimate * -10)
-```
-
 ## Fit the outcome model
 
 ```{r}
+#| code-line-numbers: "|3"
 nhefs_ipw_model <- lm(
   wt82_71 ~ smkintensity82_71,
   weights = swts,
   data = nhefs_swts
 )
+```
+
+---
+
+```{r}
+#| code-line-numbers: "|4"
+nhefs_ipw_model |>
+  tidy() |>
+  filter(term == "smkintensity82_71") |>
+  mutate(estimate = estimate * -10)
 ```
 
 ## Estimate the effect with `ipw()`
@@ -352,26 +394,11 @@ nhefs_ipw_fit
 
 ## *Your Turn 3*
 
-### Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created.
-
-### Fit the same outcome model again, saving it to an object
+### Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created, saving the model to an object
 
 ### Use `ipw()` to estimate the effect with standard errors that account for the weights, then `as_conditional()` to switch readings
 
 `r countdown::countdown(minutes = 5)`
-
-## *Your Turn 3*
-
-```{r}
-lm(
-  wait_minutes_actual_avg ~ wait_minutes_posted_avg,
-  weights = swts,
-  data = wait_times_swts
-) |>
-  tidy() |>
-  filter(term == "wait_minutes_posted_avg") |>
-  mutate(estimate = estimate * 10)
-```
 
 ## *Your Turn 3*
 
@@ -382,6 +409,15 @@ ipw_model <- lm(
   data = wait_times_swts
 )
 
+ipw_model |>
+  tidy() |>
+  filter(term == "wait_minutes_posted_avg") |>
+  mutate(estimate = estimate * 10)
+```
+
+## *Your Turn 3*
+
+```{r}
 ipw_fit <- ipw(post_time_model, ipw_model)
 ```
 
@@ -443,8 +479,8 @@ dose_response <- nhefs_ipw |>
   as_conditional() |>
   # marginaleffects needs the data to build the grid
   set_modeldata(nhefs_swts) |>
-  predictions(
-    newdata = datagrid(smkintensity82_71 = -25:25)
+  avg_predictions(
+    variables = list(smkintensity82_71 = -25:25)
   )
 
 dose_response
