@@ -1,0 +1,1422 @@
+---
+title: "Causal Assumptions"
+author: "Malcolm Barrett"
+institute: "Stanford University"
+format: "kakashi-revealjs"
+---
+
+## {background-color="#23373B"}
+
+```{r}
+#| label: setup
+#| include: false
+
+options(
+  tibble.max_extra_cols = 6,
+  tibble.width = 60,
+  ggplot2.discrete.colour = ggokabeito::palette_okabe_ito(),
+  ggplot2.discrete.fill = ggokabeito::palette_okabe_ito()
+)
+library(tidyverse)
+library(gt)
+library(ggokabeito)
+library(glue)
+
+theme_set(
+  theme_minimal(base_size = 14) +
+    theme(
+      panel.grid.minor = element_blank(),
+      legend.position = "bottom"
+    )
+)
+```
+
+- In *Split Decision: Life Stories*, Ice-T recounts his journey from a life of
+  crime to fame and success
+- He contrasts it with the fate of his former crime partner, Spike, who was
+  caught in a jewelry robbery and received a 35-year to life sentence
+- The book describes how "their paths might have very well been reversed if they
+  had made different choices"
+
+## Are they good proxies for each other?
+
+  | Person | Observed                                 | Missing counterfactual                   |
+  | ------ | ---------------------------------------- | ---------------------------------------- |
+  | Ice-T  | Abandons criminal life: fame and fortune | Does one more heist: 35 years in prison  |
+  | Spike  | Does one more heist: 35 years in prison  | Abandons criminal life: fame and fortune |
+
+- Ice-T's decision was not the only factor in his success: he had enough musical
+  talent to make a career of it
+- Spike might differ in hard-to-measure ways, which makes him a poorer proxy
+  than he first seems
+
+. . .
+
+We must rely on statistical techniques to help construct these unobservable
+counterfactuals from observed data
+
+## Potential outcomes
+
+- Factual and counterfactual outcomes are two realizations of potential outcomes
+- Say the exposure has two levels, `x = continue` doing jewel heists or
+  `x = quit`
+- There are two potential outcomes, `y(continue)` and `y(quit)`, and only one
+  will be realized
+- This leaves one potential outcome observable and one missing; early causal
+  inference methods were framed as missing data problems
+- We're missing `y(continue)` for Ice-T and `y(quit)` for Spike, so we can't
+  calculate their individual causal effects
+
+## {.center background-color="#23373B"}
+
+### **Causal assumptions allow us to imbue observed data with the meaning of potential outcomes and their analysis with causal effects**
+
+## Does chocolate make you happier than vanilla?
+
+Suppose some happiness index exists that ranges from 1 to 10
+
+```{r}
+#| code-line-numbers: "|3-4|6"
+#| output-location: fragment
+
+data <- tibble(
+  id = 1:10,
+  y_chocolate = c(4, 4, 6, 5, 6, 5, 6, 7, 5, 6),
+  y_vanilla = c(1, 3, 4, 5, 5, 6, 8, 6, 3, 5)
+) |>
+  mutate(causal_effect = y_chocolate - y_vanilla)
+
+data |>
+  summarize(
+    avg_chocolate = mean(y_chocolate),
+    avg_vanilla = mean(y_vanilla),
+    avg_causal_effect = mean(causal_effect)
+  )
+```
+
+## Both potential outcomes are known
+
+```{r}
+#| echo: false
+
+data |>
+  gt() |>
+  cols_label(
+    id = "ID",
+    y_chocolate = "y(chocolate)",
+    y_vanilla = "y(vanilla)",
+    causal_effect = "y(chocolate) - y(vanilla)"
+  ) |>
+  tab_spanner(
+    label = "Potential outcomes",
+    columns = c(y_chocolate, y_vanilla)
+  ) |>
+  tab_spanner(
+    label = "Causal effect",
+    columns = causal_effect
+  ) |>
+  tab_options(table.font.size = "60%")
+```
+
+Since we know each potential outcome, we can calculate the individual causal
+effects
+
+## In reality, each person eats one flavor {.small}
+
+```{r}
+#| code-line-numbers: "|1|4-8|9-12|15-17"
+#| output-location: fragment
+
+set.seed(11)
+data_observed <- data |>
+  mutate(
+    exposure = if_else(
+      rbinom(n(), 1, 0.5) == 1,
+      "chocolate",
+      "vanilla"
+    ),
+    observed_outcome = case_when(
+      exposure == "chocolate" ~ y_chocolate,
+      exposure == "vanilla" ~ y_vanilla
+    )
+  )
+
+data_observed |>
+  group_by(exposure) |>
+  summarise(avg_outcome = mean(observed_outcome))
+```
+
+. . .
+
+We're a little off because of the low sample size
+
+## Now we only know one potential outcome
+
+```{r}
+#| echo: false
+
+data_observed |>
+  mutate(
+    y_chocolate = if_else(exposure == "chocolate", y_chocolate, NA),
+    y_vanilla = if_else(exposure == "vanilla", y_vanilla, NA),
+    causal_effect = NA_real_
+  ) |>
+  select(-observed_outcome, -exposure) |>
+  gt() |>
+  cols_label(
+    id = "ID",
+    y_chocolate = "y(chocolate)",
+    y_vanilla = "y(vanilla)",
+    causal_effect = "y(chocolate) - y(vanilla)"
+  ) |>
+  sub_missing(
+    columns = c(y_chocolate, y_vanilla, causal_effect),
+    missing_text = ""
+  ) |>
+  tab_spanner(
+    label = "Potential outcomes",
+    columns = c(y_chocolate, y_vanilla)
+  ) |>
+  tab_spanner(
+    label = "Causal effect",
+    columns = causal_effect
+  ) |>
+  tab_options(table.font.size = "60%")
+```
+
+We don't know the missing potential outcome, so we can't calculate the
+individual causal effect
+
+## Apples-to-apples
+
+- Most of the assumptions we make for causal inference are to make an
+  apples-to-apples comparison: we want to compare similar individuals who serve
+  as reasonable proxies for each other's counterfactuals
+- Other people say cheese and chalk (UK English), apples and pears (German), or
+  grandmothers and toads (Serbian)
+- Unconfoundedness methods assume **exchangeability**, **positivity**, and
+  **consistency**
+- Knowing a method's assumptions is essential for using it correctly; these are
+  sometimes called identifiability conditions
+
+## Exchangeability
+
+Each exposure group has the same potential outcomes on average, so exposure
+status is independent of the potential outcomes
+
+```{r}
+#| include: false
+
+prepare_plot_data <- function(
+  data,
+  pivot_prefix = "y_",
+  potential_outcome_transform = \(x) paste0("potential outcome: y(", x, ")"),
+  transform_exposure = identity,
+  id_assignment = TRUE
+) {
+  if (id_assignment && !"id" %in% names(data)) {
+    data <- data |> mutate(id = row_number())
+  }
+  data |>
+    pivot_longer(
+      cols = starts_with(pivot_prefix),
+      names_prefix = pivot_prefix,
+      names_to = "potential_outcome",
+      values_to = "happiness"
+    ) |>
+    mutate(
+      observed = if_else(
+        exposure == potential_outcome,
+        "observed",
+        "unobserved"
+      )
+    ) |>
+    mutate(
+      potential_outcome = potential_outcome_transform(potential_outcome),
+      exposure = transform_exposure(exposure)
+    ) |>
+    arrange(id) |>
+    mutate(y_id = dense_rank(id))
+}
+
+compute_avg_labels <- function(plot_data, group_vars) {
+  plot_data |>
+    group_by(across(all_of(group_vars))) |>
+    summarize(happiness = mean(happiness, na.rm = TRUE), .groups = "drop") |>
+    mutate(y_id = min(plot_data$y_id) - 1)
+}
+
+add_avg_layers <- function(
+  avg_labels,
+  observed_col = "grey50",
+  unobserved_col = "grey50"
+) {
+  list(
+    geom_point(
+      data = avg_labels |> filter(observed == "unobserved"),
+      mapping = aes(x = happiness, y = y_id),
+      size = 4,
+      shape = 23,
+      fill = "white",
+      color = unobserved_col,
+      inherit.aes = FALSE
+    ),
+    geom_point(
+      data = avg_labels |> filter(observed == "observed"),
+      mapping = aes(x = happiness, y = y_id),
+      size = 4,
+      shape = 23,
+      fill = observed_col,
+      color = observed_col,
+      inherit.aes = FALSE
+    )
+  )
+}
+
+po_theme <- theme(
+  panel.border = element_rect(color = "grey40", fill = NA, linewidth = 0.8),
+  axis.title.y = element_blank()
+)
+```
+
+```{r}
+#| echo: false
+#| fig-width: 8
+
+plot_data <- data_observed |>
+  select(starts_with("y"), exposure) |>
+  mutate(id = row_number()) |>
+  prepare_plot_data(
+    pivot_prefix = "y_",
+    potential_outcome_transform = \(x) paste0("potential outcome: y(", x, ")"),
+    transform_exposure = \(exp) {
+      if_else(
+        exp == "vanilla",
+        "actually ate vanilla",
+        "actually ate chocolate"
+      )
+    },
+    id_assignment = FALSE
+  )
+
+avg_labels <- compute_avg_labels(
+  plot_data,
+  c("potential_outcome", "exposure", "observed")
+) |>
+  mutate(
+    exposure_lbl = str_replace_all(exposure, "actually ate ", ""),
+    po_lbl = str_replace_all(potential_outcome, "potential outcome: ", ""),
+    label = glue("Avg {po_lbl}\n({exposure_lbl} group, {observed})") |>
+      str_wrap(19)
+  )
+
+id_annotation <- plot_data |>
+  filter(id == 3) |>
+  mutate(
+    label = glue("Potential outcomes\nfor ID 3 ({observed})") |> str_wrap(15)
+  )
+
+exchangeability_annotation <- tibble(
+  x = 5.43,
+  xend = 5.33,
+  y = 1,
+  yend = 0.5,
+  potential_outcome = "potential outcome: y(chocolate)",
+  label = str_wrap(
+    "For exchangeability to hold, these\ngroup averages should be similar",
+    19
+  )
+)
+
+ggplot(plot_data, aes(happiness, y_id, color = observed, shape = observed)) +
+  geom_point(aes(fill = observed), size = 3, alpha = 0.8) +
+  add_avg_layers(
+    avg_labels,
+    observed_col = ggokabeito::palette_okabe_ito(1),
+    unobserved_col = ggokabeito::palette_okabe_ito(2)
+  ) +
+  geom_curve(
+    data = id_annotation,
+    mapping = aes(
+      x = happiness + 2.5,
+      xend = happiness + 0.5,
+      y = y_id + 2,
+      yend = y_id
+    ),
+    curvature = -0.2,
+    arrow = arrow(length = unit(0.02, "npc")),
+    inherit.aes = FALSE,
+    color = "grey40"
+  ) +
+  geom_label(
+    data = id_annotation,
+    mapping = aes(x = happiness + 2, y = y_id + 1.5, label = label),
+    hjust = 0,
+    inherit.aes = FALSE,
+    color = "grey40",
+    size = 3.75,
+    linewidth = NA
+  ) +
+  geom_curve(
+    data = exchangeability_annotation,
+    mapping = aes(x = x + 0.5, xend = xend + 0.2, y = y + 0.5, yend = yend),
+    curvature = 0.1,
+    arrow = arrow(length = unit(0.02, "npc")),
+    inherit.aes = FALSE,
+    color = "grey40"
+  ) +
+  geom_label(
+    data = exchangeability_annotation,
+    mapping = aes(x = x + 0.05, y = y, label = label),
+    inherit.aes = FALSE,
+    hjust = "left",
+    nudge_x = 0.5,
+    color = "grey40",
+    size = 4,
+    linewidth = NA
+  ) +
+  facet_wrap(~potential_outcome) +
+  scale_y_continuous(
+    breaks = c(unique(plot_data$y_id), min(plot_data$y_id) - 1),
+    labels = c(unique(plot_data$id), expression(bold("Avg")))
+  ) +
+  scale_shape_manual(
+    name = NULL,
+    values = c(19, 21)
+  ) +
+  scale_fill_manual(
+    name = NULL,
+    values = c(
+      "observed" = ggokabeito::palette_okabe_ito(1),
+      "unobserved" = "white"
+    )
+  ) +
+  scale_color_manual(
+    name = NULL,
+    values = c(
+      "observed" = ggokabeito::palette_okabe_ito(1),
+      "unobserved" = ggokabeito::palette_okabe_ito(2)
+    )
+  ) +
+  scale_x_continuous(
+    breaks = seq(0, 12, by = 2.5),
+    limits = c(NA, 12)
+  ) +
+  coord_cartesian(clip = "off") +
+  po_theme
+```
+
+## What if we mixed up the labels? {.small}
+
+Say we accidentally gave chocolate to the "vanilla" group and vanilla to the
+"chocolate" group
+
+```{r}
+#| code-line-numbers: "|1-3|7|14-16"
+#| output-location: fragment
+
+mix_up <- function(flavor) {
+  if_else(flavor == "chocolate", "vanilla", "chocolate")
+}
+
+data_observed <- data_observed |>
+  mutate(
+    exposure = mix_up(exposure),
+    observed_outcome = case_when(
+      exposure == "chocolate" ~ y_chocolate,
+      exposure == "vanilla" ~ y_vanilla
+    )
+  )
+
+data_observed |>
+  group_by(exposure) |>
+  summarise(avg_outcome = mean(observed_outcome))
+```
+
+. . .
+
+Flavor assignment is independent of the potential outcomes
+
+## What if participants chose their own flavor? {.small}
+
+```{r}
+#| code-line-numbers: "|4|5-17|24-26"
+#| output-location: fragment
+
+set.seed(113)
+data_observed_exch <- data |>
+  mutate(
+    prefer_chocolate = y_chocolate > y_vanilla,
+    exposure = case_when(
+      # people choose the flavor they prefer 80% of the time
+      prefer_chocolate ~ if_else(
+        rbinom(n(), 1, 0.8) == 1,
+        "chocolate",
+        "vanilla"
+      ),
+      !prefer_chocolate ~ if_else(
+        rbinom(n(), 1, 0.8) == 1,
+        "vanilla",
+        "chocolate"
+      )
+    ),
+    observed_outcome = case_when(
+      exposure == "chocolate" ~ y_chocolate,
+      exposure == "vanilla" ~ y_vanilla
+    )
+  )
+
+data_observed_exch |>
+  group_by(exposure) |>
+  summarise(avg_outcome = mean(observed_outcome))
+```
+
+. . .
+
+Now it seems like vanilla makes you happier!
+
+## The groups are no longer exchangeable
+
+```{r}
+#| echo: false
+#| fig-width: 8
+
+data_observed_exch |>
+  select(starts_with("y"), exposure) |>
+  pivot_longer(
+    starts_with("y"),
+    names_prefix = "y_",
+    names_to = "potential_outcome",
+    values_to = "happiness"
+  ) |>
+  mutate(
+    observed = if_else(exposure == potential_outcome, "observed", "unobserved"),
+    potential_outcome = paste0("potential outcome: y(", potential_outcome, ")"),
+    exposure = if_else(
+      exposure == "vanilla",
+      "actually ate\nvanilla",
+      "actually ate\nchocolate"
+    )
+  ) |>
+  ggplot(aes(
+    happiness,
+    exposure,
+    color = observed,
+    fill = observed,
+    shape = observed
+  )) +
+  stat_summary(
+    fun = "mean",
+    size = 3.5,
+    geom = "point",
+    shape = 23,
+    position = position_nudge(y = 0.033)
+  ) +
+  stat_summary(
+    fun = "mean",
+    geom = "text",
+    aes(label = round(after_stat(x), 1)),
+    vjust = 1.8,
+    show.legend = FALSE
+  ) +
+  facet_wrap(~potential_outcome) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.border = element_rect(color = "grey40", fill = NA, linewidth = 0.8),
+    axis.title.y = element_blank()
+  ) +
+  labs(
+    y = "actual exposure",
+    color = NULL,
+    shape = NULL,
+    fill = NULL
+  ) +
+  coord_cartesian(clip = "off") +
+  scale_shape_manual(values = c(19, 21)) +
+  scale_fill_manual(
+    values = c(
+      observed = ggokabeito::palette_okabe_ito(1),
+      unobserved = "white"
+    )
+  ) +
+  scale_x_continuous(breaks = seq(0, 12, by = 2.5), limits = c(-2, 12))
+```
+
+Preference influences both the choice of flavor and the potential outcome
+
+## Conditional exchangeability
+
+We can still achieve exchangeability within levels of `prefer_chocolate`
+
+```{r}
+#| echo: false
+#| fig-width: 8
+
+data_observed_exch |>
+  mutate(
+    prefer_chocolate = if_else(
+      prefer_chocolate,
+      "prefers\nchocolate",
+      "prefers\nvanilla"
+    )
+  ) |>
+  pivot_longer(
+    starts_with("y"),
+    names_prefix = "y_",
+    names_to = "potential_outcome",
+    values_to = "happiness"
+  ) |>
+  mutate(
+    observed = if_else(exposure == potential_outcome, "observed", "unobserved"),
+    potential_outcome = paste0("potential outcome: y(", potential_outcome, ")"),
+    exposure = if_else(
+      exposure == "vanilla",
+      "actually ate\nvanilla",
+      "actually ate\nchocolate"
+    )
+  ) |>
+  ggplot(aes(
+    happiness,
+    exposure,
+    color = observed,
+    fill = observed,
+    shape = observed
+  )) +
+  stat_summary(
+    fun = "mean",
+    size = 3.5,
+    geom = "point",
+    shape = 23,
+    position = position_nudge(y = 0.033)
+  ) +
+  stat_summary(
+    fun = "mean",
+    geom = "text",
+    aes(label = round(after_stat(x), 1)),
+    vjust = 1.8,
+    show.legend = FALSE
+  ) +
+  facet_grid(prefer_chocolate ~ potential_outcome) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.border = element_rect(color = "grey40", fill = NA, linewidth = 0.8),
+    axis.title.y = element_blank()
+  ) +
+  labs(
+    y = "actual exposure",
+    color = NULL,
+    shape = NULL,
+    fill = NULL
+  ) +
+  coord_cartesian(clip = "off") +
+  scale_shape_manual(values = c(19, 21)) +
+  scale_fill_manual(
+    values = c(
+      observed = ggokabeito::palette_okabe_ito(1),
+      unobserved = "white"
+    )
+  ) +
+  scale_x_continuous(breaks = seq(0, 12, by = 2.5), limits = c(-2, 12))
+```
+
+. . .
+
+But our sample size is so small that we have few values for each combination
+
+## Positivity
+
+- Every individual has a non-zero probability of receiving each level of
+  exposure
+- **Stochastic violations** are chance occurrences with no observations for a
+  given exposure level
+- **Structural violations** happen when an individual cannot receive an exposure
+  level by definition
+
+. . .
+
+Positivity must hold within levels of all covariates required for
+exchangeability
+
+## Positivity can fail within levels of a covariate
+
+Participants choose the flavor they prefer 80% of the time, as before
+
+```{r}
+#| include: false
+
+set.seed(1)
+data_observed_pos <- data |>
+  mutate(
+    prefer_chocolate = y_chocolate > y_vanilla,
+    exposure = case_when(
+      prefer_chocolate ~ if_else(
+        rbinom(n(), 1, 0.8) == 1,
+        "chocolate",
+        "vanilla"
+      ),
+      !prefer_chocolate ~ if_else(
+        rbinom(n(), 1, 0.8) == 1,
+        "vanilla",
+        "chocolate"
+      )
+    ),
+    observed_outcome = case_when(
+      exposure == "chocolate" ~ y_chocolate,
+      exposure == "vanilla" ~ y_vanilla
+    )
+  )
+```
+
+```{r}
+#| output-location: fragment
+
+data_observed_pos |>
+  count(prefer_chocolate, exposure) |>
+  complete(
+    prefer_chocolate,
+    exposure = c("chocolate", "vanilla"),
+    fill = list(n = 0)
+  )
+```
+
+## A structural violation: an allergy to vanilla {.small}
+
+Everyone is randomized to a flavor, as before
+
+```{r}
+#| include: false
+
+set.seed(11)
+data_observed_struc <- data |>
+  mutate(
+    exposure = if_else(
+      rbinom(n(), 1, 0.5) == 1,
+      "chocolate",
+      "vanilla"
+    )
+  )
+```
+
+```{r}
+#| code-line-numbers: "|4|6-7|15-17"
+#| output-location: fragment
+
+set.seed(1)
+data_observed_struc <- data_observed_struc |>
+  mutate(
+    allergy = rbinom(n(), 1, 0.3) == 1,
+    # `y_vanilla` is impossible for those with an allergy
+    exposure = if_else(allergy, "chocolate", exposure),
+    y_vanilla = if_else(allergy, NA, y_vanilla),
+    observed_outcome = case_when(
+      allergy ~ y_chocolate,
+      exposure == "chocolate" ~ y_chocolate,
+      exposure == "vanilla" ~ y_vanilla
+    )
+  )
+
+data_observed_struc |>
+  group_by(exposure) |>
+  summarise(avg_outcome = mean(observed_outcome))
+```
+
+. . .
+
+For those with a vanilla allergy, `y(vanilla)` is not defined
+
+## Some potential outcomes are not defined
+
+```{r}
+#| echo: false
+#| warning: false
+#| fig-width: 8
+
+plot_data <- data_observed_struc |>
+  mutate(is_missing_y_vanilla = is.na(y_vanilla)) |>
+  select(id, starts_with("y"), exposure, is_missing_y_vanilla) |>
+  prepare_plot_data(
+    pivot_prefix = "y_",
+    potential_outcome_transform = \(x) paste0("y(", x, ")"),
+    transform_exposure = \(exp) {
+      if_else(
+        exp == "vanilla",
+        "actually ate vanilla",
+        "actually ate chocolate"
+      )
+    },
+    id_assignment = FALSE
+  )
+
+avg_labels <- compute_avg_labels(
+  plot_data,
+  c("potential_outcome", "exposure", "observed")
+) |>
+  mutate(
+    exposure_lbl = str_replace_all(exposure, "actually ate ", ""),
+    po_lbl = str_replace_all(potential_outcome, "potential outcome: ", ""),
+    label = glue("Avg {po_lbl}\n({exposure_lbl} group, {observed})") |>
+      str_wrap(19)
+  )
+
+missing_points <- plot_data |>
+  filter(is_missing_y_vanilla, exposure == "actually ate chocolate") |>
+  select(happiness, y_id) |>
+  drop_na()
+
+missing_annotation <- tibble(
+  x = max(missing_points$happiness, na.rm = TRUE) + 1,
+  y = max(missing_points$y_id, na.rm = TRUE) - 1,
+  label = "Missing y(vanilla)\ncounterpart",
+  potential_outcome = "y(chocolate)"
+)
+
+missing_arrows <- missing_points |>
+  mutate(
+    xend = happiness + 0.3,
+    yend = y_id - c(-0.3, 0, 0.3),
+    x = missing_annotation$x,
+    y = missing_annotation$y,
+    potential_outcome = "y(chocolate)"
+  )
+
+ggplot(
+  plot_data,
+  aes(
+    x = happiness,
+    y = y_id,
+    color = is_missing_y_vanilla,
+    fill = is_missing_y_vanilla,
+    shape = observed
+  )
+) +
+  geom_point(
+    data = plot_data |> filter(observed == "observed"),
+    mapping = aes(fill = is_missing_y_vanilla),
+    size = 3,
+    shape = 21,
+    alpha = 0.8
+  ) +
+  geom_point(
+    data = plot_data |> filter(observed == "unobserved"),
+    mapping = aes(x = happiness, y = y_id),
+    size = 3,
+    shape = 21,
+    fill = "white",
+    color = "grey70",
+    alpha = 0.8,
+    inherit.aes = FALSE
+  ) +
+  add_avg_layers(avg_labels) +
+  geom_curve(
+    data = missing_arrows,
+    mapping = aes(x = x, xend = xend, y = y, yend = yend),
+    curvature = 0,
+    arrow = arrow(length = unit(0.02, "npc")),
+    inherit.aes = FALSE,
+    color = "grey40"
+  ) +
+  geom_label(
+    data = missing_annotation,
+    mapping = aes(x = x, y = y, label = label),
+    hjust = 0,
+    inherit.aes = FALSE,
+    color = "grey40",
+    size = 4.5,
+    linewidth = NA
+  ) +
+  facet_wrap(~potential_outcome) +
+  scale_y_continuous(
+    breaks = c(unique(plot_data$y_id), min(plot_data$y_id) - 1),
+    labels = c(unique(plot_data$id), expression(bold("Avg")))
+  ) +
+  scale_shape_manual(values = c(19, 21)) +
+  scale_fill_manual(
+    name = NULL,
+    values = c("TRUE" = ggokabeito::palette_okabe_ito(7)),
+    labels = c("TRUE" = "Missing y(vanilla) counterpart"),
+    na.value = "grey80"
+  ) +
+  scale_color_manual(
+    name = NULL,
+    values = c("TRUE" = ggokabeito::palette_okabe_ito(7)),
+    labels = c("TRUE" = "Missing y(vanilla) counterpart"),
+    na.value = "grey80"
+  ) +
+  scale_x_continuous(breaks = seq(0, 12, by = 2.5), limits = c(NA, 12)) +
+  coord_cartesian(clip = "off") +
+  po_theme
+```
+
+. . .
+
+We can collect more data, use a statistical model to extrapolate, add
+eligibility criteria, or change the estimand
+
+## Consistency
+
+- The causal question you claim you are answering is consistent with the one you
+  are actually answering
+- The potential outcome of a given treatment value equals the value we actually
+  observe
+
+. . .
+
+It seems almost silly when you say it. What else would it be?
+
+. . .
+
+- **Poorly-defined exposure**: multiple treatment versions exist, from surgeries
+  to income to education
+- **Interference**: the outcome for any subject depends on another subject's
+  exposure
+
+## Two containers of chocolate, one spoiled {.small}
+
+Everyone has a third potential outcome, `y_spoiled_chocolate`, which is 0
+
+```{r}
+#| include: false
+
+data <- tibble(
+  id = 1:10,
+  y_spoiled_chocolate = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+  y_chocolate = c(4, 4, 6, 5, 6, 5, 6, 7, 5, 6),
+  y_vanilla = c(1, 3, 4, 5, 5, 6, 8, 6, 3, 5)
+) |>
+  mutate(causal_effect = y_chocolate - y_vanilla)
+```
+
+```{r}
+#| code-line-numbers: "|4-8|14-15|18-20"
+#| output-location: fragment
+
+set.seed(11)
+data_observed_poorly_defined <- data |>
+  mutate(
+    exposure_unobserved = case_when(
+      rbinom(n(), 1, 0.25) == 1 ~ "chocolate (spoiled)",
+      rbinom(n(), 1, 0.25) == 1 ~ "chocolate",
+      .default = "vanilla"
+    ),
+    observed_outcome = case_when(
+      exposure_unobserved == "chocolate (spoiled)" ~ y_spoiled_chocolate,
+      exposure_unobserved == "chocolate" ~ y_chocolate,
+      exposure_unobserved == "vanilla" ~ y_vanilla
+    ),
+    # both containers are recorded as "chocolate"
+    exposure = if_else(exposure_unobserved == "vanilla", "vanilla", "chocolate")
+  )
+
+data_observed_poorly_defined |>
+  group_by(exposure) |>
+  summarise(avg_outcome = mean(observed_outcome))
+```
+
+. . .
+
+The true causal effect of unspoiled chocolate is 0.8, but our estimate is
+about -1.9
+
+## The chocolate group is a mixture
+
+```{r}
+#| echo: false
+#| fig-width: 8
+
+plot_data <- data_observed_poorly_defined |>
+  mutate(is_spoiled = exposure_unobserved == "chocolate (spoiled)") |>
+  pivot_longer(
+    cols = starts_with("y"),
+    names_prefix = "y_",
+    names_to = "potential_outcome",
+    values_to = "happiness"
+  ) |>
+  filter(
+    !(is_spoiled & potential_outcome == "chocolate"),
+    !(!is_spoiled & potential_outcome == "spoiled_chocolate")
+  ) |>
+  mutate(
+    potential_outcome = case_when(
+      potential_outcome == "spoiled_chocolate" ~ "chocolate",
+      TRUE ~ potential_outcome
+    ),
+    observed = if_else(exposure == potential_outcome, "observed", "unobserved"),
+    potential_outcome = paste0("y(", potential_outcome, ")")
+  ) |>
+  mutate(observed = factor(observed, levels = c("observed", "unobserved"))) |>
+  arrange(id) |>
+  mutate(y_id = dense_rank(id))
+
+avg_labels <- compute_avg_labels(
+  plot_data,
+  c("potential_outcome", "exposure", "observed")
+)
+
+spoiled_annotation <- plot_data |>
+  filter(is_spoiled, potential_outcome == "y(chocolate)") |>
+  slice(1) |>
+  mutate(label = "Their chocolate was spoiled")
+
+spoiled_arrows <- plot_data |>
+  filter(is_spoiled, potential_outcome == "y(chocolate)") |>
+  mutate(
+    xend = happiness + c(0.35, 0.05),
+    yend = y_id - c(0, 0.2),
+    x = spoiled_annotation$happiness + 1.9,
+    y = spoiled_annotation$y_id + 0.5
+  )
+
+flawed_avg_annotation <- avg_labels |>
+  filter(
+    potential_outcome == "y(chocolate)",
+    exposure == "chocolate",
+    observed == "observed"
+  ) |>
+  mutate(
+    label = "This is an average of\nboth potential outcomes",
+    x = happiness + 2.25,
+    y = y_id + 0.9,
+    happiness = happiness + 0.25,
+    y_id = y_id + 0.15
+  )
+
+unspoiled_annotation <- plot_data |>
+  filter(
+    !is_spoiled,
+    exposure == "chocolate",
+    potential_outcome == "y(chocolate)",
+    observed == "observed"
+  ) |>
+  slice(1) |>
+  mutate(
+    label = "But theirs\nwasn't",
+    x = happiness + 2,
+    y = y_id
+  )
+
+unspoiled_arrows <- plot_data |>
+  filter(
+    !is_spoiled,
+    exposure == "chocolate",
+    potential_outcome == "y(chocolate)",
+    observed == "observed"
+  ) |>
+  mutate(
+    xend = happiness + 0.35,
+    yend = y_id - c(0.1, 0.2),
+    x = unspoiled_annotation$x,
+    y = unspoiled_annotation$y
+  )
+
+ggplot(plot_data, aes(x = happiness, y = y_id)) +
+  geom_point(
+    data = plot_data |> filter(!is_spoiled, observed == "observed"),
+    size = 3,
+    shape = 21,
+    fill = "grey50",
+    color = "grey50",
+    alpha = 0.8
+  ) +
+  geom_point(
+    data = plot_data |> filter(!is_spoiled, observed == "unobserved"),
+    size = 3,
+    shape = 21,
+    fill = "white",
+    color = "grey50",
+    alpha = 0.8
+  ) +
+  geom_point(
+    data = plot_data |>
+      filter(
+        is_spoiled,
+        potential_outcome == "y(chocolate)",
+        observed == "observed"
+      ),
+    size = 3,
+    shape = 21,
+    fill = ggokabeito::palette_okabe_ito(7),
+    color = ggokabeito::palette_okabe_ito(7),
+    alpha = 0.8
+  ) +
+  geom_point(
+    data = plot_data |>
+      filter(
+        is_spoiled,
+        potential_outcome == "y(chocolate)",
+        observed == "unobserved"
+      ),
+    size = 3,
+    shape = 21,
+    fill = "white",
+    color = ggokabeito::palette_okabe_ito(7),
+    alpha = 0.8
+  ) +
+  add_avg_layers(avg_labels) +
+  geom_curve(
+    data = spoiled_arrows,
+    mapping = aes(x = x, xend = xend, y = y, yend = yend),
+    curvature = -0.2,
+    arrow = arrow(length = unit(0.02, "npc")),
+    inherit.aes = FALSE,
+    color = "grey40"
+  ) +
+  geom_label(
+    data = spoiled_annotation,
+    mapping = aes(x = happiness + 2, y = y_id + 0.5, label = label),
+    hjust = 0,
+    inherit.aes = FALSE,
+    color = "grey40",
+    size = 4,
+    linewidth = NA
+  ) +
+  geom_curve(
+    data = flawed_avg_annotation,
+    mapping = aes(x = x, xend = happiness, y = y, yend = y_id),
+    curvature = 0.2,
+    arrow = arrow(length = unit(0.02, "npc")),
+    inherit.aes = FALSE,
+    color = "grey40"
+  ) +
+  geom_label(
+    data = flawed_avg_annotation,
+    mapping = aes(x = x, y = y, label = label),
+    hjust = 0,
+    inherit.aes = FALSE,
+    color = "grey40",
+    size = 4,
+    linewidth = NA
+  ) +
+  geom_curve(
+    data = unspoiled_arrows,
+    mapping = aes(x = x, xend = xend, y = y, yend = yend),
+    curvature = -0.2,
+    arrow = arrow(length = unit(0.02, "npc")),
+    inherit.aes = FALSE,
+    color = "grey40"
+  ) +
+  geom_label(
+    data = unspoiled_annotation,
+    mapping = aes(x = x, y = y, label = label),
+    hjust = 0,
+    inherit.aes = FALSE,
+    color = "grey40",
+    size = 4,
+    linewidth = NA
+  ) +
+  facet_wrap(~potential_outcome) +
+  scale_y_continuous(
+    breaks = c(unique(plot_data$y_id), min(plot_data$y_id) - 1),
+    labels = c(unique(plot_data$id), expression(bold("Avg")))
+  ) +
+  scale_x_continuous(breaks = seq(0, 12, by = 2.5), limits = c(NA, 12)) +
+  labs(y = "actual exposure") +
+  coord_cartesian(clip = "off") +
+  po_theme
+```
+
+We're treating fresh and spoiled chocolate as the same exposure; the same goes
+for brands, timing, and portion size
+
+## Separate the potential outcomes
+
+Say we tested the containers after the experiment and know which ones were
+spoiled
+
+```{r}
+#| output-location: fragment
+
+data_observed_poorly_defined |>
+  group_by(exposure_unobserved) |>
+  summarise(avg_outcome = mean(observed_outcome))
+```
+
+. . .
+
+Now we're back to the right answer because we've correctly separated the
+potential outcomes
+
+## The data now match their potential outcomes
+
+```{r}
+#| echo: false
+#| fig-width: 8
+
+plot_data <- data_observed_poorly_defined |>
+  pivot_longer(
+    cols = starts_with("y"),
+    names_prefix = "y_",
+    names_to = "potential_outcome",
+    values_to = "happiness"
+  ) |>
+  mutate(
+    potential_outcome = if_else(
+      potential_outcome == "spoiled_chocolate",
+      "chocolate (spoiled)",
+      potential_outcome
+    ),
+    observed = if_else(
+      exposure_unobserved == potential_outcome,
+      "observed",
+      "unobserved"
+    ),
+    potential_outcome = if_else(
+      potential_outcome == "chocolate (spoiled)",
+      "spoiled_chocolate",
+      potential_outcome
+    ),
+    potential_outcome = paste0("y(", potential_outcome, ")")
+  ) |>
+  arrange(id) |>
+  mutate(y_id = dense_rank(id))
+
+avg_labels <- compute_avg_labels(
+  plot_data,
+  c("potential_outcome", "exposure_unobserved", "observed")
+)
+
+ggplot(
+  plot_data,
+  aes(x = happiness, y = y_id, color = exposure_unobserved)
+) +
+  geom_point(
+    data = plot_data |> filter(observed == "observed"),
+    mapping = aes(fill = exposure_unobserved),
+    size = 3,
+    shape = 21,
+    alpha = 0.8
+  ) +
+  geom_point(
+    data = plot_data |> filter(observed == "unobserved"),
+    size = 3,
+    shape = 21,
+    fill = "white",
+    alpha = 0.8
+  ) +
+  geom_point(
+    data = avg_labels |> filter(observed == "unobserved"),
+    aes(x = happiness, y = y_id, color = exposure_unobserved),
+    size = 4,
+    shape = 23,
+    fill = "white",
+    inherit.aes = FALSE
+  ) +
+  geom_point(
+    data = avg_labels |> filter(observed == "observed"),
+    aes(
+      x = happiness,
+      y = y_id,
+      fill = exposure_unobserved,
+      color = exposure_unobserved
+    ),
+    size = 4,
+    shape = 23,
+    inherit.aes = FALSE
+  ) +
+  facet_wrap(~potential_outcome) +
+  scale_y_continuous(
+    breaks = c(unique(plot_data$y_id), min(plot_data$y_id) - 1),
+    labels = c(unique(plot_data$id), expression(bold("Avg")))
+  ) +
+  scale_fill_manual(values = ggokabeito::palette_okabe_ito(c(1, 2, 7))) +
+  scale_color_manual(values = ggokabeito::palette_okabe_ito(c(1, 2, 7))) +
+  scale_x_continuous(breaks = seq(0, 12, by = 2.5), limits = c(NA, 12)) +
+  labs(
+    y = "True exposure",
+    color = NULL,
+    fill = NULL
+  ) +
+  coord_cartesian(clip = "off") +
+  po_theme
+```
+
+. . .
+
+There will almost always be some consistency violation; the question is whether
+it is meaningful
+
+## Interference
+
+- An individual's exposure impacts another's potential outcome, as when
+  someone's vaccination affects someone else's risk
+- Here, each person has a partner, and having a partner with a different flavor
+  increases happiness by two units
+
+```{r}
+#| code-line-numbers: "|8-9"
+
+data <- tibble(
+  id = 1:10,
+  partner_id = c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5),
+  y_chocolate_chocolate = c(4, 4, 6, 5, 6, 5, 6, 7, 5, 6),
+  y_vanilla_vanilla = c(1, 3, 4, 5, 5, 6, 8, 6, 3, 5)
+) |>
+  mutate(
+    y_chocolate_vanilla = y_chocolate_chocolate + 2,
+    y_vanilla_chocolate = y_vanilla_vanilla + 2
+  )
+```
+
+## Randomize each individual and their partner {.small}
+
+```{r}
+#| code-line-numbers: "|4-9|10-18|21-23"
+#| output-location: fragment
+
+set.seed(37)
+data_observed_interf <- data |>
+  mutate(
+    exposure = if_else(rbinom(n(), 1, 0.5) == 1, "chocolate", "vanilla"),
+    exposure_partner = if_else(
+      rbinom(n(), 1, 0.5) == 1,
+      "chocolate",
+      "vanilla"
+    ),
+    observed_outcome = case_when(
+      exposure == "chocolate" & exposure_partner == "chocolate" ~
+        y_chocolate_chocolate,
+      exposure == "chocolate" & exposure_partner == "vanilla" ~
+        y_chocolate_vanilla,
+      exposure == "vanilla" & exposure_partner == "chocolate" ~
+        y_vanilla_chocolate,
+      exposure == "vanilla" & exposure_partner == "vanilla" ~ y_vanilla_vanilla
+    )
+  )
+
+data_observed_interf |>
+  group_by(exposure) |>
+  summarise(avg_outcome = mean(observed_outcome))
+```
+
+. . .
+
+Each person has three counterfactuals now, and these averages don't estimate any
+of them
+
+## Be more specific about the potential outcomes
+
+```{r}
+#| output-location: fragment
+
+data_observed_interf |>
+  group_by(exposure, exposure_partner) |>
+  summarise(avg_outcome = mean(observed_outcome), .groups = "drop")
+```
+
+. . .
+
+One way to combat interference is to change the unit: randomize the
+partnerships, a cluster randomized trial
+
+## Randomize the partnerships {.small}
+
+```{r}
+#| code-line-numbers: "|2-5|10|18-20"
+#| output-location: fragment
+
+set.seed(11)
+partners <- tibble(
+  partner_id = 1:5,
+  exposure = if_else(rbinom(5, 1, 0.5) == 1, "chocolate", "vanilla")
+)
+
+partners_observed <- data |>
+  left_join(partners, by = "partner_id") |>
+  mutate(
+    exposure_partner = exposure,
+    observed_outcome = case_when(
+      exposure == "chocolate" & exposure_partner == "chocolate" ~
+        y_chocolate_chocolate,
+      exposure == "vanilla" & exposure_partner == "vanilla" ~ y_vanilla_vanilla
+    )
+  )
+
+partners_observed |>
+  group_by(exposure) |>
+  summarise(avg_outcome = mean(observed_outcome))
+```
+
+. . .
+
+There is no interference between different partner sets
+
+## {.center background-color="#23373B"}
+
+### **Malaria nets, revisited**
+
+## Malaria nets and the causal assumptions
+
+- **Exchangeability**: we saw what can happen with an unmeasured confounder,
+  genetic resistance to malaria
+- **Positivity**: a violation would occur if any household would always or never
+  use a bed net, or if no one of low economic status in cold weather ever used
+  one
+- **Consistency**: a "bed net" can mean many things; does the manufacturer
+  matter? The type of insecticide? The amount?
+- Interference is a real problem for bed-net research, though households as the
+  unit reduce some of it
+
+## {.center background-color="#23373B"}
+
+### **When do study designs support causal inference?**
+
+## Randomized trials
+
+- In the limit, we expect exchangeability: the only cause of the exposure is the
+  randomization process itself
+- Randomization guarantees positivity so long as no one has a deterministic
+  exposure
+- Trials help, but do not guarantee, consistency; interference can still happen
+- In actual trials, exchangeability can fail by chance, people do not adhere to
+  their assigned exposure, and people drop out
+- Observational studies have none of these guarantees, even ideal ones
+
+. . .
+
+A randomized design is sometimes called an A/B test
+
+## Assumptions solved by study design
+
+  | Assumption                          | Ideal randomized trial | Realistic randomized trial | Observational study |
+  | ----------------------------------- | ---------------------- | -------------------------- | ------------------- |
+  | Consistency (well-defined exposure) | 😄                     | 🤷                         | 🤷                  |
+  | Consistency (no interference)       | 🤷                     | 🤷                         | 🤷                  |
+  | Positivity                          | 😄                     | 😄                         | 🤷                  |
+  | Exchangeability                     | 😄                     | 🤷                         | 🤷                  |
+
+😄 solved by default, 🤷 solvable but not solved by default
+
+## The elements of a target trial
+
+The design of a causal analysis requires a clear causal question, which we map
+to a protocol
+
+- **Eligibility criteria**: who or what should be included in the study?
+- **Exposure definition**: what precise exposure will units receive?
+- **Assignment procedures**: how will units be assigned to an exposure?
+- **Follow-up period**: when does follow-up start and end?
+- **Outcome definition**: what precise outcomes will be measured?
+- **Causal contrast of interest**: which causal estimand will be estimated?
+- **Analysis plan**: what procedures will estimate the causal contrast?
+
+## How the protocol helps the assumptions
+
+- Eligibility criteria prevent positivity violations by excluding those who can
+  never have one of the exposures
+- A precise exposure definition improves consistency and helps control
+  interference
+- Randomized assignment procedures meet exchangeability and positivity, and can
+  prevent interference
+
+## Emulating target trials
+
+- There are many reasons we may not be able to randomize, including time, money,
+  and ethical considerations
+- You specify a target trial, the randomized trial you would run, and try to
+  emulate this design with observational data
+- The target trial we can emulate is usually a pragmatic trial, a trial without
+  blinding
+
+. . .
+
+This is step 1 of the whole game: specify your causal question, for example as a
+target trial
