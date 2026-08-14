@@ -32,6 +32,8 @@
   G-Computation](https://causal-inference-r-workshop.netlify.app/12-continuous-g-comp.html)
 - [13 Tipping Point Sensitivity
   Analyses](https://causal-inference-r-workshop.netlify.app/13-tipr.html)
+- [14 Interaction and Heterogeneous Treatment
+  Effects](https://causal-inference-r-workshop.netlify.app/14-interaction.html)
 - [16 Bonus: Selection
   Bias](https://causal-inference-r-workshop.netlify.app/16-bonus-selection-bias.html)
 - [17 Bonus: Continuous Exposures with Propensity

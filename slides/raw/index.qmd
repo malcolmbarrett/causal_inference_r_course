@@ -43,6 +43,10 @@ library(tidyverse)
 
 #### [13 Tipping Point Sensitivity Analyses](https://causal-inference-r-workshop.netlify.app/13-tipr.html)
 
+#### [14 Interaction and Heterogeneous Treatment Effects](https://causal-inference-r-workshop.netlify.app/14-interaction.html)
+
+## {.small background-color="#23373B"}
+
 #### [16 Bonus: Selection Bias](https://causal-inference-r-workshop.netlify.app/16-bonus-selection-bias.html)
 
 #### [17 Bonus: Continuous Exposures with Propensity Scores](https://causal-inference-r-workshop.netlify.app/17-bonus-continuous-pscores.html)

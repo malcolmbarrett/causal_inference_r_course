@@ -125,7 +125,10 @@ sim_data <- tibble(
 - `l` is a continuous confounder: it affects both the exposure and the outcome
 - `z` is a confounder too, and it also modifies the effect: the individual
   effect is 2 in the `low` stratum and 6 in the `high` stratum
-- Both potential outcomes are simulated, so the answer is exact in this sample
+
+. . .
+
+Both potential outcomes are simulated, so the answer is exact in this sample
 
 ## Who gets treated
 
@@ -422,8 +425,8 @@ ipw(propensity_model, outcome_model_int, .by = z) |>
 
 . . .
 
-Fitting each stratum on its own subset would report the same stratum effects
-with no covariance between them, leaving the difference untestable
+Fitting each stratum on its own subset would report the same effects with no
+covariance between them, leaving the difference untestable
 
 ## What `.by` requires
 
@@ -492,10 +495,9 @@ the probability of the exposure an unexposed unit took
 
 ## The rule for the numerator
 
-- The numerator may condition on any variable the outcome model already reads,
-  without changing what is estimated
+- Conditioning on anything the outcome model reads does not change the estimand
 - Conditioning on a variable the model does not read changes the estimand: the
-  pseudo-population it builds is one where that variable still predicts exposure
+  pseudo-population is one where that variable still predicts exposure
 
 . . .
 
@@ -570,8 +572,8 @@ It makes no claim about whether the effect varies
 
 ## Two different causal questions
 
-- **Effect modification** asks whether the causal effect of the exposure differs
-  across levels of a pre-treatment variable
+- **Effect modification** asks whether the exposure's effect differs across
+  levels of a pre-treatment variable
 - **Causal interaction** asks whether the joint effect of changing both variables
   differs from what their separate effects predict
 
@@ -724,7 +726,7 @@ interaction
 ## One system, again
 
 - Every row is a parameter of the same stacked system, so the interaction
-  covaries with the simple effects it is built from
+  covaries with the simple effects
 - The surface reports the ATE alone, and it does not combine with `.by`:
   modification of a joint intervention is a three-way question
 
