@@ -38,9 +38,8 @@ theme_set(
 
 - In *Split Decision: Life Stories*, Ice-T recounts his journey from a life of
   crime to fame and success
-- He contrasts it with the fate of his former crime partner, Spike, who was
-  imprisoned for three years after a jewelry robbery and later sentenced to 35
-  years to life for a botched robbery
+- He contrasts it with the fate of his former crime partner, Spike, now serving
+  35 years to life
 - The book describes how "their paths might have very well been reversed if they
   had made different choices"
 
@@ -50,6 +49,8 @@ theme_set(
   | ------ | ---------------------------------------- | ---------------------------------------- |
   | Ice-T  | Abandons criminal life: fame and fortune | Does one more heist: 35 years in prison  |
   | Spike  | Does one more heist: 35 years in prison  | Abandons criminal life: fame and fortune |
+
+## They differ in more than their choices
 
 - Ice-T's decision was not the only factor in his success: he had enough musical
   talent to make a career of it
@@ -68,8 +69,11 @@ counterfactuals from observed data
   `x = quit`
 - There are two potential outcomes, `y(continue)` and `y(quit)`, and only one
   will be realized
-- This leaves one potential outcome observable and one missing; early causal
-  inference methods were framed as missing data problems
+
+## The missing potential outcome
+
+- One potential outcome is observable and one is missing; early causal inference
+  methods were framed as missing data problems
 - We're missing `y(continue)` for Ice-T and `y(quit)` for Spike, so we can't
   calculate their individual causal effects
 
@@ -77,7 +81,7 @@ counterfactuals from observed data
 
 ### **Causal assumptions allow us to imbue observed data with the meaning of potential outcomes and their analysis with causal effects**
 
-## Does chocolate make you happier than vanilla?
+## Does chocolate make you happier?
 
 Suppose some happiness index exists that ranges from 1 to 10
 
@@ -124,8 +128,7 @@ data |>
   tab_options(table.font.size = "60%")
 ```
 
-Since we know each potential outcome, we can calculate the individual causal
-effects
+We can calculate every individual causal effect
 
 ## In reality, each person eats one flavor {.small}
 
@@ -156,7 +159,7 @@ data_observed |>
 
 We're a little off because of the low sample size
 
-## Now we only know one potential outcome
+## Only the observed outcome remains
 
 ```{r}
 #| echo: false
@@ -190,16 +193,18 @@ data_observed |>
   tab_options(table.font.size = "60%")
 ```
 
-We don't know the missing potential outcome, so we can't calculate the
-individual causal effect
+We can't calculate the individual causal effect
 
 ## Apples-to-apples
 
-- Most of the assumptions we make for causal inference are to make an
-  apples-to-apples comparison: we want to compare similar individuals who serve
-  as reasonable proxies for each other's counterfactuals
+- Most causal assumptions exist to make an apples-to-apples comparison: we want
+  to compare similar individuals who serve as reasonable proxies for each
+  other's counterfactuals
 - Other people say cheese and chalk (UK English), apples and pears (German), or
   grandmothers and toads (Serbian)
+
+## The three assumptions
+
 - Unconfoundedness methods assume **exchangeability**, **positivity**, and
   **consistency**
 - Knowing a method's assumptions is essential for using it correctly; these are
@@ -548,11 +553,11 @@ data_observed_exch |>
   scale_x_continuous(breaks = seq(0, 12, by = 2.5), limits = c(-2, 12))
 ```
 
-Preference influences both the choice of flavor and the potential outcome
+Preference influences both flavor and happiness
 
 ## Conditional exchangeability
 
-We can still achieve exchangeability within levels of `prefer_chocolate`
+Exchangeability can hold within preference groups
 
 ```{r}
 #| echo: false
@@ -627,23 +632,17 @@ data_observed_exch |>
 
 . . .
 
-But our sample size is so small that we have few values for each combination
+But few values fall in each combination
 
 ## Positivity
 
-- Every individual has a non-zero probability of receiving each level of
-  exposure
+- Everyone has a non-zero probability of each exposure level
 - **Stochastic violations** are chance occurrences with no observations for a
   given exposure level
 - **Structural violations** happen when an individual cannot receive an exposure
   level by definition
 
-. . .
-
-Positivity must hold within levels of all covariates required for
-exchangeability
-
-## Positivity can fail within levels of a covariate
+## A stochastic violation
 
 Participants choose the flavor they prefer 80% of the time, as before
 
@@ -684,6 +683,10 @@ data_observed_pos |>
     fill = list(n = 0)
   )
 ```
+
+. . .
+
+Positivity must hold within the covariates needed for exchangeability
 
 ## A structural violation: an allergy to vanilla {.small}
 
@@ -730,7 +733,7 @@ data_observed_struc |>
 
 For those with a vanilla allergy, `y(vanilla)` is not defined
 
-## Some potential outcomes are not defined
+## Undefined potential outcomes
 
 ```{r}
 #| echo: false
@@ -869,7 +872,7 @@ eligibility criteria, or change the estimand
 
 It seems almost silly when you say it. What else would it be?
 
-. . .
+## Two ways consistency fails
 
 - **Poorly-defined exposure**: multiple treatment versions exist, from surgeries
   to income to education
@@ -1141,7 +1144,7 @@ data_observed_poorly_defined |>
 Now we're back to the right answer because we've correctly separated the
 potential outcomes
 
-## The data now match their potential outcomes
+## The data match potential outcomes
 
 ```{r}
 #| echo: false
@@ -1247,6 +1250,8 @@ it is meaningful
 - Here, each person has a partner, and having a partner with a different flavor
   increases happiness by two units
 
+## Each person has a partner
+
 ```{r}
 #| code-line-numbers: "|8-9"
 
@@ -1298,7 +1303,7 @@ data_observed_interf |>
 Each person has three counterfactuals now, and these averages don't estimate any
 of them
 
-## Be more specific about the potential outcomes
+## Specify the potential outcomes
 
 ```{r}
 #| output-location: fragment
@@ -1349,13 +1354,16 @@ There is no interference between different partner sets
 
 ### **Malaria nets, revisited**
 
-## Malaria nets and the causal assumptions
+## Malaria nets and the assumptions
 
 - **Exchangeability**: we saw what can happen with an unmeasured confounder,
   genetic resistance to malaria
 - **Positivity**: a violation would occur if any household would always or never
   use a bed net, or if no one of low economic status in cold weather ever used
   one
+
+## Consistency and interference
+
 - **Consistency**: a "bed net" can mean many things; does the manufacturer
   matter? The type of insecticide? The amount?
 - Interference is a real problem for bed-net research, though households as the
@@ -1367,14 +1375,17 @@ There is no interference between different partner sets
 
 ## Randomized trials
 
-- In the limit, we expect exchangeability: the only cause of the exposure is the
-  randomization process itself
+- In the limit, we expect exchangeability: randomization is the only cause of
+  exposure
 - Randomization guarantees positivity so long as no one has a deterministic
   exposure
 - Trials help, but do not guarantee, consistency; interference can still happen
+
+## Trials in practice
+
 - In actual trials, exchangeability can fail by chance, people do not adhere to
   their assigned exposure, and people drop out
-- Observational studies have none of these guarantees, even ideal ones
+- Observational studies have none of a trial's guarantees, even ideal ones
 
 . . .
 
@@ -1393,47 +1404,53 @@ A randomized design is sometimes called an A/B test
 
 ## The elements of a target trial
 
-The design of a causal analysis requires a clear causal question, which we map
-to a protocol
+A clear causal question maps to a protocol
 
-- **Eligibility criteria**: who or what should be included in the study?
-- **Exposure definition**: what precise exposure will units receive?
-- **Assignment procedures**: how will units be assigned to an exposure?
-- **Follow-up period**: when does follow-up start and end?
+- **Eligibility criteria**: who or what is included?
+- **Exposure definition**: what precise exposure?
+- **Assignment procedures**: how are units assigned?
+- **Follow-up period**: when does it start and end?
+
+## More elements of the protocol
+
 - **Outcome definition**: what precise outcomes will be measured?
 - **Causal contrast of interest**: which causal estimand will be estimated?
 - **Analysis plan**: what procedures will estimate the causal contrast?
 
-## How the protocol helps the assumptions
+## How the protocol helps
 
 - Eligibility criteria prevent positivity violations by excluding those who can
   never have one of the exposures
 - A precise exposure definition improves consistency and helps control
   interference
-- Randomized assignment procedures meet exchangeability and positivity, and can
-  prevent interference
+
+## What randomization adds
+
+- Randomized assignment meets exchangeability and positivity, and can prevent
+  interference
 
 ## Emulating target trials
 
-- There are many reasons we may not be able to randomize, including time, money,
-  and ethical considerations
-- You specify a target trial, the randomized trial you would run, and try to
-  emulate this design with observational data
-- The target trial we can emulate is usually a pragmatic trial, a trial without
-  blinding
+- We often cannot randomize: time, money, ethics
+- You specify a target trial, the randomized trial you would run, and emulate it
+  with observational data
+- The target trial is usually pragmatic: no blinding
 
 . . .
 
 This is step 1 of the whole game: specify your causal question, for example as a
 target trial
 
-## Extra Magic Mornings at the Magic Kingdom
+## Extra Magic Mornings
 
 - Guests staying at a Walt Disney World resort hotel could enter the park during
   "Extra Magic Hours"
 - Does an Extra Magic Morning change the average posted wait time for the Seven
   Dwarfs Mine Train between 9 AM and 10 AM?
-- You will work with these data in the propensity score exercises
+
+## The Seven Dwarfs data
+
+You will work with these data in the propensity score exercises
 
 ```{r}
 #| output-location: fragment
@@ -1478,7 +1495,7 @@ ggplot(
 None of the days that closed at 16:30 or 21:00 had Extra Magic Mornings; ticket
 season, by contrast, shows no violations
 
-## Which days are missing an exposure group?
+## Which days are missing a group?
 
 ```{r}
 #| output-location: fragment
