@@ -19,6 +19,9 @@ library(tidyverse)
 library(broom)
 library(propensity)
 library(marginaleffects)
+library(causalgenerics)
+library(nnet)
+library(ggdag)
 
 theme_set(
   theme_minimal(base_size = 14) +
@@ -219,13 +222,13 @@ avg_comparisons(
 #| echo: false
 
 bind_rows(
-  ate = tidy(avg_comparisons(gcomp_model, variables = "a")),
-  att = tidy(avg_comparisons(
+  ATE = tidy(avg_comparisons(gcomp_model, variables = "a")),
+  ATT = tidy(avg_comparisons(
     gcomp_model,
     variables = "a",
     newdata = filter(sim_data, a == 1)
   )),
-  atc = tidy(avg_comparisons(
+  ATC = tidy(avg_comparisons(
     gcomp_model,
     variables = "a",
     newdata = filter(sim_data, a == 0)
@@ -240,8 +243,8 @@ Each estimate matches its simulated truth
 
 ## Averaging one response surface
 
-Once interaction is introduced, these estimands differ because they average the
-same heterogeneous response surface over different covariate distributions
+Once interaction is introduced, these estimands can differ because they average
+the same heterogeneous response surface over different covariate distributions
 
 ## Effects within levels of `z`
 
@@ -294,13 +297,13 @@ gcomp_model_add <- lm(y ~ a + z + l, data = sim_data)
 #| echo: false
 
 bind_rows(
-  ate = tidy(avg_comparisons(gcomp_model_add, variables = "a")),
-  att = tidy(avg_comparisons(
+  ATE = tidy(avg_comparisons(gcomp_model_add, variables = "a")),
+  ATT = tidy(avg_comparisons(
     gcomp_model_add,
     variables = "a",
     newdata = filter(sim_data, a == 1)
   )),
-  atc = tidy(avg_comparisons(
+  ATC = tidy(avg_comparisons(
     gcomp_model_add,
     variables = "a",
     newdata = filter(sim_data, a == 0)
@@ -375,9 +378,9 @@ ipw(propensity_model, outcome_ate) |>
 #| echo: false
 
 bind_rows(
-  ate = ipw(propensity_model, outcome_ate) |> tidy(conf.int = TRUE),
-  att = ipw(propensity_model, outcome_att) |> tidy(conf.int = TRUE),
-  atc = ipw(propensity_model, outcome_atu) |> tidy(conf.int = TRUE),
+  ATE = ipw(propensity_model, outcome_ate) |> tidy(conf.int = TRUE),
+  ATT = ipw(propensity_model, outcome_att) |> tidy(conf.int = TRUE),
+  ATC = ipw(propensity_model, outcome_atu) |> tidy(conf.int = TRUE),
   .id = "estimand"
 ) |>
   select(estimand, estimate, conf.low, conf.high) |>
@@ -427,6 +430,8 @@ with no covariance between them, leaving the difference untestable
 - The modifier must be a factor or a character vector with no missing values
 - Every level must hold both exposure levels, since a stratum in which nobody
   took one of them identifies no contrast against it
+
+. . .
 
 The remedy for an empty cell is a coarser modifier rather than a refit
 
@@ -562,3 +567,271 @@ It makes no claim about whether the effect varies
 ## {.center background-color="#23373B"}
 
 ### **Effect modification versus causal interaction**
+
+## Two different causal questions
+
+- **Effect modification** asks whether the causal effect of the exposure differs
+  across levels of a pre-treatment variable
+- **Causal interaction** asks whether the joint effect of changing both variables
+  differs from what their separate effects predict
+
+. . .
+
+These are often used interchangeably, but they answer different questions
+
+## Effect modification
+
+- The comparison is `E[y(1) - y(0) | z = high]` against
+  `E[y(1) - y(0) | z = low]`
+- `z` is used to define subgroups: we ask how the effect of the exposure changes
+  across observed strata of `z`, not what would happen if we intervened on it
+
+## Causal interaction
+
+- Both variables are exposures of causal interest
+- The comparison is `E[y(a = 1, b = 1) - y(a = 0, b = 1)]` against
+  `E[y(a = 1, b = 0) - y(a = 0, b = 0)]`
+
+. . .
+
+The effect of one exposure under two settings of the other
+
+## Which variable can you set?
+
+- In effect modification, the second variable is a subgroup-defining
+  characteristic
+- In causal interaction, it is itself something we conceptually intervene on
+
+. . .
+
+Some variables are natural subgroup indicators but not plausible intervention
+targets
+
+## Extra Magic Mornings by quarter
+
+- Does an Extra Magic Morning change posted wait times differently in the fourth
+  quarter than in the first?
+- No one can assign a day to a calendar quarter, so the quarter defines
+  subgroups rather than an intervention
+
+. . .
+
+That is an effect modification question
+
+## Extra Magic Mornings and season
+
+- Disney sets ticket season through pricing, so both the morning policy and the
+  season are things the park can change
+- Asking what would happen if we set both at once is a joint intervention
+
+. . .
+
+That is a causal interaction question
+
+## The model does not decide
+
+The same algebraic model can serve either purpose, but the interpretation
+depends on the underlying question
+
+## {.center background-color="#23373B"}
+
+### **Intervening on two exposures at once**
+
+## Two exposures, one confounder
+
+```{r}
+#| code-line-numbers: "|5|6-7|8"
+
+set.seed(1)
+n <- 10000
+
+joint_data <- tibble(
+  l = rnorm(n),
+  a = rbinom(n, 1, plogis(-0.5 + 0.8 * l)),
+  b = rbinom(n, 1, plogis(-0.3 + 0.9 * l)),
+  y = 10 + 2 * l + 1 * a + 2 * b + 2 * a * b + rnorm(n)
+)
+```
+
+`l` confounds both exposures, which are otherwise independent given `l`
+
+## What this simulation says
+
+- The four counterfactual means are 10, 11, 12, and 15
+- The effect of `a` is 1 when `b` is 0 and 3 when `b` is 1
+- The difference between those two effects, the interaction, is 2
+
+## Cross the two exposures
+
+```{r}
+#| output-location: fragment
+
+joint_data <- joint_data |>
+  mutate(joint = joint_exposure(a = a, b = b))
+
+levels(joint_data$joint)
+```
+
+. . .
+
+The crossing is one categorical exposure with a cell per combination
+
+## One model over the cells
+
+```{r}
+#| code-line-numbers: "|1|3-4"
+
+ps_joint <- multinom(joint ~ l, data = joint_data, trace = FALSE)
+
+joint_data <- joint_data |>
+  mutate(w_joint = wt_ate(fitted(ps_joint), joint))
+```
+
+The categorical route takes the matrix of fitted probabilities, one column per
+cell
+
+## The weighted outcome model
+
+```{r}
+#| output-location: slide
+#| code-line-numbers: "|1|3-5"
+
+joint_model <- lm(y ~ joint, data = joint_data, weights = w_joint)
+
+ipw(ps_joint, joint_model) |>
+  tidy(conf.int = TRUE) |>
+  select(contrast, group, estimate, conf.low, conf.high)
+```
+
+## Nine rows for a two-by-two
+
+- Four **cell means**: the outcome had everyone been set to that combination
+- Four **simple effects**: each exposure's effect within a fixed level of the
+  other
+- One **interaction**: the difference between the first exposure's two simple
+  effects
+
+## Beyond the reference cell
+
+The simple effects include comparisons that reporting each cell against the
+reference cell cannot express at all
+
+## The interaction row
+
+The interaction recovers the simulated 2, and on this scale it is the additive
+interaction
+
+## One system, again
+
+- Every row is a parameter of the same stacked system, so the interaction
+  covaries with the simple effects it is built from
+- The surface reports the ATE alone, and it does not combine with `.by`:
+  modification of a joint intervention is a three-way question
+
+. . .
+
+No odds ratio appears anywhere on this surface, for the same noncollapsibility
+reason
+
+## Two models instead of one
+
+A joint intervention can also be weighted through one model per treatment, with
+the product of their weights, which is what you want when the two treatments
+call for different adjustment sets
+
+## {.center background-color="#23373B"}
+
+### **Interaction in a DAG**
+
+## A conventional DAG
+
+```{r}
+#| output-location: slide
+
+conventional_dag <- dagify(
+  X ~ Z,
+  Q ~ Z,
+  Y ~ X + Q + Z,
+  coords = time_ordered_coords(),
+  exposure = "X",
+  outcome = "Y"
+)
+
+ggdag(conventional_dag) + theme_dag()
+```
+
+## Interaction is not in the graph
+
+A conventional DAG shows that `X`, `Q`, and `Z` all affect `Y`, but not whether
+`X` and `Q` interact
+
+. . .
+
+The interaction, if present, is implicit in the functional form of how they
+jointly affect `Y`
+
+## An explicit interaction node
+
+```{r}
+#| output-location: slide
+#| code-line-numbers: "|5|6"
+
+explicit_interaction_dag <- dagify(
+  X ~ Z,
+  Q ~ Z,
+  Y ~ X + Q + Z + XxQ,
+  XxQ ~ X + Q,
+  coords = time_ordered_coords(),
+  exposure = "X",
+  outcome = "Y"
+)
+
+ggdag(explicit_interaction_dag) + theme_dag()
+```
+
+## Making the interaction visible
+
+Arrows run from `X` and `Q` into `XxQ`, and from `XxQ` into `Y`, which can help
+identify adjustment sets for estimating interaction effects
+
+::: tiny
+Attia J, Holliday E, Oldmeadow C (2022). A proposal for capturing interaction
+and effect modification using DAGs. International Journal of Epidemiology.
+doi:10.1093/ije/dyac126
+:::
+
+## *Your Turn 1* (**`14-interaction-exercises.qmd`**) {.small}
+
+### Fit an outcome model for posted wait times that lets the effect of an Extra Magic Morning vary by ticket season
+
+### Read the conditional effects off the coefficients
+
+`r countdown::countdown(minutes = 5)`
+
+## *Your Turn 2*
+
+### Use `avg_comparisons()` to get the ATE, then the ATT and the ATC with `newdata`
+
+### Compare the three estimates and explain why they differ
+
+### *Stretch*: refit without the interaction and watch the three collapse
+
+`r countdown::countdown(minutes = 6)`
+
+## *Your Turn 3*
+
+### Ask whether the effect of an Extra Magic Morning is modified by calendar quarter
+
+### Fit the propensity score model, build ATE weights, and pass a weighted outcome model with the interaction to `ipw()` with `.by`
+
+`r countdown::countdown(minutes = 8)`
+
+## *Your Turn 4* {.small}
+
+### Ask the joint question: what if the park set both the Extra Magic Morning policy and the ticket season?
+
+### Cross the two with `joint_exposure()`, fit one propensity model over the cells, and read the cell means, simple effects, and interaction
+
+### Finish early? Try the *stretch goals*
+
+`r countdown::countdown(minutes = 10)`
