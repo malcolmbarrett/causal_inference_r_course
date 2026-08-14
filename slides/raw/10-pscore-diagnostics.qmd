@@ -505,6 +505,45 @@ balance_metrics_joint |>
   plot_balance(facet_scales = "free_x")
 ```
 
+## Refit with an interaction
+
+`income_x_health` is the least balanced product term, and the propensity score model does not include that interaction
+
+```{r}
+#| eval: true
+#| code-line-numbers: "|2"
+
+propensity_model_int <- glm(
+  net ~ income * health + splines::ns(temperature, df = 5),
+  family = binomial(),
+  data = net_data
+)
+
+net_data_int <- propensity_model_int |>
+  augment(type.predict = "response", data = net_data_ns) |>
+  mutate(w_int = wt_ate(.fitted, net))
+```
+
+## Balance with the interaction
+
+```{r}
+#| eval: true
+#| code-line-numbers: "|5"
+#| output-location: slide
+
+check_balance(
+  net_data_int,
+  .vars = all_of(vars),
+  .exposure = net,
+  .weights = c(w_ate, w_int),
+  interactions = TRUE,
+  squares = TRUE
+) |>
+  filter(variable == "income_x_health", metric %in% c("ks", "vr"))
+```
+
+An interaction in the propensity score model fixes an imbalanced product term, just as the spline fixed temperature
+
 ## Energy
 
 The average distance across the joint ECDFs: one number for the whole covariate space
