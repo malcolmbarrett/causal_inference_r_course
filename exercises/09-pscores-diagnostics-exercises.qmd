@@ -132,6 +132,20 @@ balance_energy |>
   plot_balance()
 ```
 
+Create a weighted ECDF for `park_temperature_high` using the energy balancing weights.
+
+```{r}
+ggplot(seven_dwarfs_energy, aes(x = ____, color = factor(____))) +
+  ____(aes(weights = ____)) +
+  scale_color_manual(
+    "Extra Magic Hours",
+    values = c("#5154B8", "#5DB854"),
+    labels = c("No", "Yes")
+  ) +
+  xlab("Historic Temperature") +
+  ylab("Proportion <= x (Weighted)")
+```
+
 ## Bonus Your Turn: Weighted Tables
 
 Create a weighted table for the seven dwarfs dataset given your weights
