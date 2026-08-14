@@ -1,0 +1,564 @@
+---
+title: "Interaction and Heterogeneous Treatment Effects"
+author: "Malcolm Barrett"
+institute: "Stanford University"
+format: "kakashi-revealjs"
+---
+
+## {background-color="#23373B"}
+
+```{r}
+#| label: setup
+#| include: false
+
+options(
+  tibble.max_extra_cols = 6,
+  tibble.width = 60
+)
+library(tidyverse)
+library(broom)
+library(propensity)
+library(marginaleffects)
+
+theme_set(
+  theme_minimal(base_size = 14) +
+    theme(
+      panel.grid.minor = element_blank(),
+      legend.position = "bottom"
+    )
+)
+```
+
+- The ATE, ATT, and ATC are all expectations of the same unit-level contrast,
+  `y(1) - y(0)`, taken over different covariate distributions
+- That distinction becomes meaningful only when the individual treatment effect
+  varies across units
+
+## Two claims from earlier modules
+
+- When standard methods succeed: the effect was homogeneous, so marginal and
+  conditional effects agree
+- In g-computation: without an exposure-covariate interaction, the ATE, ATT, and
+  ATC coincide
+
+. . .
+
+This module is where both claims stop holding
+
+## What makes the estimands differ
+
+Any difference between them is driven by two things
+
+- Variation in treatment effects across covariate profiles
+- Differences in the distribution of those profiles across treated and untreated
+  units
+
+## {.center background-color="#23373B"}
+
+### **Interaction terms parameterize heterogeneity**
+
+## A constant treatment effect
+
+- A model like `y ~ a + l` says the conditional mean is `b0 + b1 * a + b2 * l`
+- The contrast between `a = 1` and `a = 0` is `b1`, whatever the value of `l`
+
+. . .
+
+The treatment effect is assumed to be the same for every unit, regardless of
+covariate values
+
+## Letting the effect vary
+
+- Suppose one variable in the confounder set modifies the treatment effect, and
+  call it `z`
+- `y ~ a * z + l` adds the product term:
+  `b0 + b1 * a + b2 * z + b3 * a * z + b4 * l`
+
+. . .
+
+The conditional treatment effect becomes `b1 + b3 * z`, which depends on `z`
+
+## When is the effect constant?
+
+- If `b3` is zero, the treatment effect is constant
+- Otherwise the treatment effect changes across values of `z`
+
+. . .
+
+The interaction term formalizes the claim that the effect of treatment differs
+across levels of a covariate
+
+## Interaction or separate models?
+
+- An equivalent representation is to fit separate models within strata of `z`,
+  which lets the treatment coefficient differ across groups
+- The interaction model is often preferred because it estimates those
+  subgroup-specific effects within a single framework, using all the data
+
+## {.center background-color="#23373B"}
+
+### **A simulation where we know the answer**
+
+## Simulate the potential outcomes
+
+```{r}
+#| code-line-numbers: "|5|6|7-8|9|10"
+
+set.seed(1000)
+n <- 10000
+
+sim_data <- tibble(
+  l = rnorm(n),
+  z = factor(rbinom(n, 1, 0.5), labels = c("low", "high")),
+  y0 = 10 + 2 * l + 3 * (z == "high") + rnorm(n),
+  y1 = y0 + 2 + 4 * (z == "high"),
+  a = rbinom(n, 1, plogis(-1.25 + 0.5 * l + 2.5 * (z == "high"))),
+  y = if_else(a == 1, y1, y0)
+)
+```
+
+## What the simulation says
+
+- `l` is a continuous confounder: it affects both the exposure and the outcome
+- `z` is a confounder too, and it also modifies the effect: the individual
+  effect is 2 in the `low` stratum and 6 in the `high` stratum
+- Both potential outcomes are simulated, so the answer is exact in this sample
+
+## Who gets treated
+
+```{r}
+#| output-location: fragment
+
+sim_data |>
+  count(a, z) |>
+  mutate(prop = n / sum(n), .by = a)
+```
+
+. . .
+
+About three quarters of the treated are `high`, and about three quarters of the
+untreated are `low`
+
+## The truth in this simulation
+
+```{r}
+#| output-location: fragment
+#| code-line-numbers: "|2|4-6"
+
+sim_data |>
+  mutate(effect = y1 - y0) |>
+  summarize(
+    ate = mean(effect),
+    att = mean(effect[a == 1]),
+    atc = mean(effect[a == 0])
+  )
+```
+
+. . .
+
+The ATT is larger than the ATC because the treated are mostly `high`, where the
+effect is 6
+
+## {.center background-color="#23373B"}
+
+### **G-computation with an interaction**
+
+## Fit the interaction model
+
+```{r}
+#| output-location: fragment
+
+gcomp_model <- lm(y ~ a * z + l, data = sim_data)
+
+tidy(gcomp_model)
+```
+
+## The coefficients are conditional
+
+- `a` is the effect in the `low` stratum, and `a:zhigh` is how much larger the
+  effect is in the `high` stratum
+- Together they say the effect is about 2 and about 6
+
+. . .
+
+That is the conditional story, and averaging it over a population by eye is
+another matter
+
+## `avg_comparisons()` for the ATE
+
+```{r}
+#| output-location: fragment
+
+avg_comparisons(gcomp_model, variables = "a")
+```
+
+## Targeting the ATT and the ATC
+
+```{r}
+#| eval: false
+#| code-line-numbers: "|5,12"
+
+# ATT: average over the exposed observations
+avg_comparisons(
+  gcomp_model,
+  variables = "a",
+  newdata = filter(sim_data, a == 1)
+)
+
+# ATC: average over the unexposed observations
+avg_comparisons(
+  gcomp_model,
+  variables = "a",
+  newdata = filter(sim_data, a == 0)
+)
+```
+
+## Same model, three populations
+
+```{r}
+#| echo: false
+
+bind_rows(
+  ate = tidy(avg_comparisons(gcomp_model, variables = "a")),
+  att = tidy(avg_comparisons(
+    gcomp_model,
+    variables = "a",
+    newdata = filter(sim_data, a == 1)
+  )),
+  atc = tidy(avg_comparisons(
+    gcomp_model,
+    variables = "a",
+    newdata = filter(sim_data, a == 0)
+  )),
+  .id = "estimand"
+) |>
+  select(estimand, estimate, conf.low, conf.high) |>
+  mutate(across(where(is.numeric), \(x) round(x, digits = 2)))
+```
+
+Each estimate matches its simulated truth
+
+## Averaging one response surface
+
+Once interaction is introduced, these estimands differ because they average the
+same heterogeneous response surface over different covariate distributions
+
+## Effects within levels of `z`
+
+```{r}
+#| output-location: fragment
+
+avg_comparisons(gcomp_model, variables = "a", by = "z")
+```
+
+## Testing the difference
+
+```{r}
+#| output-location: fragment
+#| code-line-numbers: "|5"
+
+avg_comparisons(
+  gcomp_model,
+  variables = "a",
+  by = "z",
+  hypothesis = ~pairwise
+)
+```
+
+. . .
+
+The two strata differ by about 4, with a standard error of about 0.05
+
+## The effect in each stratum
+
+```{r}
+#| output-location: slide
+
+plot_comparisons(gcomp_model, variables = "a", by = "z") +
+  expand_limits(y = 0) +
+  labs(x = "modifier", y = "effect of a on y")
+```
+
+## Specify every interaction
+
+Because g-computation focuses on modeling the *outcome*, we must specify every
+interaction we think exists in order to estimate treatment effect heterogeneity
+
+## Drop the interaction
+
+```{r}
+gcomp_model_add <- lm(y ~ a + z + l, data = sim_data)
+```
+
+```{r}
+#| echo: false
+
+bind_rows(
+  ate = tidy(avg_comparisons(gcomp_model_add, variables = "a")),
+  att = tidy(avg_comparisons(
+    gcomp_model_add,
+    variables = "a",
+    newdata = filter(sim_data, a == 1)
+  )),
+  atc = tidy(avg_comparisons(
+    gcomp_model_add,
+    variables = "a",
+    newdata = filter(sim_data, a == 0)
+  )),
+  .id = "estimand"
+) |>
+  select(estimand, estimate, conf.low, conf.high) |>
+  mutate(across(where(is.numeric), \(x) round(x, digits = 2)))
+```
+
+Without an exposure-covariate interaction, the three coincide: the model assumes
+a constant effect across covariate values
+
+## {.center background-color="#23373B"}
+
+### **The same estimands through weights**
+
+## IPW targets the same estimands
+
+- IPW does not require an explicit regression model for the outcome surface
+- The weighting scheme determines which covariate distribution the heterogeneous
+  unit-level effects are averaged over
+
+. . .
+
+IPW captures heterogeneity implicitly through the weighting and averaging
+target, not by estimating subgroup-specific effects
+
+## Fit the propensity score model
+
+```{r}
+#| code-line-numbers: "|1|3-4|6-8"
+
+propensity_model <- glm(a ~ l + z, family = binomial(), data = sim_data)
+
+sim_data_wts <- propensity_model |>
+  augment(type.predict = "response", data = sim_data) |>
+  mutate(
+    w_ate = wt_ate(.fitted, a),
+    w_att = wt_att(.fitted, a),
+    w_atu = wt_atu(.fitted, a)
+  )
+```
+
+The modifier is a confounder, so it belongs in the propensity score model
+
+## Three weighted outcome models
+
+```{r}
+outcome_ate <- lm(y ~ a, data = sim_data_wts, weights = w_ate)
+outcome_att <- lm(y ~ a, data = sim_data_wts, weights = w_att)
+outcome_atu <- lm(y ~ a, data = sim_data_wts, weights = w_atu)
+```
+
+- Each model regresses the outcome on the exposure alone, and only the weights
+  change
+- `wt_atu()` builds the weights for the unexposed observations, the ATU or ATC
+
+## Estimates through `ipw()`
+
+```{r}
+#| output-location: fragment
+
+ipw(propensity_model, outcome_ate) |>
+  tidy(conf.int = TRUE) |>
+  select(term, estimate, std.error, conf.low, conf.high)
+```
+
+## The three weighted estimates
+
+```{r}
+#| echo: false
+
+bind_rows(
+  ate = ipw(propensity_model, outcome_ate) |> tidy(conf.int = TRUE),
+  att = ipw(propensity_model, outcome_att) |> tidy(conf.int = TRUE),
+  atc = ipw(propensity_model, outcome_atu) |> tidy(conf.int = TRUE),
+  .id = "estimand"
+) |>
+  select(estimand, estimate, conf.low, conf.high) |>
+  mutate(across(where(is.numeric), \(x) round(x, digits = 2)))
+```
+
+The weighted estimates recover the same truths as g-computation
+
+## The weights carry the estimand
+
+- The weighted outcome model has no covariates, so the differences among the
+  three estimates flow entirely through the weights
+- The modifier separates the exposure groups strongly here, so the spread
+  between the ATT and the ATC is visible
+
+## {.center background-color="#23373B"}
+
+### **Effect modification with `ipw()`**
+
+## The subgroup question with weights
+
+```{r}
+#| output-location: fragment
+#| code-line-numbers: "|1|3"
+
+outcome_model_int <- lm(y ~ a * z, data = sim_data_wts, weights = w_ate)
+
+ipw(propensity_model, outcome_model_int, .by = z) |>
+  tidy(conf.int = TRUE) |>
+  select(group, estimate, std.error, conf.low, conf.high)
+```
+
+## One system, one covariance
+
+- The result reports the overall effect, one effect per level of `z`, and each
+  level contrasted against the first
+- Every row is a parameter of one jointly estimated system, so the stratum
+  contrast has a standard error and is testable
+
+. . .
+
+Fitting each stratum on its own subset would report the same stratum effects
+with no covariance between them, leaving the difference untestable
+
+## What `.by` requires
+
+- The modifier must be a factor or a character vector with no missing values
+- Every level must hold both exposure levels, since a stratum in which nobody
+  took one of them identifies no contrast against it
+
+The remedy for an empty cell is a coarser modifier rather than a refit
+
+## The model decides what varies
+
+If the outcome model has no term reading the exposure and the modifier together,
+the stratum effects are forced equal up to the covariate distribution of each
+stratum, and the fit warns
+
+. . .
+
+The modification you report is then a property of the model rather than of the
+data
+
+## No odds ratios in the strata
+
+The stratum rows report differences, and for a binary outcome risk differences
+and log risk ratios, but never odds ratios
+
+. . .
+
+An odds ratio is noncollapsible, so a difference of two of them moves with the
+outcome distribution whether or not the effect does
+
+## {.center background-color="#23373B"}
+
+### **Stabilizing the weights**
+
+## Stabilized weights, revisited
+
+- `stabilize = TRUE` puts the marginal probability of the observed exposure in
+  the numerator, as it did when we first built ATE weights
+- Under effect modification, the numerator should condition on the modifier
+  instead
+
+## Condition the numerator on `z`
+
+```{r}
+#| code-line-numbers: "|1-2|6|11"
+
+numerator_model <- glm(a ~ z, family = binomial(), data = sim_data)
+p_z <- fitted(numerator_model)
+
+sim_data_wts <- sim_data_wts |>
+  mutate(
+    sw_ate = wt_ate(.fitted, a, stabilize = TRUE),
+    sw_ate_z = wt_ate(
+      .fitted,
+      a,
+      stabilize = TRUE,
+      stabilization_score = if_else(a == 1, p_z, 1 - p_z)
+    )
+  )
+```
+
+`fitted()` alone gives the probability of exposure for every unit, which is not
+the probability of the exposure an unexposed unit took
+
+## The rule for the numerator
+
+- The numerator may condition on any variable the outcome model already reads,
+  without changing what is estimated
+- Conditioning on a variable the model does not read changes the estimand: the
+  pseudo-population it builds is one where that variable still predicts exposure
+
+. . .
+
+Condition the numerator on the modifier and on nothing the model does not hold
+
+## The weights tighten
+
+```{r}
+#| output-location: fragment
+
+sim_data_wts |>
+  select(w_ate, sw_ate, sw_ate_z) |>
+  # the three weight types stack only as plain numbers
+  mutate(across(everything(), as.numeric)) |>
+  pivot_longer(everything(), names_to = "weights") |>
+  summarize(sd = sd(value), max = max(value), .by = weights)
+```
+
+. . .
+
+The exposure is nearly balanced, so the default numerator is close to a constant
+one half; conditioning on `z` is what reshapes the weights
+
+## The same fit, stabilized
+
+```{r}
+#| output-location: fragment
+
+outcome_model_stab <- lm(y ~ a * z, data = sim_data_wts, weights = sw_ate_z)
+
+ipw(propensity_model, outcome_model_stab, .by = z) |>
+  tidy(conf.int = TRUE) |>
+  select(group, estimate, std.error, conf.low, conf.high)
+```
+
+## What stabilizing changed here
+
+- The estimates and their standard errors are unchanged: the numerator is
+  constant within each exposure-by-modifier cell, and the reported effects are
+  averages within those cells
+- The weights themselves are far less variable, which is where stabilizing pays
+
+## One caveat on the variance
+
+A supplied stabilization score is treated as known in the variance, while the
+default stabilizer is estimated within the stacked system
+
+## {.center background-color="#23373B"}
+
+### **Two jobs for interaction terms**
+
+## Interaction in the exposure model
+
+- In the diagnostics module we added `income * health` to the propensity score
+  model because that product term was imbalanced
+- That interaction serves balance, and through balance exchangeability
+
+. . .
+
+It makes no claim about whether the effect varies
+
+## Interaction in the outcome model
+
+- The interaction in this module's outcome model encodes how the effect itself
+  varies across levels of the modifier
+- Same syntax, different jobs: which one you need depends on which model reads
+  the term
+
+## {.center background-color="#23373B"}
+
+### **Effect modification versus causal interaction**
