@@ -18,9 +18,14 @@ options(
   ggplot2.discrete.fill = ggokabeito::palette_okabe_ito()
 )
 library(tidyverse)
+library(broom)
 library(gt)
 library(ggokabeito)
 library(glue)
+library(halfmoon)
+library(hms)
+library(patchwork)
+library(touringplans)
 
 theme_set(
   theme_minimal(base_size = 14) +
@@ -34,7 +39,8 @@ theme_set(
 - In *Split Decision: Life Stories*, Ice-T recounts his journey from a life of
   crime to fame and success
 - He contrasts it with the fate of his former crime partner, Spike, who was
-  caught in a jewelry robbery and received a 35-year to life sentence
+  imprisoned for three years after a jewelry robbery and later sentenced to 35
+  years to life for a botched robbery
 - The book describes how "their paths might have very well been reversed if they
   had made different choices"
 
@@ -201,8 +207,8 @@ individual causal effect
 
 ## Exchangeability
 
-Each exposure group has the same potential outcomes on average, so exposure
-status is independent of the potential outcomes
+Exposure status is independent of the potential outcomes; that is, each exposure
+group has the same potential outcomes on average
 
 ```{r}
 #| include: false
@@ -857,7 +863,7 @@ eligibility criteria, or change the estimand
 - The causal question you claim you are answering is consistent with the one you
   are actually answering
 - The potential outcome of a given treatment value equals the value we actually
-  observe
+  observe when someone is assigned that treatment value
 
 . . .
 
@@ -1420,3 +1426,243 @@ to a protocol
 
 This is step 1 of the whole game: specify your causal question, for example as a
 target trial
+
+## Extra Magic Mornings at the Magic Kingdom
+
+- Guests staying at a Walt Disney World resort hotel could enter the park during
+  "Extra Magic Hours"
+- Does an Extra Magic Morning change the average posted wait time for the Seven
+  Dwarfs Mine Train between 9 AM and 10 AM?
+- You will work with these data in the propensity score exercises
+
+```{r}
+#| output-location: fragment
+
+seven_dwarfs_9 <- seven_dwarfs_train_2018 |>
+  filter(wait_hour == 9)
+
+seven_dwarfs_9 |>
+  count(park_extra_magic_morning)
+```
+
+. . .
+
+Data can't solve the problem of the unverifiable assumptions, but it can still
+provide valuable information
+
+## Positivity: time of park close
+
+Exchangeability needs better tools, which we'll see later, and we've addressed
+consistency by being specific about Extra Magic Mornings
+
+```{r}
+#| echo: false
+#| fig-asp: 0.45
+
+ggplot(
+  seven_dwarfs_9,
+  aes(
+    x = factor(park_close),
+    group = factor(park_extra_magic_morning),
+    fill = factor(park_extra_magic_morning)
+  )
+) +
+  geom_bar(position = "fill", alpha = 0.8) +
+  labs(
+    fill = "Extra Magic Morning",
+    x = "Time of Park Close"
+  ) +
+  theme(panel.grid.major.x = element_blank())
+```
+
+None of the days that closed at 16:30 or 21:00 had Extra Magic Mornings; ticket
+season, by contrast, shows no violations
+
+## Which days are missing an exposure group?
+
+```{r}
+#| output-location: fragment
+
+seven_dwarfs_9 |>
+  count(park_close, park_extra_magic_morning) |>
+  complete(
+    park_close,
+    park_extra_magic_morning,
+    fill = list(n = 0)
+  ) |>
+  filter(park_close %in% parse_hm(c("16:30", "21:00")))
+```
+
+. . .
+
+Only background knowledge can tell us whether a violation is stochastic or
+structural
+
+## Historic high temperature
+
+```{r}
+#| echo: false
+#| fig-asp: 0.4
+
+ggplot(
+  seven_dwarfs_9,
+  aes(
+    x = park_temperature_high,
+    group = factor(park_extra_magic_morning),
+    fill = factor(park_extra_magic_morning)
+  )
+) +
+  geom_mirror_histogram(bins = 20, alpha = 0.8) +
+  scale_y_continuous(labels = abs) +
+  labs(
+    fill = "Extra Magic Morning",
+    x = "Historic high temperature (F)"
+  )
+```
+
+```{r}
+#| output-location: fragment
+
+seven_dwarfs_9 |>
+  filter(park_temperature_high < 60) |>
+  count(park_extra_magic_morning)
+```
+
+. . .
+
+Restricting to warmer days would change the question and restrict which days the
+conclusions cover
+
+## Checking several variables at once
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-asp: 0.5
+
+prop_exposed <- seven_dwarfs_9 |>
+  mutate(
+    park_temperature_high_bin = cut(park_temperature_high, breaks = 3),
+    park_close_bin = case_when(
+      hour(park_close) < 19 & hour(park_close) > 12 ~ "(1) early",
+      hour(park_close) >= 19 & hour(park_close) < 24 ~ "(2) standard",
+      hour(park_close) >= 24 | hour(park_close) < 12 ~ "(3) late"
+    )
+  ) |>
+  group_by(
+    park_close_bin,
+    park_temperature_high_bin,
+    park_ticket_season
+  ) |>
+  summarize(
+    prop_exposed = mean(park_extra_magic_morning),
+    .groups = "drop"
+  ) |>
+  complete(
+    park_close_bin,
+    park_temperature_high_bin,
+    park_ticket_season,
+    fill = list(prop_exposed = 0)
+  )
+
+prop_exposed |>
+  ggplot(
+    aes(
+      x = park_close_bin,
+      y = park_temperature_high_bin,
+      fill = prop_exposed
+    )
+  ) +
+  geom_tile() +
+  scale_fill_viridis_c(begin = 0.1, end = 0.9, breaks = c(0, 0.5, 1)) +
+  facet_wrap(~park_ticket_season) +
+  labs(
+    y = "Historic High Temperature (F)",
+    x = "Magic Kingdom Park Close Time",
+    fill = "Proportion of\nDays Exposed"
+  ) +
+  theme(panel.grid = element_blank())
+```
+
+Nine combinations were never exposed, and one was always exposed
+
+. . .
+
+The only cold peak days in Florida are over Christmas and New Year, when there
+historically were always Extra Magic Hours
+
+## Overlap and balance
+
+We look for two things: overlap and balance
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-asp: 0.45
+
+set.seed(2025)
+
+make_model <- function(n = 1000, intercept, slope) {
+  df <- tibble(
+    z = rnorm(n),
+    exposure = rbinom(n, 1, plogis(intercept + slope * z))
+  )
+  glm(exposure ~ z, data = df, family = binomial)
+}
+
+models_overlap <- list(
+  good = make_model(intercept = 0, slope = 0.5),
+  moderate = make_model(intercept = 0, slope = 1.5),
+  poor = make_model(intercept = 0, slope = 3.0)
+)
+
+plot_ps <- function(.x, .y, title = "Overlap") {
+  .x |>
+    augment(type.predict = "response") |>
+    ggplot(aes(.fitted, fill = factor(exposure))) +
+    geom_mirror_histogram(bins = 50) +
+    scale_y_continuous(labels = abs) +
+    labs(
+      x = "propensity score",
+      fill = "exposure",
+      title = paste(str_to_title(.y), title)
+    ) +
+    theme(legend.position = "none")
+}
+
+plots_overlap <- imap(models_overlap, plot_ps)
+
+models_balance <- list(
+  good = make_model(intercept = 0.0, slope = 1.5),
+  moderate = make_model(intercept = log(0.25 / 0.75), slope = 1.5),
+  poor = make_model(intercept = log(0.10 / 0.90), slope = 1.5)
+)
+
+plots_balance <- imap(models_balance, plot_ps, title = "Balance")
+
+plots_balance$moderate <- plots_balance$moderate +
+  theme(legend.position = "bottom")
+
+(plots_overlap$good + plots_overlap$moderate + plots_overlap$poor) /
+  (plots_balance$good + plots_balance$moderate + plots_balance$poor)
+```
+
+Overlap, or common support, relates to positivity
+
+. . .
+
+Balance relates to exchangeability: we should be able to reassign the two groups
+and still get the right answer
+
+. . .
+
+The x-axis is the probability of exposure given the covariates: the propensity
+score, which we take up next
+
+## *Your Turn*
+
+### Open `07-causal-assumptions-exercises.qmd`
+
+### Discuss with your neighbors: what do exchangeability, positivity, and consistency require for the question, does quitting smoking cause weight gain?
+
+`r countdown::countdown(minutes = 10)`

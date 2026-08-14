@@ -1,0 +1,56 @@
+---
+title: "Causal Assumptions"
+format: html
+---
+
+This exercise is a discussion, so there is no code to run.
+We'll work through the causal assumptions for a question we'll return to throughout the workshop: does quitting smoking make you gain weight?
+
+Causal modeling has a special place in the history of smoking research: the studies that demonstrated that smoking causes lung cancer were observational.
+Thanks to other studies, we also know that, if you're already a smoker, quitting smoking reduces your risk of lung cancer.
+However, some have observed that former smokers tend to gain weight.
+Is this the result of quitting smoking, or does something else explain this effect?
+
+The data usually used to answer this question come from NHEFS, the National Health and Nutrition Examination Survey Epidemiologic Follow-up Study.
+NHEFS is a longitudinal, observational study.
+Participants were surveyed and examined starting in 1971 and followed up through 1982.
+Some quit smoking between the two visits and some did not, and we can compare how much weight each group gained over that period.
+
+Nothing about that comparison is causal on its own.
+The three assumptions below are what would license reading it as the effect of quitting smoking on weight gain.
+
+## Your turn
+
+Discuss each assumption with your neighbors.
+For each one, decide how plausible it is for this question and what you would do if you thought it was violated.
+
+### Exchangeability
+
+Exchangeability requires that the two groups have the same potential outcomes on average: whether someone quit smoking is independent of the weight they would gain under either choice.
+
+- Who quits smoking, and why?
+- What would make people who quit and people who kept smoking non-exchangeable?
+- Which confounders would you need to measure to make the groups conditionally exchangeable, and which of those are hard to measure well?
+
+### Positivity
+
+Positivity requires that every participant has a non-zero probability of quitting and a non-zero probability of continuing.
+
+- Is there anyone in this study who could never have quit, or who was certain to quit?
+- Are there combinations of the confounders you just listed where quitting is impossible or guaranteed?
+- Would such a violation be structural or stochastic, and what would you do about each?
+
+### Consistency
+
+Consistency requires that the potential outcome for quitting is the weight change we actually observe among those who quit.
+
+- What precisely counts as quitting smoking? Quitting cold turkey, tapering off, switching to another nicotine product? Does it matter when in the follow-up period someone quit?
+- If those versions of quitting have different effects on weight, what are we estimating when we treat them as one exposure?
+- Could one participant quitting affect another participant's weight? Is interference plausible here?
+
+# Take aways
+
+- Causal inference from observational data rests on exchangeability, positivity, and consistency. None of the three can be verified from the data alone.
+- Randomization buys exchangeability in the limit and positivity by design, and it helps with well-defined exposures, but it does not rule out interference. Real trials fall short of the ideal on exchangeability and well-defined exposures.
+- Specifying a target trial, then emulating it with observational data, forces the question to be precise enough that the assumptions can be examined.
+- Data can provide evidence about the assumptions, as the positivity checks on the Seven Dwarfs data did, but never proof.
