@@ -261,6 +261,6 @@ missing_cd4_benign |>
 
 ## *Your Turn*
 
-### Work through Your Turns 1-3 in `15-bonus-selection-bias-exercises.qmd`
+### Work through Your Turns 1-3 in `16-bonus-selection-bias-exercises.qmd`
 
 `r countdown::countdown(minutes = 10)`

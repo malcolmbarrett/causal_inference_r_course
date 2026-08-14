@@ -66,7 +66,7 @@ Which relationships should be null, and do they hold in the data? For any that d
 
 ## Your turn 2
 
-Use the `tip_coef()` function to conduct a sensitivity analysis for the estimate you calculated in `exercises/10-outcome-model-exercises.qmd`. Use the lower bound of the confidence interval for the effect and `0.1` for the exposure-confounder effect.
+Use the `tip_coef()` function to conduct a sensitivity analysis for the estimate you calculated in `exercises/11-outcome-model-exercises.qmd`. Use the lower bound of the confidence interval for the effect and `0.1` for the exposure-confounder effect.
 
 `tip_coef()` describes a continuous unmeasured confounder on a unit-variance scale, so `0.1` means the confounder differs by a tenth of a standard deviation between days with and without Extra Magic Hours.
 

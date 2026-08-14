@@ -780,4 +780,4 @@ e_value(0.96)
 countdown::countdown(minutes = 5)
 ```
 
-### Use the `tip_coef()` function to conduct a sensitivity analysis for the estimate you calculated in `exercises/10-outcome-model-exercises.qmd`. Use the lower bound of the confidence interval for the effect and `0.1` for the exposure-confounder effect.
+### Use the `tip_coef()` function to conduct a sensitivity analysis for the estimate you calculated in `exercises/11-outcome-model-exercises.qmd`. Use the lower bound of the confidence interval for the effect and `0.1` for the exposure-confounder effect.

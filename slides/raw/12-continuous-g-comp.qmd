@@ -510,6 +510,6 @@ dagify(
 
 ## *Your Turn*
 
-### Work through Your Turns 1-4 in `11-continuous-g-computation-exercises.qmd`
+### Work through Your Turns 1-4 in `12-continuous-g-computation-exercises.qmd`
 
 `r countdown::countdown(minutes = 10)`
