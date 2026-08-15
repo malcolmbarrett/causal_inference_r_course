@@ -18,6 +18,7 @@ library(tidyverse)
 library(broom)
 library(causaldata)
 library(marginaleffects)
+library(positively)
 
 set.seed(1000)
 ```
@@ -286,13 +287,50 @@ avg_comparisons(
 )
 ```
 
+## Predicting where there are no data
+
+- Step 4 predicts every unit under every level of the exposure
+- Where a unit has no counterpart in the other exposure group, that prediction comes from the model rather than from a comparison
+
+## Checking extrapolation
+
+```{r}
+extrapolation <- check_extrapolation(
+  pos_violations,
+  exposure,
+  c(x1, x2, region)
+)
+
+extrapolation
+```
+
+## Checking extrapolation
+
+```{r}
+#| output-location: fragment
+
+summary(extrapolation)
+```
+
+. . .
+
+Nearly a third of the unexposed group falls outside the covariate hull of the exposed group
+
+## When extrapolation is a problem
+
+- Weighting shows poor overlap as extreme weights; g-computation absorbs it into the predictions
+- The predictions hold if the outcome model gets the functional form right there
+- Nothing in the output tells us whether it does
+
 ## {.huge .center background-color="#23373B"}
 
 **Continuous exposures**
 
-## {.huge .center background-color="#23373B"}
+## Weights or g-computation?
 
-**We recommend g-computation over propensity scores for continuous exposures because of stability issues**
+- Continuous exposure weights are unstable under positivity violations
+- G-computation avoids the weights, but predicts into the same sparse regions
+- We recommend it here, provided we can get the functional form right
 
 ## Does change in smoking intensity (`smkintensity82_71`) affect weight gain among lighter smokers?
 

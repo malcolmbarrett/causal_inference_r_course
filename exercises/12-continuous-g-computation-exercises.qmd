@@ -11,6 +11,7 @@ library(broom)
 library(touringplans)
 library(splines)
 library(marginaleffects)
+library(positively)
 ```
 
 For this set of exercises, we'll use g-computation to calculate a causal effect for continuous exposures.
@@ -250,6 +251,35 @@ dose_response |>
 ```
 
 The grid runs from 10 to 80 minutes because that is about the range of posted wait times we observe; asking for predictions outside it would make the spline extrapolate. Notice how much of the plot the confidence band takes up, and compare that to the interval you got in Your Turn 4.
+
+## Stretch goal: How much data supports each clone?
+
+Staying inside the observed range does not mean the predictions are equally well supported across it. In Your Turn 2 you set every day's posted wait to 30 and then to 60. `check_edp()` reports the effective number of observations that support each of those interventions, given the covariates.
+
+1. Set `values` to the two exposure values you cloned to.
+2. `wait_minutes_posted_avg` has enough repeated values to read as categorical, so declare the exposure type.
+
+```{r}
+edp <- check_edp(
+  wait_times,
+  wait_minutes_posted_avg,
+  c(
+    park_close,
+    park_extra_magic_morning,
+    park_temperature_high,
+    park_ticket_season
+  ),
+  values = c(___, ___),
+  exposure_type = "continuous"
+)
+
+edp |>
+  tidy() |>
+  group_by(value) |>
+  summarize(edp = round(mean(edp), 1))
+```
+
+Both are a small fraction of the 85 days in the data, and the 60 minute clone is the smaller of the two. That is the same shortage of support the wide interval in Your Turn 4 reports.
 
 ---
 
