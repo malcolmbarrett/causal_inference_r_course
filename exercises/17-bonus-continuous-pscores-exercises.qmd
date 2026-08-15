@@ -10,6 +10,8 @@ library(tidyverse)
 library(broom)
 library(touringplans)
 library(propensity)
+library(halfmoon)
+library(balancing)
 ```
 
 For this set of exercises, we'll use propensity scores for continuous exposures.
@@ -177,7 +179,67 @@ Stabilized weights should have a mean close to 1. If the mean is far from 1, we 
 mean(wait_times_swts$swts)
 ```
 
-Here, the mean is somewhat above 1. Propensity score weights for continuous exposures are sensitive to positivity violations, and a mean like this is a signal to look closer. The bootstrap in the stretch goal is one way to do that.
+Here, the mean is somewhat above 1. Propensity score weights for continuous exposures are sensitive to positivity violations, and a mean like this is a signal to look closer. Checking balance is another way to do that, and the bootstrap in the stretch goal is a third.
+
+## Stretch goal: Checking balance
+
+Weighting should break the association between the confounders and the exposure. For a continuous exposure, we check correlations and energy rather than standardized mean differences.
+
+1. Give `check_balance()` the weights you just created.
+2. `wait_minutes_posted_avg` has enough repeated values to read as categorical, so declare the exposure type, as you did in `wt_ate()`.
+
+```{r}
+balance_metrics <- check_balance(
+  wait_times_swts,
+  .vars = c(park_temperature_high, park_extra_magic_morning),
+  .exposure = wait_minutes_posted_avg,
+  .weights = ___,
+  exposure_type = ___
+)
+
+balance_metrics
+```
+
+The stabilized weights made the temperature correlation worse rather than better, and the energy distance is far larger than it was unweighted. Together with the mean above 1, that is a weight model in trouble.
+
+## Stretch goal: Balancing weights
+
+Balancing weights skip the exposure model and optimize the correlations directly.
+
+1. `balance()` cannot read `park_close` as a time, so convert it to hours first.
+2. Fit covariate balancing propensity score weights with `bw_cbps()`. These 85 days need a tighter convergence tolerance than the default to reach exact balance.
+3. Compare the balance of the two sets of weights.
+
+```{r}
+wait_times_bal <- wait_times_swts |>
+  mutate(park_close_hours = as.numeric(park_close) / 3600)
+
+cbps_fit <- balance(
+  wait_times_bal,
+  .exposure = wait_minutes_posted_avg,
+  .covariates = c(
+    park_close_hours,
+    park_extra_magic_morning,
+    park_temperature_high,
+    park_ticket_season
+  ),
+  method = bw_cbps(convergence_tolerance = 1e-14),
+  exposure_type = "continuous"
+)
+
+wait_times_bal <- wait_times_bal |>
+  mutate(w_bal = weights(cbps_fit))
+
+check_balance(
+  wait_times_bal,
+  .vars = c(park_temperature_high, park_extra_magic_morning),
+  .exposure = wait_minutes_posted_avg,
+  .weights = c(swts, w_bal),
+  exposure_type = "continuous"
+)
+```
+
+Continuous covariate balancing propensity score weights do not solve smooth estimating equations, so `ipw()` has no analytic standard error for them. Bootstrap the whole fit if you need an interval.
 
 # Your Turn 3
 
@@ -247,4 +309,6 @@ boot_estimate
 - Continuous exposures are prone to mispecification and usually need to be stabilized. A simple stabilization is to invert the propensity score by stabilization weights using an intercept-only model such as `lm(exposure ~ 1)`. `wt_ate()` can do this for you automatically with `stabilize = TRUE`. This also applies to other types of exposures.
 - Stabilization is useful for any type of exposure where the weights are unbounded. Bounded weights like the ATO do not have this problem, one of their many benefits.
 - Using propensity scores for continuous exposures in outcome models is identical to using them with binary exposures.
-- Because propensity scores for continuous exposures are prone to positivity violation, check the bootstrap distribution of your estimate for skew and to see if the mean estimate is different from your regression model. If these problems are present, you may need to use another approach like g-computation.
+- Because propensity scores for continuous exposures are prone to positivity violation, check balance, and check the bootstrap distribution of your estimate for skew and to see if the mean estimate is different from your regression model.
+- If these problems are present, g-computation is often the better choice, but it does not remove the violation. It moves the problem into the outcome model, which extrapolates through the same sparse regions instead of weighting them. That is an improvement only when we can get the functional form right there.
+- Balancing weights are another option. They optimize covariate balance directly rather than modeling the exposure, which sidesteps the density estimation that makes continuous propensity scores fragile.

@@ -21,6 +21,8 @@ library(touringplans)
 library(propensity)
 library(marginaleffects)
 library(halfmoon)
+library(positively)
+library(balancing)
 
 set.seed(1000)
 ```
@@ -330,6 +332,34 @@ wait_times_swts <- post_time_model |>
   )
 ```
 
+## Assessing positivity {background-color="#23373B"}
+
+1. A continuous exposure has no groups to compare
+2. Instead, we ask how much data supports each value we intend to set
+3. `check_edp()` reports that as an effective number of observations
+
+## Effective data points
+
+```{r}
+edp <- check_edp(
+  nhefs_swts,
+  smkintensity82_71,
+  c(age, wt71, smokeintensity, smokeyrs),
+  values = c(-20, 0, 20),
+  exposure_type = "continuous"
+)
+
+edp |>
+  tidy() |>
+  group_by(value) |>
+  summarize(edp = round(mean(edp), 1))
+```
+
+## Effective data points
+
+- Setting everyone to a 20 cigarette increase is supported by about 6 effective observations out of 1162
+- The dose-response function is weakest where the effective sample is smallest
+
 ## Checking balance {background-color="#23373B"}
 
 1. Weighting should break the association between the confounders and the exposure
@@ -462,6 +492,82 @@ as_conditional(ipw_fit) |>
 ```
 
 ### The slope matches the marginal reading here because the outcome model is linear in the exposure with an identity link
+
+## Balancing weights {background-color="#23373B"}
+
+1. The stabilized weights leave small correlations behind
+2. Balancing weights optimize those correlations directly
+3. As with `wt_ate()`, we declare the exposure type
+
+## Entropy balancing with `balance()`
+
+```{r}
+#| output-location: slide
+
+entropy_fit <- balance(
+  nhefs_swts,
+  .exposure = smkintensity82_71,
+  .covariates = c(age, wt71, smokeintensity, smokeyrs),
+  method = bw_entropy(),
+  exposure_type = "continuous"
+)
+
+entropy_fit
+```
+
+## Comparing balance
+
+```{r}
+nhefs_swts <- nhefs_swts |>
+  mutate(w_bal = weights(entropy_fit))
+
+balance_comparison <- check_balance(
+  nhefs_swts,
+  .vars = c(age, smokeintensity, smokeyrs, wt71),
+  .exposure = smkintensity82_71,
+  .weights = c(swts, w_bal),
+  exposure_type = "continuous"
+)
+```
+
+## Comparing balance {.small}
+
+```{r}
+# `group_level` is the exposure name on every row here
+balance_comparison |>
+  select(-group_level)
+```
+
+## Comparing balance
+
+```{r}
+#| echo: false
+#| fig-width: 9
+
+plot_balance(balance_comparison) +
+  scale_x_continuous(n.breaks = 3) +
+  ggokabeito::scale_color_okabe_ito() +
+  theme_minimal(base_size = 16) +
+  theme(legend.position = "bottom")
+```
+
+## Estimating with balancing weights
+
+```{r}
+balancing_outcome_model <- lm(
+  wt82_71 ~ smkintensity82_71,
+  weights = w_bal,
+  data = nhefs_swts
+)
+
+balancing_ipw_fit <- ipw(entropy_fit, balancing_outcome_model)
+```
+
+## Estimating with balancing weights {.small}
+
+```{r}
+balancing_ipw_fit
+```
 
 ## Causal dose-response functions {background-color="#23373B"}
 
