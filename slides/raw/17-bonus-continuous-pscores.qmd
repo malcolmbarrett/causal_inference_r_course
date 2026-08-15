@@ -638,6 +638,37 @@ ggplot(dose_response, aes(smkintensity82_71, estimate)) +
   )
 ```
 
+## Dose-response with balancing weights
+
+```{r}
+#| echo: false
+
+balancing_msm <- lm(
+  wt82_71 ~ splines::ns(smkintensity82_71, df = 3),
+  weights = w_bal,
+  data = nhefs_swts
+)
+
+dose_response_bal <- ipw(entropy_fit, balancing_msm) |>
+  as_conditional() |>
+  set_modeldata(nhefs_swts) |>
+  avg_predictions(
+    variables = list(smkintensity82_71 = -25:25)
+  )
+
+ggplot(dose_response_bal, aes(smkintensity82_71, estimate)) +
+  geom_ribbon(
+    aes(ymin = conf.low, ymax = conf.high),
+    fill = "#E69F0095"
+  ) +
+  geom_line(linewidth = 1, color = "#E69F00") +
+  theme_minimal(base_size = 20) +
+  labs(
+    x = "Change in smoking intensity",
+    y = "Weight gain (kg)"
+  )
+```
+
 ## Diagnosing issues {background-color="#23373B"}
 
 1. Extreme weights even after stabilization
