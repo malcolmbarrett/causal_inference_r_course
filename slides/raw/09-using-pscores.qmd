@@ -58,6 +58,7 @@ Direct Adjustment
 library(tidyverse)
 library(broom)
 library(causalworkshop)
+library(positively)
 propensity_model <- glm(
   net ~ income + health + temperature,
   family = binomial(),
@@ -737,6 +738,56 @@ df |>
 - Trimming and truncation, like using a caliper, change the population we are making inferences about
 - The tilting function is 0 for the observations we trimmed and 1 for the ones that remain
 - You can think of the resulting estimand as another type of overlap population
+
+## Assessing positivity
+
+- Trimming and truncation respond to extreme propensity scores without saying where they came from
+- **positively** searches the covariates for the region responsible
+
+## Propensity scores with a violation
+
+```{r}
+#| output-location: fragment
+
+pos_model <- glm(
+  exposure ~ x1 + x2 + region,
+  family = binomial(),
+  data = pos_violations
+)
+
+pos_df <- pos_model |>
+  augment(type.predict = "response", data = pos_violations) |>
+  mutate(w_ate = wt_ate(.fitted, exposure))
+
+pos_df |>
+  summarize(min = min(.fitted), max = max(.fitted), max_wt = max(w_ate))
+```
+
+## Which units did trimming drop?
+
+```{r}
+#| output-location: fragment
+
+pos_df |>
+  mutate(trimmed = is_unit_trimmed(ps_trim(.fitted, method = "adaptive"))) |>
+  group_by(structural = region == "b" & x2 > 1) |>
+  summarize(n = n(), trimmed = sum(trimmed))
+```
+
+. . .
+
+Trimming dropped half of the 76 units that can never be exposed, and 396 units that can
+
+## Locating the region directly
+
+```{r}
+#| output-location: fragment
+
+check_port(pos_violations, exposure, c(x1, x2, region)) |>
+  tidy() |>
+  filter(low_support) |>
+  select(description, n, prevalence)
+```
 
 ## *Your Turn 2*
 

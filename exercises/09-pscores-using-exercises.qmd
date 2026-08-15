@@ -11,6 +11,7 @@ library(broom)
 library(touringplans)
 library(propensity)
 library(halfmoon)
+library(positively)
 ```
 
 We are interested in examining the relationship between whether there were "Extra Magic Hours" in the morning (the **exposure**) and the average posted wait time for the Seven Dwarfs Mine Train the same day between 9 AM and 10 AM in 2018 (the **outcome**).
@@ -98,3 +99,25 @@ seven_dwarfs_prop |>
   scale_fill_manual(values = c("blue", "green")) +
   labs(x = "p", fill = "Extra Magic Morning")
 ```
+
+Stretch Goal 3:
+
+Weights and trimming respond to extreme propensity scores.
+`check_port()` looks for the covariate regions that produce them.
+Fill in the confounders from the propensity score model above.
+
+```{r}
+port <- check_port(
+  seven_dwarfs,
+  park_extra_magic_morning,
+  c(___, ___, ___)
+)
+
+port |>
+  tidy() |>
+  filter(low_support) |>
+  select(description, n, prevalence)
+```
+
+One of these subgroups had no Extra Magic Mornings at all.
+Is that a structural violation or a stochastic one?
