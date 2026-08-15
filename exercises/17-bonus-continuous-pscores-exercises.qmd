@@ -205,9 +205,11 @@ The stabilized weights made the temperature correlation worse rather than better
 ## Stretch goal: Balancing weights
 
 Balancing weights skip the exposure model and optimize the correlations directly.
-Here we fit covariate balancing propensity score weights with `bw_cbps()` and compare the balance of the two sets of weights.
-Two details make this chunk run: `balance()` cannot read `park_close` as a time, so we convert it to hours first, and these 85 days need a tighter convergence tolerance than the default to reach exact balance.
-Run it and compare the results to the stabilized weights above.
+Two details are already handled for you: `balance()` cannot read `park_close` as a time, so we convert it to hours first, and these 85 days need a tighter convergence tolerance than the default to reach exact balance.
+
+1. Fit covariate balancing propensity score weights: give `balance()` the exposure and declare the exposure type.
+2. Add the weights to the data frame with `weights()`.
+3. Compare both sets of weights by giving `check_balance()` both columns.
 
 ```{r}
 wait_times_bal <- wait_times_swts |>
@@ -215,7 +217,7 @@ wait_times_bal <- wait_times_swts |>
 
 cbps_fit <- balance(
   wait_times_bal,
-  .exposure = wait_minutes_posted_avg,
+  .exposure = ___,
   .covariates = c(
     park_close_hours,
     park_extra_magic_morning,
@@ -223,17 +225,17 @@ cbps_fit <- balance(
     park_ticket_season
   ),
   method = bw_cbps(convergence_tolerance = 1e-14),
-  exposure_type = "continuous"
+  exposure_type = ___
 )
 
 wait_times_bal <- wait_times_bal |>
-  mutate(w_bal = weights(cbps_fit))
+  mutate(w_bal = ___(cbps_fit))
 
 check_balance(
   wait_times_bal,
   .vars = c(park_temperature_high, park_extra_magic_morning),
   .exposure = wait_minutes_posted_avg,
-  .weights = c(swts, w_bal),
+  .weights = c(___, ___),
   exposure_type = "continuous"
 )
 ```
