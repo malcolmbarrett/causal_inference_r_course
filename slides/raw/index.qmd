@@ -29,20 +29,28 @@ library(tidyverse)
 
 #### [06 Causal Inference is Not Just a Statistics Problem](https://causal-inference-r-workshop.netlify.app/06-quartets.html)
 
-#### [07 Introduction to Propensity Scores](https://causal-inference-r-workshop.netlify.app/07-pscores.html)
+#### [07 Causal Assumptions](https://causal-inference-r-workshop.netlify.app/07-causal-assumptions.html)
 
-#### [08 Using Propensity Scores](https://causal-inference-r-workshop.netlify.app/08-using-pscores.html)
+#### [08 Introduction to Propensity Scores](https://causal-inference-r-workshop.netlify.app/08-pscores.html)
 
-#### [09 Checking Propensity Scores](https://causal-inference-r-workshop.netlify.app/09-pscore-diagnostics.html)
+#### [09 Using Propensity Scores](https://causal-inference-r-workshop.netlify.app/09-using-pscores.html)
 
-#### [10 Fitting the outcome model](https://causal-inference-r-workshop.netlify.app/10-outcome-model.html)
+#### [10 Checking Propensity Scores](https://causal-inference-r-workshop.netlify.app/10-pscore-diagnostics.html)
 
-#### [11 Continuous Exposures and G-Computation](https://causal-inference-r-workshop.netlify.app/11-continuous-g-comp.html)
+#### [11 Fitting the outcome model](https://causal-inference-r-workshop.netlify.app/11-outcome-model.html)
 
-#### [12 Tipping Point Sensitivity Analyses](https://causal-inference-r-workshop.netlify.app/12-tipr.html)
+#### [12 Continuous Exposures and G-Computation](https://causal-inference-r-workshop.netlify.app/12-continuous-g-comp.html)
 
-#### [15 Bonus: Selection Bias](https://causal-inference-r-workshop.netlify.app/15-bonus-selection-bias.html)
+#### [13 Tipping Point Sensitivity Analyses](https://causal-inference-r-workshop.netlify.app/13-tipr.html)
 
-#### [16 Bonus: Continuous Exposures with Propensity Scores](https://causal-inference-r-workshop.netlify.app/16-bonus-continuous-pscores.html)
+#### [14 Interaction and Heterogeneous Treatment Effects](https://causal-inference-r-workshop.netlify.app/14-interaction.html)
 
-#### [17 Bonus: Machine Learning for Causal Inference](https://causal-inference-r-workshop.netlify.app/17-bonus-ml-for-causal.html)
+## {.small background-color="#23373B"}
+
+#### [15 Bonus: Missing Data](https://causal-inference-r-workshop.netlify.app/15-bonus-missingness.html)
+
+#### [16 Bonus: Selection Bias](https://causal-inference-r-workshop.netlify.app/16-bonus-selection-bias.html)
+
+#### [17 Bonus: Continuous Exposures with Propensity Scores](https://causal-inference-r-workshop.netlify.app/17-bonus-continuous-pscores.html)
+
+#### [18 Bonus: Machine Learning for Causal Inference](https://causal-inference-r-workshop.netlify.app/18-bonus-ml-for-causal.html)

@@ -1,0 +1,235 @@
+---
+title: "Interaction and Heterogeneous Treatment Effects"
+format: html
+---
+
+```{r}
+#| label: setup
+
+library(tidyverse)
+library(broom)
+library(touringplans)
+library(propensity)
+library(causalgenerics)
+library(nnet)
+library(marginaleffects)
+
+seven_dwarfs <- seven_dwarfs_train_2018 |>
+  filter(wait_hour == 9)
+```
+
+We are interested in examining the relationship between whether there were "Extra Magic Hours" in the morning (the **exposure**) and the average posted wait time for the Seven Dwarfs Mine Train the same day between 9 AM and 10 AM in 2018 (the **outcome**).
+
+In the previous exercises we estimated one effect for every day. Here we ask whether that effect is the same on every day, and then what happens when the park intervenes on two things at once.
+
+## Your Turn 1
+
+An interaction between the exposure and a covariate lets the effect differ across levels of that covariate. Ticket season is a plausible modifier: an extra hour in the morning may do something different on a busy day than on a quiet one.
+
+1. Use `lm()` to model `wait_minutes_posted_avg` with the exposure, the confounders from the DAG, and an interaction between the exposure and `park_ticket_season`.
+2. Save the model as `emm_model`.
+3. Look at the coefficients with `tidy()`.
+
+```{r}
+emm_model <- lm(
+  wait_minutes_posted_avg ~ park_extra_magic_morning ___ ___ +
+    park_close +
+    park_temperature_high,
+  data = seven_dwarfs
+)
+
+___(emm_model)
+```
+
+The coefficient on `park_extra_magic_morning` is the effect in the reference season, peak: about 18 minutes. Each interaction coefficient says how much the effect changes in the other seasons, and both are large and negative, so the effect looks concentrated in peak season.
+
+The same model gives us all three estimands. `avg_comparisons()` averages the unit-level effects over whichever rows you hand it, and `newdata` chooses those rows.
+
+4. Pass `emm_model` to `avg_comparisons()` with `variables = "park_extra_magic_morning"` for the ATE.
+5. Add a `newdata` argument that filters to the exposed days for the ATT.
+6. Do the same for the unexposed days to get the ATC.
+
+```{r}
+# ATE: average over every day
+avg_comparisons(
+  ___,
+  variables = "park_extra_magic_morning"
+)
+
+# ATT: average over the days that had an Extra Magic Morning
+avg_comparisons(
+  ___,
+  variables = "park_extra_magic_morning",
+  newdata = filter(seven_dwarfs, ___ == 1)
+)
+
+# ATC: average over the days that did not
+avg_comparisons(
+  ___,
+  variables = "park_extra_magic_morning",
+  newdata = ___(seven_dwarfs, park_extra_magic_morning == ___)
+)
+```
+
+You can also ask for the effect within each season directly:
+
+```{r}
+avg_comparisons(
+  emm_model,
+  variables = "park_extra_magic_morning",
+  by = "park_ticket_season"
+)
+```
+
+### Stretch goal: drop the interaction
+
+Refit the model without the interaction and rerun the three `avg_comparisons()` calls. All three give 6.16, because a model with no exposure-covariate interaction assumes one constant effect, and averaging a constant over any set of rows returns the same constant.
+
+```{r}
+emm_model_add <- lm(
+  wait_minutes_posted_avg ~ park_extra_magic_morning +
+    ___ +
+    park_close +
+    park_temperature_high,
+  data = seven_dwarfs
+)
+
+avg_comparisons(
+  emm_model_add,
+  variables = "park_extra_magic_morning",
+  by = "park_ticket_season"
+)
+```
+
+## Your Turn 2
+
+Now ask the same question through weighting, with a modifier we could never assign: the calendar quarter. `ipw()` reports the effect within each level of a modifier when you name it with `.by`.
+
+First, build the modifier and check that every level holds both exposure levels. `.by` requires it, and so does the question: a quarter with no Extra Magic Mornings identifies no contrast.
+
+```{r}
+seven_dwarfs <- seven_dwarfs |>
+  mutate(quarter = factor(lubridate::quarter(park_date)))
+
+seven_dwarfs |>
+  count(quarter, park_extra_magic_morning)
+```
+
+1. Fit the propensity score model you used in the previous exercises.
+2. Build ATE weights with `wt_ate()`.
+3. Fit a weighted outcome model that includes an interaction between the exposure and `quarter`.
+4. Pass both models to `ipw()` with `.by = quarter`.
+
+```{r}
+propensity_model <- glm(
+  park_extra_magic_morning ~ park_ticket_season +
+    park_close +
+    park_temperature_high,
+  data = seven_dwarfs,
+  family = binomial()
+)
+
+seven_dwarfs_wts <- propensity_model |>
+  augment(type.predict = "response", data = seven_dwarfs) |>
+  mutate(w_ate = ___(.fitted, park_extra_magic_morning))
+
+outcome_model <- lm(
+  wait_minutes_posted_avg ~ park_extra_magic_morning ___ ___,
+  data = seven_dwarfs_wts,
+  weights = ___
+)
+
+ipw(propensity_model, outcome_model, .by = ___) |>
+  tidy(conf.int = TRUE) |>
+  select(group, estimate, std.error, conf.low, conf.high)
+```
+
+## Your Turn 3
+
+The quarter question was effect modification: can't assign a day to a quarter. Ticket season is different, because the park sets it through pricing. That makes "what if we changed both the morning policy and the season?" a real question about a joint intervention.
+
+A joint intervention needs every cell of the crossing to be populated. Count the days in each combination first.
+
+```{r}
+seven_dwarfs |>
+  count(park_ticket_season, park_extra_magic_morning)
+```
+
+Only 7 of the 83 value-season days had an Extra Magic Morning. That cell is too thin to support a weighted mean of its own, which is the positivity problem from the causal assumptions module: we cannot learn what would happen under a combination we almost never see. Collapse ticket season into peak and not peak, and cross the exposure with that instead.
+
+```{r}
+seven_dwarfs <- seven_dwarfs |>
+  mutate(
+    peak_season = if_else(park_ticket_season == "peak", "peak", "not peak"),
+    joint = joint_exposure(
+      emm = park_extra_magic_morning,
+      season = ___
+    )
+  )
+
+seven_dwarfs |>
+  count(___)
+```
+
+Every cell now holds at least 18 days.
+
+1. Fit one propensity score model over the four cells with `multinom()`.
+2. Build ATE weights. The categorical route takes the matrix of fitted probabilities, so pass `fitted(ps_joint)` rather than the model.
+3. Fit a weighted outcome model on the crossed exposure and pass both to `ipw()`.
+
+```{r}
+ps_joint <- ___(
+  joint ~ park_temperature_high,
+  data = seven_dwarfs,
+  trace = FALSE
+)
+
+seven_dwarfs_joint <- seven_dwarfs |>
+  mutate(w_joint = wt_ate(fitted(ps_joint), ___))
+
+joint_model <- lm(
+  wait_minutes_posted_avg ~ ___,
+  data = seven_dwarfs_joint,
+  weights = w_joint
+)
+
+ipw(ps_joint, joint_model) |>
+  tidy(conf.int = TRUE) |>
+  select(contrast, group, estimate, conf.low, conf.high)
+```
+
+Nine rows come back. The first four are the counterfactual mean posted wait under each combination: about 66 minutes with neither, 65 with an Extra Magic Morning outside peak season, 79 in peak season without one, and 99 with both.
+
+The next four are the simple effects. An Extra Magic Morning does essentially nothing outside peak season (about -0.3 minutes) and adds about 20 minutes in peak season. Peak season itself adds about 13 minutes without an Extra Magic Morning and about 33 minutes with one.
+
+The last row is the interaction: about 20 minutes, with an interval from about 10 to 30. The two policies together do considerably more than the sum of their separate effects.
+
+Notice which covariates the propensity score model uses. Add `park_close` to it and one December day in peak season falls in a cell the model gives a probability of about 0.0004, so its weight climbs above 2,000. With close time in the model, almost no day that closes as early as this one is a peak-season day with an Extra Magic Morning, so this single day must stand in for that entire corner of the covariate space. Positivity is harder to satisfy for a joint intervention than for a single exposure, because every cell of the crossing needs support, and here the problem shows up in the weights rather than in an empty cell. Leaving close time out is a trade: we gain positivity at a loss of exchangability.
+
+### Stretch goal: an interaction node in a DAG
+
+Conventional DAGs do not show interaction: the arrows say which variables affect the outcome, not how they combine. One proposal adds an explicit interaction node. Draw the joint question you just estimated: `emm` is the Extra Magic Morning, `season` is the ticket season, `temp` is the historic high temperature that confounds both, and `wait` is the posted wait time. Complete the DAG so that `emm` and `season` each point into their interaction node, and that node points into `wait`.
+
+```{r}
+library(ggdag)
+
+dagify(
+  emm ~ temp,
+  season ~ temp,
+  wait ~ emm + season + temp + ___,
+  ___ ~ emm + season,
+  coords = time_ordered_coords(),
+  exposure = "emm",
+  outcome = "wait"
+) |>
+  ggdag(node_size = 30, text_size = 2.5) +
+  theme_dag()
+```
+
+# Take aways
+
+- An interaction between the exposure and a covariate is what lets the ATE, the ATT, and the ATC differ; without one, all three are the same number
+- `avg_comparisons()` targets an estimand with `newdata` and reports subgroup effects with `by`
+- `ipw()` reports the effect within each level of a modifier with `.by`, along with the contrasts between levels and standard errors that account for having estimated them together
+- `joint_exposure()` asks a different question: what would happen under an intervention that sets two treatments at once, reported as cell means, simple effects, and their interaction
+- Both questions need support in the data: a modifier level with only one exposure level identifies nothing, and neither does an empty cell of a crossing

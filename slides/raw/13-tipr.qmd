@@ -1,0 +1,783 @@
+---
+title: "Sensitivity Analyses for Unmeasured Confounding"
+author: "Lucy D'Agostino McGowan"
+institute: "Wake Forest University"
+format: kakashi-revealjs
+knitr:
+  opts_chunk:
+    eval: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+#| eval: true
+
+options(
+  tibble.max_extra_cols = 6,
+  tibble.width = 60
+)
+
+library(tidyverse)
+library(broom)
+library(ggdag)
+library(touringplans)
+library(propensity)
+library(causalworkshop)
+library(tipr)
+
+set.seed(1234)
+
+seven_dwarfs <- seven_dwarfs_train_2018 |>
+  filter(wait_hour == 9)
+
+mosquito_dag <- dagify(
+  malaria_risk ~ net + income + health + temperature + resistance,
+  net ~ income + health + temperature + eligible + household,
+  eligible ~ income + household,
+  health ~ income,
+  exposure = "net",
+  outcome = "malaria_risk",
+  coords = list(
+    x = c(
+      malaria_risk = 7,
+      net = 3,
+      income = 4,
+      health = 5,
+      temperature = 6,
+      resistance = 8.5,
+      eligible = 2,
+      household = 1
+    ),
+    y = c(
+      malaria_risk = 2,
+      net = 2,
+      income = 3,
+      health = 1,
+      temperature = 3,
+      resistance = 2,
+      eligible = 3,
+      household = 2
+    )
+  ),
+  labels = c(
+    malaria_risk = "Risk of malaria",
+    net = "Mosquito net",
+    income = "Income",
+    health = "Health",
+    temperature = "Nighttime temperatures",
+    resistance = "Insecticide resistance",
+    eligible = "Eligible for program",
+    household = "Number in the household"
+  )
+)
+
+dgm_coords <- list(
+  x = c(
+    malaria_risk = 7,
+    net = 3,
+    income = 4,
+    health = 5,
+    temperature = 6,
+    insecticide_resistance = 8.5,
+    genetic_resistance = 5,
+    eligible = 2,
+    household = 1,
+    U = 5
+  ),
+  y = c(
+    malaria_risk = 2,
+    net = 2,
+    income = 3,
+    health = 1,
+    temperature = 3,
+    insecticide_resistance = 2,
+    genetic_resistance = -0.5,
+    eligible = 3,
+    household = 2,
+    U = 4.5
+  )
+)
+
+dgm_labels <- c(
+  malaria_risk = "Risk of malaria",
+  net = "Mosquito net",
+  income = "Income",
+  health = "Health",
+  temperature = "Nighttime temperatures",
+  insecticide_resistance = "Insecticide resistance",
+  genetic_resistance = "Genetic resistance",
+  eligible = "Eligible for program",
+  household = "Number in the household",
+  U = "Unknown"
+)
+```
+
+## Recall: Propensity scores {background-color="#23373B"}
+
+Rosenbaum and Rubin showed in observational studies, conditioning on **propensity scores** can lead to unbiased estimates of the exposure effect
+
+::: nonincremental
+1. **There are no unmeasured confounders**
+2. Every subject has a nonzero probability of receiving either exposure
+:::
+
+## {.center .large background-color="#23373B"}
+
+### **How sensitive is our result to conditions other than those laid out in our assumptions and analysis?**
+
+## Two ways to probe a result
+
+::: nonincremental
+1. Explore the **logical implications** of the DAG: does the data contradict what we assumed?
+2. Use **mathematical techniques** to quantify how different the result would be under unmeasured confounding
+:::
+
+# Checking DAGs for robustness {background-color="#23373B"}
+
+## Recall the mosquito net DAG
+
+```{r}
+#| eval: true
+#| echo: false
+#| fig-width: 9
+
+ggdag_adjustment_set(
+  mosquito_dag,
+  use_labels = TRUE,
+  use_text = FALSE,
+  node_size = 10
+) +
+  theme_dag()
+```
+
+## If the DAG is right, every valid set works
+
+```{r}
+#| eval: true
+#| output-location: slide
+
+library(dagitty)
+adjustmentSets(mosquito_dag, type = "all")
+```
+
+## Estimate the effect for one adjustment set
+
+```{r}
+#| eval: true
+
+fit_ipw_effect <- function(.fmla, .data = net_data) {
+  propensity_model <- glm(.fmla, data = .data, family = binomial())
+
+  propensity_model |>
+    augment(type.predict = "response", data = .data) |>
+    mutate(wts = wt_ate(.fitted, net, exposure_type = "binary")) |>
+    lm(malaria_risk ~ net, data = _, weights = wts) |>
+    tidy() |>
+    filter(term == "netTRUE") |>
+    pull(estimate)
+}
+```
+
+## Estimate the effect for four of them
+
+```{r}
+#| eval: true
+#| output-location: slide
+
+adjustment_sets <- list(
+  "income, health, temperature" = net ~ income + health + temperature,
+  "+ eligible" = net ~ income + health + temperature + eligible,
+  "+ household" = net ~ income + health + temperature + household,
+  "+ resistance" = net ~ income + health + temperature + insecticide_resistance
+)
+
+tibble(
+  adjustment_set = names(adjustment_sets),
+  ate = map_dbl(adjustment_sets, fit_ipw_effect)
+)
+```
+
+## Agreement is evidence, not proof {background-color="#23373B"}
+
+A DAG can be right about every variable it contains and still be missing one entirely
+
+# DAG-data consistency {background-color="#23373B"}
+
+## What does the DAG say should be null?
+
+```{r}
+#| eval: true
+#| output-location: slide
+
+query_conditional_independence(mosquito_dag) |>
+  unnest(conditioned_on)
+```
+
+## Do those relationships hold in the data? {.small}
+
+```{r}
+#| eval: true
+#| output-location: slide
+#| fig-asp: 0.7
+
+set.seed(1234)
+
+test_conditional_independence(
+  mosquito_dag,
+  data = net_data |>
+    transmute(
+      net = as.numeric(net),
+      malaria_risk,
+      income,
+      health,
+      temperature,
+      resistance = insecticide_resistance,
+      eligible = as.numeric(eligible),
+      household
+    ) |>
+    as.data.frame(),
+  # bootstrapped samples for the confidence intervals
+  R = 200
+) |>
+  ggdag_conditional_independence()
+```
+
+## Four of them do not hold
+
+::: nonincremental
+- The DAG says temperature is independent of income and of health; in the data they correlate at 0.16 and 0.18
+- Two weaker failures: `eligible` and malaria risk, at 0.08 even after conditioning on the adjustment set, and `household` and insecticide resistance, at 0.05
+:::
+
+## Add genetic resistance to the DAG
+
+```{r}
+#| eval: true
+#| code-line-numbers: "|7,13"
+
+full_dag <- dagify(
+  malaria_risk ~ net +
+    income +
+    health +
+    temperature +
+    insecticide_resistance +
+    genetic_resistance,
+  net ~ income +
+    health +
+    temperature +
+    eligible +
+    household +
+    genetic_resistance,
+  eligible ~ income + household,
+  health ~ income,
+  exposure = "net",
+  outcome = "malaria_risk"
+)
+```
+
+## Test it against the full dataset {.small}
+
+```{r}
+#| eval: true
+#| output-location: slide
+#| fig-asp: 0.7
+
+set.seed(1234)
+
+test_conditional_independence(
+  full_dag,
+  data = net_data_full |>
+    transmute(
+      net = as.numeric(net),
+      malaria_risk,
+      income,
+      health,
+      temperature,
+      insecticide_resistance,
+      eligible = as.numeric(eligible),
+      household,
+      genetic_resistance = as.numeric(genetic_resistance)
+    ) |>
+    as.data.frame(),
+  R = 200
+) |>
+  ggdag_conditional_independence()
+```
+
+## The same four disagreements
+
+::: nonincremental
+- Genetic resistance brings six new implied independencies, and all six hold
+- The four failures are still there: temperature with income and with health, at 0.16 and 0.18, and the two weaker ones at 0.05 and 0.06
+:::
+
+. . .
+
+Adding genetic resistance does not resolve them, so they come from somewhere else
+
+## One unknown cause, not three arrows
+
+::: nonincremental
+- The simulation draws income, temperature, and health together from a single correlated distribution
+- One unmeasured node stands in for that joint draw, in place of the arrow from income to health
+:::
+
+## The DAG that generated the data {.small}
+
+```{r}
+#| eval: true
+#| code-line-numbers: "|15-17|18"
+
+dgm_dag <- dagify(
+  malaria_risk ~ net +
+    income +
+    health +
+    temperature +
+    insecticide_resistance +
+    genetic_resistance,
+  net ~ income +
+    health +
+    temperature +
+    eligible +
+    household +
+    genetic_resistance,
+  eligible ~ income + household,
+  health ~ U,
+  income ~ U,
+  temperature ~ U,
+  latent = "U",
+  exposure = "net",
+  outcome = "malaria_risk",
+  coords = dgm_coords,
+  labels = dgm_labels
+)
+```
+
+## The unknown common cause
+
+```{r}
+#| eval: true
+#| echo: false
+#| fig-width: 9
+
+ggdag_adjustment_set(
+  dgm_dag,
+  use_labels = TRUE,
+  use_text = FALSE,
+  node_size = 10
+) +
+  theme_dag()
+```
+
+## Test the data-generating DAG {.small}
+
+```{r}
+#| eval: true
+#| output-location: slide
+#| fig-asp: 0.7
+
+set.seed(1234)
+
+test_conditional_independence(
+  dgm_dag,
+  data = net_data_full |>
+    transmute(
+      net = as.numeric(net),
+      malaria_risk,
+      income,
+      health,
+      temperature,
+      insecticide_resistance,
+      eligible = as.numeric(eligible),
+      household,
+      genetic_resistance = as.numeric(genetic_resistance)
+    ) |>
+    as.data.frame(),
+  R = 200
+) |>
+  ggdag_conditional_independence()
+```
+
+## Three small disagreements remain
+
+::: nonincremental
+- The temperature relationships are no longer implied nulls, so they are no longer disagreements
+- Eligibility and malaria risk, at 0.06
+- Household size with insecticide resistance, and with malaria risk, both about 0.05
+:::
+
+## Why eligibility disagrees
+
+::: nonincremental
+- Eligibility is decided by a sharp cutoff: more than four in the household and income under 700
+- The test fits a smooth curve, which cannot follow a sharp cutoff exactly, so a little correlation leaks through at the boundary
+:::
+
+Both intervals barely exclude zero, which is what we would expect from chance
+
+## {.center background-color="#23373B"}
+
+### **These tests cannot prove a DAG right or wrong; they tell us where the data disagrees with our assumptions**
+
+## *Your turn 1*
+
+```{r}
+#| eval: true
+#| echo: false
+
+countdown::countdown(minutes = 8)
+```
+
+### Ask the Extra Magic Morning DAG which relationships should be null, then test those implied nulls against the data.
+
+## *Your turn 1*
+
+```{r}
+#| eval: true
+
+emm_wait_dag <- dagify(
+  wait_minutes_posted_avg ~ park_extra_magic_morning +
+    park_close +
+    park_ticket_season +
+    park_temperature_high,
+  park_extra_magic_morning ~ park_close +
+    park_ticket_season +
+    park_temperature_high,
+  exposure = "park_extra_magic_morning",
+  outcome = "wait_minutes_posted_avg"
+)
+```
+
+## *Your turn 1*
+
+```{r}
+#| eval: true
+#| output-location: slide
+
+query_conditional_independence(emm_wait_dag) |>
+  unnest(conditioned_on)
+```
+
+## *Your turn 1* {.small}
+
+```{r}
+#| eval: true
+#| output-location: slide
+#| fig-asp: 0.7
+
+set.seed(1234)
+
+test_conditional_independence(
+  emm_wait_dag,
+  data = seven_dwarfs |>
+    mutate(
+      across(where(is.character), factor),
+      park_close = as.numeric(park_close)
+    ) |>
+    as.data.frame(),
+  type = "cis.loess",
+  R = 200
+) |>
+  ggdag_conditional_independence()
+```
+
+## Park close time and ticket season
+
+::: nonincremental
+- Three relationships should be null: park close time with temperature, park close time with ticket season, and temperature with ticket season
+- Two of them hold, but park close time and ticket season correlate at -0.47
+:::
+
+## Why might we see a relationship?
+
+::: nonincremental
+- Park close time and ticket season both track the weather, so a missing arrow is a reasonable explanation
+- Chance is another, though we have data for every day of 2018
+:::
+
+# Quantifying Unmeasured Confounding {background-color="#23373B"}
+
+##
+
+![](img/sens.png)
+
+## Quantifying Unmeasured Confounding {background-color="#23373B"}
+
+1. The exposure-outcome effect
+1. The exposure-unmeasured confounder effect
+1. The unmeasured confounder-outcome effect
+
+## *Quantifying Unmeasured Confounding*
+
+![](img/adjust.png)
+
+[D'Agostino McGowan, L. Sensitivity Analyses for Unmeasured Confounders. Curr Epidemiol Rep 9, 361--375 (2022)](https://doi.org/10.1007/s40471-022-00308-6)
+
+## *Quantifying Unmeasured Confounding*
+
+![](img/tipr-table.png){width=65%}
+[D'Agostino McGowan, L. Sensitivity Analyses for Unmeasured Confounders. Curr Epidemiol Rep 9, 361--375 (2022)](https://doi.org/10.1007/s40471-022-00308-6)
+
+## {.center .huge background-color="#23373B"}
+
+### **tipr**
+
+## The grammar of tipr: `{action}_{effect}_with_{what}` {.small}
+
+  | part       | term                     | what it means                                                                       |
+  | ---------- | ------------------------ | ----------------------------------------------------------------------------------- |
+  | **action** | `adjust`                 | needs both confounder relationships                                                 |
+  |            | `tip`                    | needs only one of them                                                              |
+  | **effect** | `coef`, `rr`, `or`, `hr` | the scale of `effect_observed`                                                      |
+  | **what**   | `continuous`             | `exposure_confounder_effect`, `confounder_outcome_effect`                           |
+  |            | `binary`                 | `exposed_confounder_prev`, `unexposed_confounder_prev`, `confounder_outcome_effect` |
+  |            | `r2`                     | `confounder_exposure_r2`, `confounder_outcome_r2`                                   |
+
+::: tiny
+[D'Agostino McGowan, L., (2022). tipr: An R package for sensitivity analyses for unmeasured confounders. Journal of Open Source Software, 7(77), 4495](https://doi.org/10.21105/joss.04495)
+:::
+
+## What is known about the unmeasured confounder? {.small}
+
+::: nonincremental
+- **Both** the exposure and outcome relationships: `adjust_*()` functions
+- **One** of the two: `tip_*()` functions, or `adjust_*()` functions in an array
+- **Neither**: `adjust_*()` or `tip_*()` in an array, `tip_coef_with_r2()` benchmarked against measured confounders, or summaries like `r_value()` and `e_value()`
+:::
+
+## 1. The observed exposure-outcome effect
+
+```{r}
+#| eval: true
+#| output-location: slide
+
+propensity_model <- glm(
+  net ~ income + health + temperature,
+  family = binomial(),
+  data = net_data
+)
+
+net_data_wts <- propensity_model |>
+  augment(type.predict = "response", data = net_data) |>
+  mutate(wts = wt_ate(.fitted, net, exposure_type = "binary"))
+
+observed_effect <- ipw(
+  propensity_model,
+  lm(malaria_risk ~ net, data = net_data_wts, weights = wts)
+) |>
+  tidy(conf.int = TRUE)
+
+observed_effect |>
+  select(estimate, conf.low, conf.high)
+```
+
+## 2. The confounder-exposure relationship
+
+::: nonincremental
+- **Binary** confounder: its prevalence in the exposed and in the unexposed
+- **Continuous** confounder: the difference in means, assuming a normal distribution and unit variance
+- **Distribution-agnostic**: the partial R^2^ for the exposure
+:::
+
+## What "unit variance" means
+
+```{r}
+#| eval: true
+#| output-location: slide
+
+temperature_sd <- sd(net_data$temperature)
+
+net_data |>
+  group_by(net) |>
+  summarize(
+    mean = mean(temperature),
+    # divide by the SD to put the confounder on a unit-variance scale
+    standardized_mean = mean / temperature_sd
+  )
+```
+
+## What "unit variance" means {.small}
+
+::: nonincremental
+- Nighttime temperatures average 23.7 degrees for net users and 24.0 for everyone else, with a standard deviation of 4.1 degrees
+- On a unit-variance scale that difference is -0.08
+- So `exposure_confounder_effect = 0.1` means the confounder differs by a tenth of a standard deviation between exposure groups
+:::
+
+## 3. The confounder-outcome relationship {.small}
+
+::: nonincremental
+- The coefficient for the confounder in a fully adjusted outcome model, in the units of the outcome
+- Here that is points of malaria risk per standard deviation of the confounder
+- Or the exponentiated version: a risk ratio, odds ratio, or hazard ratio
+:::
+
+## An unmeasured confounder: genetic resistance
+
+::: nonincremental
+1. People with this genetic resistance have a malaria risk lower by about 10
+2. About 26% of people who use nets have this genetic resistance
+3. About 5% of people who don't use nets have this genetic resistance
+:::
+
+## Adjust the estimate for genetic resistance
+
+```{r}
+#| eval: true
+#| code-line-numbers: "|5-7"
+#| output-location: slide
+
+observed_effect |>
+  select(estimate, conf.low, conf.high) |>
+  unlist() |>
+  adjust_coef_with_binary(
+    exposed_confounder_prev = 0.26,
+    unexposed_confounder_prev = 0.05,
+    confounder_outcome_effect = -10
+  ) |>
+  select(effect_observed, effect_adjusted)
+```
+
+## {.center background-color="#23373B"}
+
+### **These data are simulated. The true effect of net use on malaria risk is about -10**
+
+## Bias analysis, checked against a known answer {.small}
+
+::: nonincremental
+- Observed, with genetic resistance unmeasured: **-12.5 (-13.4, -11.7)**
+- Adjusted with tipr: **-10.4 (-11.3, -9.6)**
+- Re-estimated with genetic resistance measured: **-10.2**
+- The truth: **-10**
+:::
+
+## Vary both parameters at once
+
+```{r}
+#| eval: true
+
+sens <- adjust_coef(
+  effect_observed = observed_effect$estimate,
+  exposure_confounder_effect = rep(seq(0, 1.5, by = 0.05), each = 5),
+  confounder_outcome_effect = rep(seq(-4, -20, by = -4), times = 31),
+  verbose = FALSE
+)
+```
+
+## Vary both parameters at once
+
+```{r}
+#| eval: true
+#| output-location: slide
+#| fig-asp: 0.55
+
+ggplot(
+  sens,
+  aes(
+    exposure_confounder_effect,
+    effect_adjusted,
+    color = factor(confounder_outcome_effect)
+  )
+) +
+  geom_line(linewidth = 1.1) +
+  geom_hline(yintercept = 0, lty = 2) +
+  theme_minimal(base_size = 20) +
+  labs(color = "confounder-\noutcome effect")
+```
+
+## {.center .large background-color="#23373B"}
+
+### **What will tip our confidence bound to cross zero?**
+
+## `tip_coef()` finds the tipping point
+
+```{r}
+#| eval: true
+#| code-line-numbers: "|2|3"
+#| output-location: slide
+
+tip_coef(
+  effect_observed = observed_effect$conf.high,
+  confounder_outcome_effect = -10
+) |>
+  select(exposure_confounder_effect)
+```
+
+# “An unmeasured confounder with an effect of *-10* on malaria risk would have to differ by *1.17* standard deviations between net users and non-users to tip our upper bound to zero. Genetic resistance differs in prevalence by about *0.21*, so a confounder like it cannot on its own explain away this result.” {.small}
+
+# A real-life example {background-color="#23373B"}
+
+##
+
+![](img/metformin.png)
+
+## The published result
+
+::: nonincremental
+- **Matched** 42,217 new metformin users to 42,217 new sulfonylurea users
+- **Outcome:** Lung Cancer
+- **Adjusted Hazard Ratio**: 0.87 (0.79, 0.96)
+:::
+
+# What if heavy alcohol consumption is prevalent among *4%* of Metformin users and *6%* of Sulfonylurea users?
+
+::: tiny
+Meadows SO, Engel CC, Collins RL, Beckman RL, Cefalu M,
+Hawes-Dawson J, et al. 2015 health related behaviors survey:
+Substance use among US active-duty service members. RAND; 2018.
+:::
+
+## `tipr` Example
+
+*What if we assume the effect of alcohol consumption on lung cancer after adjusting for other confounders is 2?*
+
+```{r}
+#| eval: true
+#| code-line-numbers: "|3,4|5"
+#| output-location: slide
+
+adjust_hr_with_binary(
+  effect_observed = c(0.79, 0.87, 0.96),
+  exposed_confounder_prev = 0.04,
+  unexposed_confounder_prev = 0.06,
+  confounder_outcome_effect = 2
+)
+```
+
+## `tipr` Example
+
+```{r}
+#| eval: true
+#| output-location: slide
+
+tip_hr_with_binary(
+  effect_observed = 0.96,
+  exposed_confounder_prev = 0.04,
+  unexposed_confounder_prev = 0.06
+) |>
+  select(confounder_outcome_effect)
+```
+
+# “If heavy alcohol consumption differed between groups, with *4%* prevalence among metformin users and *6%* among sulfonylureas users, it would need to have an association with lung cancer incidence of *3.27 to tip this analysis* at the 5% level, rendering it inconclusive. This effect is larger than the understood association between lung cancer and alcohol consumption.” {.tiny}
+
+## When nothing is known: `e_value()`
+
+```{r}
+#| eval: true
+
+# the smallest confounder-exposure and confounder-outcome
+# association that could explain away the observed effect
+e_value(0.96)
+```
+
+## *Your turn 2*
+
+```{r}
+#| eval: true
+#| echo: false
+
+countdown::countdown(minutes = 5)
+```
+
+### Use the `tip_coef()` function to conduct a sensitivity analysis for the estimate you calculated in `exercises/11-outcome-model-exercises.qmd`. Use the lower bound of the confidence interval for the effect and `0.1` for the exposure-confounder effect.

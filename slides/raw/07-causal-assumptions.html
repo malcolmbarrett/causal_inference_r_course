@@ -1,0 +1,2359 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="07-causal-assumptions_files/libs/clipboard/clipboard.min.js"></script>
+<script src="07-causal-assumptions_files/libs/quarto-html/tabby.min.js"></script>
+<script src="07-causal-assumptions_files/libs/quarto-html/popper.min.js"></script>
+<script src="07-causal-assumptions_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="07-causal-assumptions_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="07-causal-assumptions_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="07-causal-assumptions_files/libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.36">
+
+  <meta name="author" content="Malcolm Barrett">
+  <title>Causal Assumptions</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="07-causal-assumptions_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="07-causal-assumptions_files/libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="07-causal-assumptions_files/libs/revealjs/dist/theme/quarto-f3805f66672ef64978618ca456565276.css">
+  <link href="07-causal-assumptions_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="07-causal-assumptions_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="07-causal-assumptions_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="07-causal-assumptions_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <link href="07-causal-assumptions_files/libs/countdown-0.6.0/countdown.css" rel="stylesheet">
+  <script src="07-causal-assumptions_files/libs/countdown-0.6.0/countdown.js"></script>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" data-background-color="#23373B" data-color="#EDEEF" class="quarto-title-block center">
+  <h1 class="title">Causal Assumptions</h1>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Malcolm Barrett 
+</div>
+        <p class="quarto-title-affiliation">
+            Stanford University
+          </p>
+    </div>
+</div>
+
+</section>
+<section id="section" class="slide level2">
+<h2></h2>
+
+<img data-src="img/split_decision.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="are-they-good-proxies-for-each-other" class="slide level2">
+<h2>Are they good proxies for each other?</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 46%">
+<col style="width: 46%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Person</th>
+<th>Observed</th>
+<th>Missing counterfactual</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Ice-T</td>
+<td>Abandons criminal life: fame and fortune</td>
+<td>Does one more heist: 35 years in prison</td>
+</tr>
+<tr class="even">
+<td>Spike</td>
+<td>Does one more heist: 35 years in prison</td>
+<td>Abandons criminal life: fame and fortune</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="they-differ-in-more-than-their-choices" class="slide level2">
+<h2>They differ in more than their choices</h2>
+<ul>
+<li class="fragment">Ice-T’s decision was not the only factor in his success: he had enough musical talent to make a career of it</li>
+<li class="fragment">Spike might differ in hard-to-measure ways, which makes him a poorer proxy than he first seems</li>
+</ul>
+<div class="fragment">
+<p>We must rely on statistical techniques to help construct these unobservable counterfactuals from observed data</p>
+</div>
+</section>
+<section id="potential-outcomes" class="slide level2">
+<h2>Potential outcomes</h2>
+<ul>
+<li class="fragment">Factual and counterfactual outcomes are two realizations of potential outcomes</li>
+<li class="fragment">Say the exposure has two levels, <code>x = continue</code> doing jewel heists or <code>x = quit</code></li>
+<li class="fragment">There are two potential outcomes, <code>y(continue)</code> and <code>y(quit)</code>, and only one will be realized</li>
+</ul>
+</section>
+<section id="the-missing-potential-outcome" class="slide level2">
+<h2>The missing potential outcome</h2>
+<ul>
+<li class="fragment">One potential outcome is observable and one is missing; early causal inference methods were framed as missing data problems</li>
+<li class="fragment">We’re missing <code>y(continue)</code> for Ice-T and <code>y(quit)</code> for Spike, so we can’t calculate their individual causal effects</li>
+</ul>
+</section>
+<section id="section-1" class="slide level2 center" data-background-color="#23373B">
+<h2></h2>
+<h3 id="causal-assumptions-allow-us-to-imbue-observed-data-with-the-meaning-of-potential-outcomes-and-their-analysis-with-causal-effects"><strong>Causal assumptions allow us to imbue observed data with the meaning of potential outcomes and their analysis with causal effects</strong></h3>
+</section>
+<section id="does-chocolate-make-you-happier" class="slide level2">
+<h2>Does chocolate make you happier?</h2>
+<p>Suppose some happiness index exists that ranges from 1 to 10</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" data-code-line-numbers="|3-4|6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a>data <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb1-2"><a href=""></a>  <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,</span>
+<span id="cb1-3"><a href=""></a>  <span class="at">y_chocolate =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">5</span>, <span class="dv">6</span>),</span>
+<span id="cb1-4"><a href=""></a>  <span class="at">y_vanilla =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">6</span>, <span class="dv">3</span>, <span class="dv">5</span>)</span>
+<span id="cb1-5"><a href=""></a>) <span class="sc">|&gt;</span></span>
+<span id="cb1-6"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">causal_effect =</span> y_chocolate <span class="sc">-</span> y_vanilla)</span>
+<span id="cb1-7"><a href=""></a></span>
+<span id="cb1-8"><a href=""></a>data <span class="sc">|&gt;</span></span>
+<span id="cb1-9"><a href=""></a>  <span class="fu">summarize</span>(</span>
+<span id="cb1-10"><a href=""></a>    <span class="at">avg_chocolate =</span> <span class="fu">mean</span>(y_chocolate),</span>
+<span id="cb1-11"><a href=""></a>    <span class="at">avg_vanilla =</span> <span class="fu">mean</span>(y_vanilla),</span>
+<span id="cb1-12"><a href=""></a>    <span class="at">avg_causal_effect =</span> <span class="fu">mean</span>(causal_effect)</span>
+<span id="cb1-13"><a href=""></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  avg_chocolate avg_vanilla avg_causal_effect
+          &lt;dbl&gt;       &lt;dbl&gt;             &lt;dbl&gt;
+1           5.4         4.6               0.8</code></pre>
+</div>
+</div>
+</section>
+<section id="both-potential-outcomes-are-known" class="slide level2">
+<h2>Both potential outcomes are known</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="qirxvqmfpz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#qirxvqmfpz table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#qirxvqmfpz thead, #qirxvqmfpz tbody, #qirxvqmfpz tfoot, #qirxvqmfpz tr, #qirxvqmfpz td, #qirxvqmfpz th {
+  border-style: none;
+}
+
+#qirxvqmfpz p {
+  margin: 0;
+  padding: 0;
+}
+
+#qirxvqmfpz .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 60%;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#qirxvqmfpz .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#qirxvqmfpz .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#qirxvqmfpz .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#qirxvqmfpz .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qirxvqmfpz .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qirxvqmfpz .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qirxvqmfpz .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#qirxvqmfpz .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#qirxvqmfpz .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#qirxvqmfpz .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#qirxvqmfpz .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#qirxvqmfpz .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#qirxvqmfpz .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#qirxvqmfpz .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#qirxvqmfpz .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#qirxvqmfpz .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#qirxvqmfpz .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#qirxvqmfpz .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qirxvqmfpz .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#qirxvqmfpz .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#qirxvqmfpz .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#qirxvqmfpz .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qirxvqmfpz .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#qirxvqmfpz .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#qirxvqmfpz .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qirxvqmfpz .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qirxvqmfpz .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#qirxvqmfpz .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qirxvqmfpz .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#qirxvqmfpz .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qirxvqmfpz .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qirxvqmfpz .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qirxvqmfpz .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qirxvqmfpz .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qirxvqmfpz .gt_left {
+  text-align: left;
+}
+
+#qirxvqmfpz .gt_center {
+  text-align: center;
+}
+
+#qirxvqmfpz .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#qirxvqmfpz .gt_font_normal {
+  font-weight: normal;
+}
+
+#qirxvqmfpz .gt_font_bold {
+  font-weight: bold;
+}
+
+#qirxvqmfpz .gt_font_italic {
+  font-style: italic;
+}
+
+#qirxvqmfpz .gt_super {
+  font-size: 65%;
+}
+
+#qirxvqmfpz .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#qirxvqmfpz .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#qirxvqmfpz .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#qirxvqmfpz .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#qirxvqmfpz .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#qirxvqmfpz .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#qirxvqmfpz .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#qirxvqmfpz .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#qirxvqmfpz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="gt_col_headings gt_spanner_row header">
+<th rowspan="2" id="id" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">ID</th>
+<th colspan="2" id="Potential outcomes" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><div class="gt_column_spanner">
+Potential outcomes
+</div></th>
+<th id="Causal effect" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="col"><div class="gt_column_spanner">
+Causal effect
+</div></th>
+</tr>
+<tr class="gt_col_headings even">
+<th id="y_chocolate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">y(chocolate)</th>
+<th id="y_vanilla" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">y(vanilla)</th>
+<th id="causal_effect" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">y(chocolate) - y(vanilla)</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right" headers="id">1</td>
+<td class="gt_row gt_right" headers="y_chocolate">4</td>
+<td class="gt_row gt_right" headers="y_vanilla">1</td>
+<td class="gt_row gt_right" headers="causal_effect">3</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="id">2</td>
+<td class="gt_row gt_right" headers="y_chocolate">4</td>
+<td class="gt_row gt_right" headers="y_vanilla">3</td>
+<td class="gt_row gt_right" headers="causal_effect">1</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="id">3</td>
+<td class="gt_row gt_right" headers="y_chocolate">6</td>
+<td class="gt_row gt_right" headers="y_vanilla">4</td>
+<td class="gt_row gt_right" headers="causal_effect">2</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="id">4</td>
+<td class="gt_row gt_right" headers="y_chocolate">5</td>
+<td class="gt_row gt_right" headers="y_vanilla">5</td>
+<td class="gt_row gt_right" headers="causal_effect">0</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="id">5</td>
+<td class="gt_row gt_right" headers="y_chocolate">6</td>
+<td class="gt_row gt_right" headers="y_vanilla">5</td>
+<td class="gt_row gt_right" headers="causal_effect">1</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="id">6</td>
+<td class="gt_row gt_right" headers="y_chocolate">5</td>
+<td class="gt_row gt_right" headers="y_vanilla">6</td>
+<td class="gt_row gt_right" headers="causal_effect">-1</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="id">7</td>
+<td class="gt_row gt_right" headers="y_chocolate">6</td>
+<td class="gt_row gt_right" headers="y_vanilla">8</td>
+<td class="gt_row gt_right" headers="causal_effect">-2</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="id">8</td>
+<td class="gt_row gt_right" headers="y_chocolate">7</td>
+<td class="gt_row gt_right" headers="y_vanilla">6</td>
+<td class="gt_row gt_right" headers="causal_effect">1</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="id">9</td>
+<td class="gt_row gt_right" headers="y_chocolate">5</td>
+<td class="gt_row gt_right" headers="y_vanilla">3</td>
+<td class="gt_row gt_right" headers="causal_effect">2</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="id">10</td>
+<td class="gt_row gt_right" headers="y_chocolate">6</td>
+<td class="gt_row gt_right" headers="y_vanilla">5</td>
+<td class="gt_row gt_right" headers="causal_effect">1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>We can calculate every individual causal effect</p>
+</section>
+<section id="in-reality-each-person-eats-one-flavor" class="slide level2 small">
+<h2>In reality, each person eats one flavor</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" data-code-line-numbers="|1|4-8|9-12|15-17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">11</span>)</span>
+<span id="cb3-2"><a href=""></a>data_observed <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href=""></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-4"><a href=""></a>    <span class="at">exposure =</span> <span class="fu">if_else</span>(</span>
+<span id="cb3-5"><a href=""></a>      <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, <span class="fl">0.5</span>) <span class="sc">==</span> <span class="dv">1</span>,</span>
+<span id="cb3-6"><a href=""></a>      <span class="st">"chocolate"</span>,</span>
+<span id="cb3-7"><a href=""></a>      <span class="st">"vanilla"</span></span>
+<span id="cb3-8"><a href=""></a>    ),</span>
+<span id="cb3-9"><a href=""></a>    <span class="at">observed_outcome =</span> <span class="fu">case_when</span>(</span>
+<span id="cb3-10"><a href=""></a>      exposure <span class="sc">==</span> <span class="st">"chocolate"</span> <span class="sc">~</span> y_chocolate,</span>
+<span id="cb3-11"><a href=""></a>      exposure <span class="sc">==</span> <span class="st">"vanilla"</span> <span class="sc">~</span> y_vanilla</span>
+<span id="cb3-12"><a href=""></a>    )</span>
+<span id="cb3-13"><a href=""></a>  )</span>
+<span id="cb3-14"><a href=""></a></span>
+<span id="cb3-15"><a href=""></a>data_observed <span class="sc">|&gt;</span></span>
+<span id="cb3-16"><a href=""></a>  <span class="fu">group_by</span>(exposure) <span class="sc">|&gt;</span></span>
+<span id="cb3-17"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">avg_outcome =</span> <span class="fu">mean</span>(observed_outcome))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  exposure  avg_outcome
+  &lt;chr&gt;           &lt;dbl&gt;
+1 chocolate        5.33
+2 vanilla          4.71</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>We’re a little off because of the low sample size</p>
+</div>
+</section>
+<section id="only-the-observed-outcome-remains" class="slide level2">
+<h2>Only the observed outcome remains</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="uvguckgmbq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#uvguckgmbq table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#uvguckgmbq thead, #uvguckgmbq tbody, #uvguckgmbq tfoot, #uvguckgmbq tr, #uvguckgmbq td, #uvguckgmbq th {
+  border-style: none;
+}
+
+#uvguckgmbq p {
+  margin: 0;
+  padding: 0;
+}
+
+#uvguckgmbq .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 60%;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#uvguckgmbq .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#uvguckgmbq .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#uvguckgmbq .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#uvguckgmbq .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#uvguckgmbq .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#uvguckgmbq .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#uvguckgmbq .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#uvguckgmbq .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#uvguckgmbq .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#uvguckgmbq .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#uvguckgmbq .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#uvguckgmbq .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#uvguckgmbq .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#uvguckgmbq .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#uvguckgmbq .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#uvguckgmbq .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#uvguckgmbq .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#uvguckgmbq .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#uvguckgmbq .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#uvguckgmbq .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#uvguckgmbq .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#uvguckgmbq .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#uvguckgmbq .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#uvguckgmbq .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#uvguckgmbq .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#uvguckgmbq .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#uvguckgmbq .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#uvguckgmbq .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#uvguckgmbq .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#uvguckgmbq .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#uvguckgmbq .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#uvguckgmbq .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#uvguckgmbq .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#uvguckgmbq .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#uvguckgmbq .gt_left {
+  text-align: left;
+}
+
+#uvguckgmbq .gt_center {
+  text-align: center;
+}
+
+#uvguckgmbq .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#uvguckgmbq .gt_font_normal {
+  font-weight: normal;
+}
+
+#uvguckgmbq .gt_font_bold {
+  font-weight: bold;
+}
+
+#uvguckgmbq .gt_font_italic {
+  font-style: italic;
+}
+
+#uvguckgmbq .gt_super {
+  font-size: 65%;
+}
+
+#uvguckgmbq .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#uvguckgmbq .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#uvguckgmbq .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#uvguckgmbq .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#uvguckgmbq .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#uvguckgmbq .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#uvguckgmbq .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#uvguckgmbq .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#uvguckgmbq div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="gt_col_headings gt_spanner_row header">
+<th rowspan="2" id="id" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">ID</th>
+<th colspan="2" id="Potential outcomes" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><div class="gt_column_spanner">
+Potential outcomes
+</div></th>
+<th id="Causal effect" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="col"><div class="gt_column_spanner">
+Causal effect
+</div></th>
+</tr>
+<tr class="gt_col_headings even">
+<th id="y_chocolate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">y(chocolate)</th>
+<th id="y_vanilla" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">y(vanilla)</th>
+<th id="causal_effect" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">y(chocolate) - y(vanilla)</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right" headers="id">1</td>
+<td class="gt_row gt_right" headers="y_chocolate"><br>
+</td>
+<td class="gt_row gt_right" headers="y_vanilla">1</td>
+<td class="gt_row gt_right" headers="causal_effect"><br>
+</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="id">2</td>
+<td class="gt_row gt_right" headers="y_chocolate"><br>
+</td>
+<td class="gt_row gt_right" headers="y_vanilla">3</td>
+<td class="gt_row gt_right" headers="causal_effect"><br>
+</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="id">3</td>
+<td class="gt_row gt_right" headers="y_chocolate">6</td>
+<td class="gt_row gt_right" headers="y_vanilla"><br>
+</td>
+<td class="gt_row gt_right" headers="causal_effect"><br>
+</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="id">4</td>
+<td class="gt_row gt_right" headers="y_chocolate"><br>
+</td>
+<td class="gt_row gt_right" headers="y_vanilla">5</td>
+<td class="gt_row gt_right" headers="causal_effect"><br>
+</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="id">5</td>
+<td class="gt_row gt_right" headers="y_chocolate"><br>
+</td>
+<td class="gt_row gt_right" headers="y_vanilla">5</td>
+<td class="gt_row gt_right" headers="causal_effect"><br>
+</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="id">6</td>
+<td class="gt_row gt_right" headers="y_chocolate">5</td>
+<td class="gt_row gt_right" headers="y_vanilla"><br>
+</td>
+<td class="gt_row gt_right" headers="causal_effect"><br>
+</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="id">7</td>
+<td class="gt_row gt_right" headers="y_chocolate"><br>
+</td>
+<td class="gt_row gt_right" headers="y_vanilla">8</td>
+<td class="gt_row gt_right" headers="causal_effect"><br>
+</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="id">8</td>
+<td class="gt_row gt_right" headers="y_chocolate"><br>
+</td>
+<td class="gt_row gt_right" headers="y_vanilla">6</td>
+<td class="gt_row gt_right" headers="causal_effect"><br>
+</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="id">9</td>
+<td class="gt_row gt_right" headers="y_chocolate">5</td>
+<td class="gt_row gt_right" headers="y_vanilla"><br>
+</td>
+<td class="gt_row gt_right" headers="causal_effect"><br>
+</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="id">10</td>
+<td class="gt_row gt_right" headers="y_chocolate"><br>
+</td>
+<td class="gt_row gt_right" headers="y_vanilla">5</td>
+<td class="gt_row gt_right" headers="causal_effect"><br>
+</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>We can’t calculate the individual causal effect</p>
+</section>
+<section id="the-three-assumptions" class="slide level2">
+<h2>The three assumptions</h2>
+<ul>
+<li class="fragment">Unconfoundedness methods assume <strong>exchangeability</strong>, <strong>positivity</strong>, and <strong>consistency</strong></li>
+<li class="fragment">Knowing a method’s assumptions is essential for using it correctly; these are sometimes called identifiability conditions</li>
+</ul>
+</section>
+<section id="exchangeability" class="slide level2">
+<h2>Exchangeability</h2>
+<p>Exposure status is independent of the potential outcomes; that is, each exposure group has the same potential outcomes on average</p>
+
+<img data-src="07-causal-assumptions_files/figure-revealjs/unnamed-chunk-6-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<section id="what-if-we-mixed-up-the-labels" class="slide level2 small">
+<h2>What if we mixed up the labels?</h2>
+<p>Say we accidentally gave chocolate to the “vanilla” group and vanilla to the “chocolate” group</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" data-code-line-numbers="|1-3|7|14-16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a>mix_up <span class="ot">&lt;-</span> <span class="cf">function</span>(flavor) {</span>
+<span id="cb5-2"><a href=""></a>  <span class="fu">if_else</span>(flavor <span class="sc">==</span> <span class="st">"chocolate"</span>, <span class="st">"vanilla"</span>, <span class="st">"chocolate"</span>)</span>
+<span id="cb5-3"><a href=""></a>}</span>
+<span id="cb5-4"><a href=""></a></span>
+<span id="cb5-5"><a href=""></a>data_observed <span class="ot">&lt;-</span> data_observed <span class="sc">|&gt;</span></span>
+<span id="cb5-6"><a href=""></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-7"><a href=""></a>    <span class="at">exposure =</span> <span class="fu">mix_up</span>(exposure),</span>
+<span id="cb5-8"><a href=""></a>    <span class="at">observed_outcome =</span> <span class="fu">case_when</span>(</span>
+<span id="cb5-9"><a href=""></a>      exposure <span class="sc">==</span> <span class="st">"chocolate"</span> <span class="sc">~</span> y_chocolate,</span>
+<span id="cb5-10"><a href=""></a>      exposure <span class="sc">==</span> <span class="st">"vanilla"</span> <span class="sc">~</span> y_vanilla</span>
+<span id="cb5-11"><a href=""></a>    )</span>
+<span id="cb5-12"><a href=""></a>  )</span>
+<span id="cb5-13"><a href=""></a></span>
+<span id="cb5-14"><a href=""></a>data_observed <span class="sc">|&gt;</span></span>
+<span id="cb5-15"><a href=""></a>  <span class="fu">group_by</span>(exposure) <span class="sc">|&gt;</span></span>
+<span id="cb5-16"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">avg_outcome =</span> <span class="fu">mean</span>(observed_outcome))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  exposure  avg_outcome
+  &lt;chr&gt;           &lt;dbl&gt;
+1 chocolate        5.43
+2 vanilla          4.33</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>Flavor assignment is independent of the potential outcomes</p>
+</div>
+</section>
+<section id="what-if-participants-chose-their-own-flavor" class="slide level2 small">
+<h2>What if participants chose their own flavor?</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" data-code-line-numbers="|4|5-17|24-26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">113</span>)</span>
+<span id="cb7-2"><a href=""></a>data_observed_exch <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href=""></a>  <span class="fu">mutate</span>(</span>
+<span id="cb7-4"><a href=""></a>    <span class="at">prefer_chocolate =</span> y_chocolate <span class="sc">&gt;</span> y_vanilla,</span>
+<span id="cb7-5"><a href=""></a>    <span class="at">exposure =</span> <span class="fu">case_when</span>(</span>
+<span id="cb7-6"><a href=""></a>      <span class="co"># people choose the flavor they prefer 80% of the time</span></span>
+<span id="cb7-7"><a href=""></a>      prefer_chocolate <span class="sc">~</span> <span class="fu">if_else</span>(</span>
+<span id="cb7-8"><a href=""></a>        <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, <span class="fl">0.8</span>) <span class="sc">==</span> <span class="dv">1</span>,</span>
+<span id="cb7-9"><a href=""></a>        <span class="st">"chocolate"</span>,</span>
+<span id="cb7-10"><a href=""></a>        <span class="st">"vanilla"</span></span>
+<span id="cb7-11"><a href=""></a>      ),</span>
+<span id="cb7-12"><a href=""></a>      <span class="sc">!</span>prefer_chocolate <span class="sc">~</span> <span class="fu">if_else</span>(</span>
+<span id="cb7-13"><a href=""></a>        <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, <span class="fl">0.8</span>) <span class="sc">==</span> <span class="dv">1</span>,</span>
+<span id="cb7-14"><a href=""></a>        <span class="st">"vanilla"</span>,</span>
+<span id="cb7-15"><a href=""></a>        <span class="st">"chocolate"</span></span>
+<span id="cb7-16"><a href=""></a>      )</span>
+<span id="cb7-17"><a href=""></a>    ),</span>
+<span id="cb7-18"><a href=""></a>    <span class="at">observed_outcome =</span> <span class="fu">case_when</span>(</span>
+<span id="cb7-19"><a href=""></a>      exposure <span class="sc">==</span> <span class="st">"chocolate"</span> <span class="sc">~</span> y_chocolate,</span>
+<span id="cb7-20"><a href=""></a>      exposure <span class="sc">==</span> <span class="st">"vanilla"</span> <span class="sc">~</span> y_vanilla</span>
+<span id="cb7-21"><a href=""></a>    )</span>
+<span id="cb7-22"><a href=""></a>  )</span>
+<span id="cb7-23"><a href=""></a></span>
+<span id="cb7-24"><a href=""></a>data_observed_exch <span class="sc">|&gt;</span></span>
+<span id="cb7-25"><a href=""></a>  <span class="fu">group_by</span>(exposure) <span class="sc">|&gt;</span></span>
+<span id="cb7-26"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">avg_outcome =</span> <span class="fu">mean</span>(observed_outcome))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  exposure  avg_outcome
+  &lt;chr&gt;           &lt;dbl&gt;
+1 chocolate        5.29
+2 vanilla          5.67</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>Now it seems like vanilla makes you happier!</p>
+</div>
+</section>
+<section id="the-groups-are-no-longer-exchangeable" class="slide level2">
+<h2>The groups are no longer exchangeable</h2>
+
+<img data-src="07-causal-assumptions_files/figure-revealjs/unnamed-chunk-9-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"><p>Preference influences both flavor and happiness</p>
+</section>
+<section id="conditional-exchangeability" class="slide level2">
+<h2>Conditional exchangeability</h2>
+<p>Exchangeability can hold within preference groups</p>
+
+<img data-src="07-causal-assumptions_files/figure-revealjs/unnamed-chunk-10-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"><div class="fragment">
+<p>But few values fall in each combination</p>
+</div>
+</section>
+<section id="positivity" class="slide level2">
+<h2>Positivity</h2>
+<ul>
+<li class="fragment">Everyone has a non-zero probability of each exposure level</li>
+<li class="fragment"><strong>Stochastic violations</strong> are chance occurrences with no observations for a given exposure level</li>
+<li class="fragment"><strong>Structural violations</strong> happen when an individual cannot receive an exposure level by definition</li>
+</ul>
+</section>
+<section id="a-stochastic-violation" class="slide level2">
+<h2>A stochastic violation</h2>
+<p>Participants choose the flavor they prefer 80% of the time, as before</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href=""></a>data_observed_pos <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href=""></a>  <span class="fu">count</span>(prefer_chocolate, exposure) <span class="sc">|&gt;</span></span>
+<span id="cb9-3"><a href=""></a>  <span class="fu">complete</span>(</span>
+<span id="cb9-4"><a href=""></a>    prefer_chocolate,</span>
+<span id="cb9-5"><a href=""></a>    <span class="at">exposure =</span> <span class="fu">c</span>(<span class="st">"chocolate"</span>, <span class="st">"vanilla"</span>),</span>
+<span id="cb9-6"><a href=""></a>    <span class="at">fill =</span> <span class="fu">list</span>(<span class="at">n =</span> <span class="dv">0</span>)</span>
+<span id="cb9-7"><a href=""></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+  prefer_chocolate exposure      n
+  &lt;lgl&gt;            &lt;chr&gt;     &lt;int&gt;
+1 FALSE            chocolate     0
+2 FALSE            vanilla       3
+3 TRUE             chocolate     7
+4 TRUE             vanilla       0</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>Positivity must hold within the covariates needed for exchangeability</p>
+</div>
+</section>
+<section id="a-structural-violation-an-allergy-to-vanilla" class="slide level2 small">
+<h2>A structural violation: an allergy to vanilla</h2>
+<p>Everyone is randomized to a flavor, as before</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11" data-code-line-numbers="|4|6-7|15-17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb11-2"><a href=""></a>data_observed_struc <span class="ot">&lt;-</span> data_observed_struc <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href=""></a>  <span class="fu">mutate</span>(</span>
+<span id="cb11-4"><a href=""></a>    <span class="at">allergy =</span> <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, <span class="fl">0.3</span>) <span class="sc">==</span> <span class="dv">1</span>,</span>
+<span id="cb11-5"><a href=""></a>    <span class="co"># `y_vanilla` is impossible for those with an allergy</span></span>
+<span id="cb11-6"><a href=""></a>    <span class="at">exposure =</span> <span class="fu">if_else</span>(allergy, <span class="st">"chocolate"</span>, exposure),</span>
+<span id="cb11-7"><a href=""></a>    <span class="at">y_vanilla =</span> <span class="fu">if_else</span>(allergy, <span class="cn">NA</span>, y_vanilla),</span>
+<span id="cb11-8"><a href=""></a>    <span class="at">observed_outcome =</span> <span class="fu">case_when</span>(</span>
+<span id="cb11-9"><a href=""></a>      allergy <span class="sc">~</span> y_chocolate,</span>
+<span id="cb11-10"><a href=""></a>      exposure <span class="sc">==</span> <span class="st">"chocolate"</span> <span class="sc">~</span> y_chocolate,</span>
+<span id="cb11-11"><a href=""></a>      exposure <span class="sc">==</span> <span class="st">"vanilla"</span> <span class="sc">~</span> y_vanilla</span>
+<span id="cb11-12"><a href=""></a>    )</span>
+<span id="cb11-13"><a href=""></a>  )</span>
+<span id="cb11-14"><a href=""></a></span>
+<span id="cb11-15"><a href=""></a>data_observed_struc <span class="sc">|&gt;</span></span>
+<span id="cb11-16"><a href=""></a>  <span class="fu">group_by</span>(exposure) <span class="sc">|&gt;</span></span>
+<span id="cb11-17"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">avg_outcome =</span> <span class="fu">mean</span>(observed_outcome))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  exposure  avg_outcome
+  &lt;chr&gt;           &lt;dbl&gt;
+1 chocolate         5.4
+2 vanilla           4  </code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>For those with a vanilla allergy, <code>y(vanilla)</code> is not defined</p>
+</div>
+</section>
+<section id="undefined-potential-outcomes" class="slide level2">
+<h2>Undefined potential outcomes</h2>
+
+<img data-src="07-causal-assumptions_files/figure-revealjs/unnamed-chunk-15-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"><div class="fragment">
+<p>We can collect more data, use a statistical model to extrapolate, add eligibility criteria, or change the estimand</p>
+</div>
+</section>
+<section id="consistency" class="slide level2">
+<h2>Consistency</h2>
+<ul>
+<li class="fragment">The causal question you claim you are answering is consistent with the one you are actually answering</li>
+<li class="fragment">The potential outcome of a given treatment value equals the value we actually observe when someone is assigned that treatment value</li>
+</ul>
+<div class="fragment">
+<p>It seems almost silly when you say it. What else would it be?</p>
+</div>
+</section>
+<section id="two-ways-consistency-fails" class="slide level2">
+<h2>Two ways consistency fails</h2>
+<ul>
+<li class="fragment"><strong>Poorly-defined exposure</strong>: multiple treatment versions exist, from surgeries to income to education</li>
+<li class="fragment"><strong>Interference</strong>: the outcome for any subject depends on another subject’s exposure</li>
+</ul>
+</section>
+<section id="two-containers-of-chocolate-one-spoiled" class="slide level2 small">
+<h2>Two containers of chocolate, one spoiled</h2>
+<p>Everyone has a third potential outcome, <code>y_spoiled_chocolate</code>, which is 0</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13" data-code-line-numbers="|4-8|14-15|18-20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">11</span>)</span>
+<span id="cb13-2"><a href=""></a>data_observed_poorly_defined <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb13-3"><a href=""></a>  <span class="fu">mutate</span>(</span>
+<span id="cb13-4"><a href=""></a>    <span class="at">exposure_unobserved =</span> <span class="fu">case_when</span>(</span>
+<span id="cb13-5"><a href=""></a>      <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, <span class="fl">0.25</span>) <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"chocolate (spoiled)"</span>,</span>
+<span id="cb13-6"><a href=""></a>      <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, <span class="fl">0.25</span>) <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"chocolate"</span>,</span>
+<span id="cb13-7"><a href=""></a>      <span class="at">.default =</span> <span class="st">"vanilla"</span></span>
+<span id="cb13-8"><a href=""></a>    ),</span>
+<span id="cb13-9"><a href=""></a>    <span class="at">observed_outcome =</span> <span class="fu">case_when</span>(</span>
+<span id="cb13-10"><a href=""></a>      exposure_unobserved <span class="sc">==</span> <span class="st">"chocolate (spoiled)"</span> <span class="sc">~</span> y_spoiled_chocolate,</span>
+<span id="cb13-11"><a href=""></a>      exposure_unobserved <span class="sc">==</span> <span class="st">"chocolate"</span> <span class="sc">~</span> y_chocolate,</span>
+<span id="cb13-12"><a href=""></a>      exposure_unobserved <span class="sc">==</span> <span class="st">"vanilla"</span> <span class="sc">~</span> y_vanilla</span>
+<span id="cb13-13"><a href=""></a>    ),</span>
+<span id="cb13-14"><a href=""></a>    <span class="co"># both containers are recorded as "chocolate"</span></span>
+<span id="cb13-15"><a href=""></a>    <span class="at">exposure =</span> <span class="fu">if_else</span>(exposure_unobserved <span class="sc">==</span> <span class="st">"vanilla"</span>, <span class="st">"vanilla"</span>, <span class="st">"chocolate"</span>)</span>
+<span id="cb13-16"><a href=""></a>  )</span>
+<span id="cb13-17"><a href=""></a></span>
+<span id="cb13-18"><a href=""></a>data_observed_poorly_defined <span class="sc">|&gt;</span></span>
+<span id="cb13-19"><a href=""></a>  <span class="fu">group_by</span>(exposure) <span class="sc">|&gt;</span></span>
+<span id="cb13-20"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">avg_outcome =</span> <span class="fu">mean</span>(observed_outcome))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  exposure  avg_outcome
+  &lt;chr&gt;           &lt;dbl&gt;
+1 chocolate        2.75
+2 vanilla          4.67</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>The true causal effect of unspoiled chocolate is 0.8, but our estimate is about -1.9</p>
+</div>
+</section>
+<section id="the-chocolate-group-is-a-mixture" class="slide level2">
+<h2>The chocolate group is a mixture</h2>
+
+<img data-src="07-causal-assumptions_files/figure-revealjs/unnamed-chunk-18-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"><p>We’re treating fresh and spoiled chocolate as the same exposure; the same goes for brands, timing, and portion size</p>
+</section>
+<section id="separate-the-potential-outcomes" class="slide level2">
+<h2>Separate the potential outcomes</h2>
+<p>Say we tested the containers after the experiment and know which ones were spoiled</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a>data_observed_poorly_defined <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href=""></a>  <span class="fu">group_by</span>(exposure_unobserved) <span class="sc">|&gt;</span></span>
+<span id="cb15-3"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">avg_outcome =</span> <span class="fu">mean</span>(observed_outcome))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+  exposure_unobserved avg_outcome
+  &lt;chr&gt;                     &lt;dbl&gt;
+1 chocolate                  5.5 
+2 chocolate (spoiled)        0   
+3 vanilla                    4.67</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>Now we’re back to the right answer because we’ve correctly separated the potential outcomes</p>
+</div>
+</section>
+<section id="the-data-match-potential-outcomes" class="slide level2">
+<h2>The data match potential outcomes</h2>
+
+<img data-src="07-causal-assumptions_files/figure-revealjs/unnamed-chunk-20-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"><div class="fragment">
+<p>There will almost always be some consistency violation; the question is whether it is meaningful</p>
+</div>
+</section>
+<section id="interference" class="slide level2">
+<h2>Interference</h2>
+<ul>
+<li class="fragment">An individual’s exposure impacts another’s potential outcome, as when someone’s vaccination affects someone else’s risk</li>
+<li class="fragment">Here, each person has a partner, and having a partner with a different flavor increases happiness by two units</li>
+</ul>
+</section>
+<section id="each-person-has-a-partner" class="slide level2">
+<h2>Each person has a partner</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17" data-code-line-numbers="|8-9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href=""></a>data <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb17-2"><a href=""></a>  <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,</span>
+<span id="cb17-3"><a href=""></a>  <span class="at">partner_id =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">5</span>),</span>
+<span id="cb17-4"><a href=""></a>  <span class="at">y_chocolate_chocolate =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">5</span>, <span class="dv">6</span>),</span>
+<span id="cb17-5"><a href=""></a>  <span class="at">y_vanilla_vanilla =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">6</span>, <span class="dv">3</span>, <span class="dv">5</span>)</span>
+<span id="cb17-6"><a href=""></a>) <span class="sc">|&gt;</span></span>
+<span id="cb17-7"><a href=""></a>  <span class="fu">mutate</span>(</span>
+<span id="cb17-8"><a href=""></a>    <span class="at">y_chocolate_vanilla =</span> y_chocolate_chocolate <span class="sc">+</span> <span class="dv">2</span>,</span>
+<span id="cb17-9"><a href=""></a>    <span class="at">y_vanilla_chocolate =</span> y_vanilla_vanilla <span class="sc">+</span> <span class="dv">2</span></span>
+<span id="cb17-10"><a href=""></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="randomize-each-individual-and-their-partner" class="slide level2 small">
+<h2>Randomize each individual and their partner</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18" data-code-line-numbers="|4-9|10-18|21-23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">37</span>)</span>
+<span id="cb18-2"><a href=""></a>data_observed_interf <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb18-3"><a href=""></a>  <span class="fu">mutate</span>(</span>
+<span id="cb18-4"><a href=""></a>    <span class="at">exposure =</span> <span class="fu">if_else</span>(<span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, <span class="fl">0.5</span>) <span class="sc">==</span> <span class="dv">1</span>, <span class="st">"chocolate"</span>, <span class="st">"vanilla"</span>),</span>
+<span id="cb18-5"><a href=""></a>    <span class="at">exposure_partner =</span> <span class="fu">if_else</span>(</span>
+<span id="cb18-6"><a href=""></a>      <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, <span class="fl">0.5</span>) <span class="sc">==</span> <span class="dv">1</span>,</span>
+<span id="cb18-7"><a href=""></a>      <span class="st">"chocolate"</span>,</span>
+<span id="cb18-8"><a href=""></a>      <span class="st">"vanilla"</span></span>
+<span id="cb18-9"><a href=""></a>    ),</span>
+<span id="cb18-10"><a href=""></a>    <span class="at">observed_outcome =</span> <span class="fu">case_when</span>(</span>
+<span id="cb18-11"><a href=""></a>      exposure <span class="sc">==</span> <span class="st">"chocolate"</span> <span class="sc">&amp;</span> exposure_partner <span class="sc">==</span> <span class="st">"chocolate"</span> <span class="sc">~</span></span>
+<span id="cb18-12"><a href=""></a>        y_chocolate_chocolate,</span>
+<span id="cb18-13"><a href=""></a>      exposure <span class="sc">==</span> <span class="st">"chocolate"</span> <span class="sc">&amp;</span> exposure_partner <span class="sc">==</span> <span class="st">"vanilla"</span> <span class="sc">~</span></span>
+<span id="cb18-14"><a href=""></a>        y_chocolate_vanilla,</span>
+<span id="cb18-15"><a href=""></a>      exposure <span class="sc">==</span> <span class="st">"vanilla"</span> <span class="sc">&amp;</span> exposure_partner <span class="sc">==</span> <span class="st">"chocolate"</span> <span class="sc">~</span></span>
+<span id="cb18-16"><a href=""></a>        y_vanilla_chocolate,</span>
+<span id="cb18-17"><a href=""></a>      exposure <span class="sc">==</span> <span class="st">"vanilla"</span> <span class="sc">&amp;</span> exposure_partner <span class="sc">==</span> <span class="st">"vanilla"</span> <span class="sc">~</span> y_vanilla_vanilla</span>
+<span id="cb18-18"><a href=""></a>    )</span>
+<span id="cb18-19"><a href=""></a>  )</span>
+<span id="cb18-20"><a href=""></a></span>
+<span id="cb18-21"><a href=""></a>data_observed_interf <span class="sc">|&gt;</span></span>
+<span id="cb18-22"><a href=""></a>  <span class="fu">group_by</span>(exposure) <span class="sc">|&gt;</span></span>
+<span id="cb18-23"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">avg_outcome =</span> <span class="fu">mean</span>(observed_outcome))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  exposure  avg_outcome
+  &lt;chr&gt;           &lt;dbl&gt;
+1 chocolate        6.25
+2 vanilla          6.33</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>Each person has three counterfactuals now, and these averages don’t estimate any of them</p>
+</div>
+</section>
+<section id="specify-the-potential-outcomes" class="slide level2">
+<h2>Specify the potential outcomes</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href=""></a>data_observed_interf <span class="sc">|&gt;</span></span>
+<span id="cb20-2"><a href=""></a>  <span class="fu">group_by</span>(exposure, exposure_partner) <span class="sc">|&gt;</span></span>
+<span id="cb20-3"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">avg_outcome =</span> <span class="fu">mean</span>(observed_outcome), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+  exposure  exposure_partner avg_outcome
+  &lt;chr&gt;     &lt;chr&gt;                  &lt;dbl&gt;
+1 chocolate chocolate               5.5 
+2 chocolate vanilla                 7   
+3 vanilla   chocolate               6.75
+4 vanilla   vanilla                 5.5 </code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>One way to combat interference is to change the unit: randomize the partnerships, a cluster randomized trial</p>
+</div>
+</section>
+<section id="randomize-the-partnerships" class="slide level2 small">
+<h2>Randomize the partnerships</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22" data-code-line-numbers="|2-5|10|18-20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">11</span>)</span>
+<span id="cb22-2"><a href=""></a>partners <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb22-3"><a href=""></a>  <span class="at">partner_id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,</span>
+<span id="cb22-4"><a href=""></a>  <span class="at">exposure =</span> <span class="fu">if_else</span>(<span class="fu">rbinom</span>(<span class="dv">5</span>, <span class="dv">1</span>, <span class="fl">0.5</span>) <span class="sc">==</span> <span class="dv">1</span>, <span class="st">"chocolate"</span>, <span class="st">"vanilla"</span>)</span>
+<span id="cb22-5"><a href=""></a>)</span>
+<span id="cb22-6"><a href=""></a></span>
+<span id="cb22-7"><a href=""></a>partners_observed <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb22-8"><a href=""></a>  <span class="fu">left_join</span>(partners, <span class="at">by =</span> <span class="st">"partner_id"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb22-9"><a href=""></a>  <span class="fu">mutate</span>(</span>
+<span id="cb22-10"><a href=""></a>    <span class="at">exposure_partner =</span> exposure,</span>
+<span id="cb22-11"><a href=""></a>    <span class="at">observed_outcome =</span> <span class="fu">case_when</span>(</span>
+<span id="cb22-12"><a href=""></a>      exposure <span class="sc">==</span> <span class="st">"chocolate"</span> <span class="sc">&amp;</span> exposure_partner <span class="sc">==</span> <span class="st">"chocolate"</span> <span class="sc">~</span></span>
+<span id="cb22-13"><a href=""></a>        y_chocolate_chocolate,</span>
+<span id="cb22-14"><a href=""></a>      exposure <span class="sc">==</span> <span class="st">"vanilla"</span> <span class="sc">&amp;</span> exposure_partner <span class="sc">==</span> <span class="st">"vanilla"</span> <span class="sc">~</span> y_vanilla_vanilla</span>
+<span id="cb22-15"><a href=""></a>    )</span>
+<span id="cb22-16"><a href=""></a>  )</span>
+<span id="cb22-17"><a href=""></a></span>
+<span id="cb22-18"><a href=""></a>partners_observed <span class="sc">|&gt;</span></span>
+<span id="cb22-19"><a href=""></a>  <span class="fu">group_by</span>(exposure) <span class="sc">|&gt;</span></span>
+<span id="cb22-20"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">avg_outcome =</span> <span class="fu">mean</span>(observed_outcome))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  exposure  avg_outcome
+  &lt;chr&gt;           &lt;dbl&gt;
+1 chocolate        5.5 
+2 vanilla          4.38</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>There is no interference between different partner sets</p>
+</div>
+</section>
+<section id="section-2" class="slide level2 center" data-background-color="#23373B">
+<h2></h2>
+<h3 id="malaria-nets-revisited"><strong>Malaria nets, revisited</strong></h3>
+</section>
+<section id="malaria-nets-and-the-assumptions" class="slide level2">
+<h2>Malaria nets and the assumptions</h2>
+<ul>
+<li class="fragment"><strong>Exchangeability</strong>: we saw what can happen with an unmeasured confounder, genetic resistance to malaria</li>
+<li class="fragment"><strong>Positivity</strong>: a violation would occur if any household would always or never use a bed net, or if no one of low economic status in cold weather ever used one</li>
+</ul>
+</section>
+<section id="consistency-and-interference" class="slide level2">
+<h2>Consistency and interference</h2>
+<ul>
+<li class="fragment"><strong>Consistency</strong>: a “bed net” can mean many things; does the manufacturer matter? The type of insecticide? The amount?</li>
+<li class="fragment">Interference is a real problem for bed-net research, though households as the unit reduce some of it</li>
+</ul>
+</section>
+<section id="section-3" class="slide level2 center" data-background-color="#23373B">
+<h2></h2>
+<h3 id="when-do-study-designs-support-causal-inference"><strong>When do study designs support causal inference?</strong></h3>
+</section>
+<section id="randomized-trials" class="slide level2">
+<h2>Randomized trials</h2>
+<ul>
+<li class="fragment">In the limit, we expect exchangeability: randomization is the only cause of exposure</li>
+<li class="fragment">Randomization guarantees positivity so long as no one has a deterministic exposure</li>
+<li class="fragment">Trials help, but do not guarantee, consistency; interference can still happen</li>
+</ul>
+</section>
+<section id="trials-in-practice" class="slide level2">
+<h2>Trials in practice</h2>
+<ul>
+<li class="fragment">In actual trials, exchangeability can fail by chance, people do not adhere to their assigned exposure, and people drop out</li>
+<li class="fragment">Observational studies have none of a trial’s guarantees, even ideal ones</li>
+</ul>
+<div class="fragment">
+<p>A randomized design is sometimes called an A/B test</p>
+</div>
+</section>
+<section id="assumptions-solved-by-study-design" class="slide level2">
+<h2>Assumptions solved by study design</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 34%">
+<col style="width: 21%">
+<col style="width: 25%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Assumption</th>
+<th>Ideal randomized trial</th>
+<th>Realistic randomized trial</th>
+<th>Observational study</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Consistency (well-defined exposure)</td>
+<td>😄</td>
+<td>🤷</td>
+<td>🤷</td>
+</tr>
+<tr class="even">
+<td>Consistency (no interference)</td>
+<td>🤷</td>
+<td>🤷</td>
+<td>🤷</td>
+</tr>
+<tr class="odd">
+<td>Positivity</td>
+<td>😄</td>
+<td>😄</td>
+<td>🤷</td>
+</tr>
+<tr class="even">
+<td>Exchangeability</td>
+<td>😄</td>
+<td>🤷</td>
+<td>🤷</td>
+</tr>
+</tbody>
+</table>
+<p>😄 solved by default, 🤷 solvable but not solved by default</p>
+</section>
+<section id="quitting-smoking-and-weight-gain" class="slide level2">
+<h2>Quitting smoking and weight gain</h2>
+
+<img data-src="07-causal-assumptions_files/figure-revealjs/unnamed-chunk-25-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<section id="your-turn" class="slide level2">
+<h2><em>Your Turn</em></h2>
+<h3 id="open-07-causal-assumptions-exercises.qmd">Open <code>07-causal-assumptions-exercises.qmd</code></h3>
+<h3 id="discuss-with-your-neighbors-what-do-exchangeability-positivity-and-consistency-require-for-the-question-does-quitting-smoking-cause-weight-gain">Discuss with your neighbors: what do exchangeability, positivity, and consistency require for the question, does quitting smoking cause weight gain?</h3>
+<p><countdown-timer class="countdown" id="timer_e8f217ae" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="07-causal-assumptions_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="07-causal-assumptions_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="07-causal-assumptions_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="07-causal-assumptions_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="07-causal-assumptions_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="07-causal-assumptions_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="07-causal-assumptions_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="07-causal-assumptions_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="07-causal-assumptions_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="07-causal-assumptions_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":false},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: true,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'fade',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'fast',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'fade',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

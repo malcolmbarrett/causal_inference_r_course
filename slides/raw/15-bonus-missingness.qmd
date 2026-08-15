@@ -1,0 +1,1033 @@
+---
+title: "Bonus: Missing Data"
+author: "Malcolm Barrett"
+institute: "Stanford University"
+format: "kakashi-revealjs"
+---
+
+## {background-color="#23373B"}
+
+```{r}
+#| label: setup
+#| include: false
+
+options(
+  tibble.max_extra_cols = 6,
+  tibble.width = 60
+)
+library(tidyverse)
+library(broom)
+library(propensity)
+library(causalworkshop)
+library(touringplans)
+# mice masks tidyr::complete(), so tidyr::complete() calls must be namespaced
+library(mice)
+library(ggmice)
+library(ggdag)
+library(patchwork)
+
+theme_set(
+  theme_minimal(base_size = 14) +
+    theme(
+      panel.grid.minor = element_blank(),
+      legend.position = "bottom"
+    )
+)
+```
+
+- `lm()` and `glm()` drop rows with missing values silently
+- Every model we have fit in this course has been a complete-case analysis
+
+## How much is missing?
+
+```{r}
+#| output-location: fragment
+
+seven_dwarfs_train_2018 |>
+  filter(wait_hour == 9) |>
+  summarize(
+    days = n(),
+    missing_actual = sum(is.na(wait_minutes_actual_avg)),
+    prop_missing = mean(is.na(wait_minutes_actual_avg))
+  )
+```
+
+. . .
+
+At the 9 AM hour, 207 of 354 days are missing the actual wait time; across the
+full data, 88.7% of actual wait times are missing
+
+## A known benchmark
+
+- The malaria data has no missing values, so we will remove some on purpose
+- Then we compare each remedy to the answer we already know
+
+. . .
+
+The benchmark: the full-data IPW estimate of the effect of net use on malaria
+risk, -12.5 (from the outcome model module)
+
+## {.center background-color="#23373B"}
+
+### **The missingness indicator**
+
+## Two nodes for one variable
+
+- We draw two nodes for a given variable: one represents the true values, and
+  the other represents a *missingness indicator*, whether we observed the value
+  or not
+- We are always conditioning on the data we actually have
+
+## Two nodes for one variable
+
+With missingness, that usually means conditioning on *complete* observations:
+the subset where every variable we need is observed
+
+## A DAG with missingness
+
+```{r}
+#| echo: false
+
+malaria_labels <- c(
+  malaria_risk = "Risk of malaria",
+  malaria_missing = "Missingness\nin malaria risk",
+  net = "Mosquito net",
+  unknown = "Unknown\nmechanism"
+)
+
+missing_malaria <- dagify(
+  malaria_risk ~ net,
+  malaria_missing ~ net + unknown,
+  coords = list(
+    x = c(net = 0, unknown = 0, malaria_risk = 2, malaria_missing = 2),
+    y = c(net = 1, unknown = -1, malaria_risk = 1, malaria_missing = -1)
+  ),
+  labels = malaria_labels,
+  exposure = "net",
+  outcome = "malaria_risk"
+)
+
+missing_malaria |>
+  ggdag(use_text = FALSE) +
+  geom_dag_text_repel(
+    aes(label = label),
+    color = "black",
+    point.padding = 25,
+    box.padding = 0.5,
+    seed = 1
+  ) +
+  theme_dag() +
+  expand_plot(expansion(0.2), expansion(0.2))
+```
+
+## {.center background-color="#23373B"}
+
+### **When complete cases are enough**
+
+## Conditioning on the indicator
+
+```{r}
+#| echo: false
+
+missing_malaria |>
+  ggdag_adjust("malaria_missing", use_text = FALSE, collider_lines = FALSE) +
+  geom_dag_text_repel(
+    aes(label = label),
+    color = "black",
+    point.padding = 25,
+    box.padding = 0.5,
+    seed = 1
+  ) +
+  theme_dag() +
+  theme(legend.position = "none") +
+  expand_plot(expansion(0.2), expansion(0.2)) +
+  ggokabeito::scale_color_okabe_ito()
+```
+
+## Recoverable effects
+
+- The causal effect is *recoverable*: we can still estimate it without bias
+  with complete-case analysis
+- Because we only use complete observations, we have a smaller sample size and
+  thus reduced precision
+
+. . .
+
+We are unable to correctly estimate the *mean* of malaria risk because values
+are systematically missing by net use
+
+## {.center background-color="#23373B"}
+
+### **When complete cases are not enough**
+
+## Missingness from the value itself
+
+- Is it feasible that the missingness of malaria risk is related to its own
+  values?
+- It could be that a person's malaria risk is so severe that the measurement
+  never happens
+
+## An arrow from the outcome
+
+```{r}
+#| echo: false
+
+missing_malaria_own <- dagify(
+  malaria_risk ~ net,
+  malaria_missing ~ net + unknown + malaria_risk,
+  coords = list(
+    x = c(net = 0, unknown = 0, malaria_risk = 2, malaria_missing = 2),
+    y = c(net = 1, unknown = -1, malaria_risk = 1, malaria_missing = -1)
+  ),
+  labels = malaria_labels,
+  exposure = "net",
+  outcome = "malaria_risk"
+)
+
+missing_malaria_own |>
+  ggdag(use_text = FALSE) +
+  geom_dag_text_repel(
+    aes(label = label),
+    color = "black",
+    point.padding = 25,
+    box.padding = 0.5,
+    seed = 1
+  ) +
+  theme_dag() +
+  expand_plot(expansion(0.2), expansion(0.2))
+```
+
+## Conditioning now opens a backdoor
+
+```{r}
+#| echo: false
+
+missing_malaria_own |>
+  ggdag_adjust("malaria_missing", use_text = FALSE, collider_lines = FALSE) +
+  geom_dag_text_repel(
+    aes(label = label),
+    color = "black",
+    point.padding = 25,
+    box.padding = 0.5,
+    seed = 1
+  ) +
+  theme_dag() +
+  theme(legend.position = "none") +
+  expand_plot(expansion(0.2), expansion(0.2)) +
+  ggokabeito::scale_color_okabe_ito()
+```
+
+## No way to close it
+
+- Whether malaria risk was measured is now a descendant of both the exposure
+  and the outcome
+- Conditioning on the indicator opens a backdoor path, creating
+  nonexchangeability
+
+. . .
+
+There is no way to close the backdoor path opened by conditioning on
+missingness
+
+## More than backdoor paths
+
+- What effects we can recover is more complicated than determining backdoor
+  paths alone
+
+## More than backdoor paths
+
+- When there are no backdoor paths, we can calculate the causal effect, but we
+  may not be able to calculate other statistics, like the mean of the exposure
+  or outcome
+- When conditioning on missingness opens a backdoor path, sometimes we can
+  close it, and sometimes we cannot
+
+## {.center background-color="#23373B"}
+
+### **Five structures of missingness**
+
+## Five DAGs
+
+- Consider five DAGs, where `a` is malaria risk, `n` is net use, `u` is
+  unknown, and `m` is missing
+- Each represents a simple but differing structure of missingness
+
+. . .
+
+In DAGs 1-3, malaria risk has missingness; in DAGs 4-5, net use does
+
+## Five structures
+
+```{r}
+#| echo: false
+
+define_dag <- function(..., tag, title) {
+  dagify(
+    ...,
+    coords = time_ordered_coords(),
+    exposure = "n",
+    outcome = "a"
+  ) |>
+    ggdag(size = 0.7) +
+    labs(title = paste0(tag, ": ", title)) +
+    theme_dag() +
+    theme(plot.title = element_text(size = 12)) +
+    expand_plot(expansion(c(0.4, 0.4)), expansion(c(0.4, 0.4)))
+}
+
+dag_1 <- define_dag(
+  a ~ n,
+  m ~ u,
+  tag = "1",
+  title = "malaria risk is missing"
+)
+
+dag_2 <- define_dag(
+  a ~ n,
+  m ~ u + n,
+  tag = "2",
+  title = "malaria risk is missing"
+)
+
+dag_3 <- define_dag(
+  a ~ n,
+  m ~ u + a,
+  tag = "3",
+  title = "malaria risk is missing"
+)
+
+dag_4 <- define_dag(
+  a ~ n,
+  m ~ u + n,
+  tag = "4",
+  title = "net use is missing"
+)
+
+dag_5 <- define_dag(
+  a ~ n,
+  m ~ u + a,
+  tag = "5",
+  title = "net use is missing"
+)
+
+(dag_1 + dag_2 + dag_3) / (plot_spacer() + dag_4 + dag_5)
+```
+
+```{r}
+#| echo: false
+
+set.seed(123)
+n <- nrow(net_data)
+m1 <- as.logical(rbinom(n, 1, 0.35))
+m2 <- as.logical(
+  if_else(net_data$net, rbinom(n, 1, 0.9), rbinom(n, 1, 0.15))
+)
+# the threshold 38 sits near the median of malaria risk
+m3 <- as.logical(
+  if_else(net_data$malaria_risk > 38, rbinom(n, 1, 0.9), rbinom(n, 1, 0.05))
+)
+# the same structures, but net use gets the resulting missingness
+m4 <- m2
+m5 <- m3
+```
+
+## What we can estimate
+
+```{r}
+#| echo: false
+
+# fit_ipw_net() is defined again on the visible pipeline slide below; keep
+# the two definitions in sync
+fit_ipw_net <- function(.data) {
+  propensity_model <- glm(
+    net ~ income + health + temperature,
+    family = binomial(),
+    data = .data
+  )
+  weighted_data <- propensity_model |>
+    augment(type.predict = "response", data = .data) |>
+    mutate(wts = wt_ate(.fitted, net, exposure_type = "binary"))
+  ipw_model <- lm(malaria_risk ~ net, data = weighted_data, weights = wts)
+  ipw(propensity_model, ipw_model)
+}
+
+fit_stats <- function(dag, miss, missing_for) {
+  d <- net_data
+  if (missing_for == "outcome") {
+    d$malaria_risk[miss] <- NA
+  } else {
+    d$net[miss] <- NA
+  }
+
+  t_risk <- t.test(d$malaria_risk)
+  p_net <- prop.test(sum(d$net, na.rm = TRUE), sum(!is.na(d$net)))
+  # ipw() requires both models to see the same rows, so filter to complete
+  # cases before fitting instead of letting lm() drop rows
+  complete_cases <- d |> filter(!is.na(malaria_risk), !is.na(net))
+  effect <- tidy(fit_ipw_net(complete_cases), conf.int = TRUE)
+
+  tibble(
+    dag = dag,
+    prop_net_estimate = unname(p_net$estimate),
+    prop_net_lower = p_net$conf.int[[1]],
+    prop_net_upper = p_net$conf.int[[2]],
+    mean_risk_estimate = unname(t_risk$estimate),
+    mean_risk_lower = t_risk$conf.int[[1]],
+    mean_risk_upper = t_risk$conf.int[[2]],
+    effect_estimate = effect$estimate,
+    effect_lower = effect$conf.low,
+    effect_upper = effect$conf.high
+  ) |>
+    pivot_longer(
+      cols = -dag,
+      names_to = c("stat", ".value"),
+      names_pattern = "^(.*)_(estimate|lower|upper)$"
+    )
+}
+
+dag_stats <- bind_rows(
+  fit_stats("No missingness", rep(FALSE, n), "outcome"),
+  fit_stats("DAG 1", m1, "outcome"),
+  fit_stats("DAG 2", m2, "outcome"),
+  fit_stats("DAG 3", m3, "outcome"),
+  fit_stats("DAG 4", m4, "exposure"),
+  fit_stats("DAG 5", m5, "exposure")
+)
+
+dag_stats |>
+  mutate(
+    true_value = if_else(
+      dag == "No missingness",
+      "True value",
+      "Observed value"
+    ),
+    dag = factor(dag, levels = c(paste("DAG", 5:1), "No missingness")),
+    stat = factor(
+      stat,
+      levels = c("prop_net", "mean_risk", "effect"),
+      labels = c(
+        "Proportion using nets",
+        "Mean of malaria risk",
+        "Causal effect"
+      )
+    )
+  ) |>
+  ggplot(aes(color = true_value)) +
+  geom_point(aes(estimate, dag)) +
+  geom_segment(aes(
+    x = lower,
+    xend = upper,
+    y = dag,
+    yend = dag,
+    group = stat
+  )) +
+  facet_wrap(~stat, scales = "free_x") +
+  labs(y = NULL, color = NULL) +
+  ggokabeito::scale_color_okabe_ito()
+```
+
+## Further reading
+
+See Moreno-Betancur et al. (2018) for a comprehensive overview of what effects
+are recoverable from different structures of missingness
+
+::: tiny
+Moreno-Betancur M, Lee KJ, Leacy FP, White IR, Simpson JA, Carlin JB (2018).
+Canonical causal diagrams to guide the treatment of missing data in
+epidemiologic studies. American Journal of Epidemiology.
+doi:10.1093/aje/kwy173
+:::
+
+## {.center background-color="#23373B"}
+
+### **MCAR, MAR, and MNAR**
+
+## Three terms you will see
+
+In the grand tradition of statisticians being bad at naming things, you will
+also commonly see missingness discussed in terms of *missing completely at
+random*, *missing at random*, and *missing not at random*
+
+. . .
+
+We can explain these ideas by the causal structure of missingness and the
+availability of variables and values related to that structure in your data
+
+## Missing completely at random
+
+- **MCAR**: there are missing values, but the causes of missingness are such
+  that the missingness process is unrelated to the causal structure of your
+  question
+- In other words, the only problem with missingness is a reduction in sample
+  size
+
+. . .
+
+This is structure 1, where the only cause of missingness is the unknown
+mechanism
+
+## Missing at random
+
+- **MAR**: the causes of missingness are related to the causal structure of
+  the research problem, but missingness only depends on the variables and
+  values in the data that we have actually observed
+
+. . .
+
+This is structure 2, where the missingness of malaria risk depends on net use,
+which we always observe
+
+## Missing not at random
+
+- **MNAR**: the causes of missingness are related to the causal structure of
+  the research problem, but the process is related to values we are missing
+- A classic example is when a variable's missingness is impacted by itself:
+  higher values of `x` are more likely to be missing in `x`, as in structure 3
+
+. . .
+
+We do not have that information because, by definition, it is missing
+
+## {.center background-color="#23373B"}
+
+### **Regression imputation**
+
+## A missingness mechanism
+
+```{r}
+p_missing <- plogis(
+  -0.8 + 1.4 * net_data$net + 0.3 * as.numeric(scale(net_data$income))
+)
+set.seed(88)
+missing_mar <- rbinom(n, 1, p_missing) == 1
+
+net_data_mar <- net_data |>
+  select(net, income, health, temperature, malaria_risk) |>
+  mutate(malaria_risk = if_else(missing_mar, NA_real_, malaria_risk))
+```
+
+. . .
+
+Malaria risk now goes missing more often for net users and for higher-income
+households: about 40% of the values are missing, for reasons we can see in
+the data
+
+## The IPW pipeline
+
+```{r}
+fit_ipw_net <- function(.data) {
+  propensity_model <- glm(
+    net ~ income + health + temperature,
+    family = binomial(),
+    data = .data
+  )
+  weighted_data <- propensity_model |>
+    augment(type.predict = "response", data = .data) |>
+    mutate(wts = wt_ate(.fitted, net, exposure_type = "binary"))
+  ipw_model <- lm(malaria_risk ~ net, data = weighted_data, weights = wts)
+  ipw(propensity_model, ipw_model)
+}
+```
+
+. . .
+
+The pipeline from the outcome model module: propensity score model, ATE
+weights, weighted outcome model, `ipw()`
+
+## Complete-case analysis
+
+```{r}
+#| output-location: fragment
+
+net_data_complete <- net_data_mar |> drop_na()
+
+mar_complete_case <- fit_ipw_net(net_data_complete) |>
+  tidy(conf.int = TRUE)
+
+mar_complete_case
+```
+
+. . .
+
+-12.8 (95% CI -14.3, -11.2): the effect survives, with a wider interval, as
+the missingness DAG suggested
+
+## Complete-case analysis
+
+- We filtered to the complete cases ourselves before fitting either model
+- Had we let `lm()` drop the missing rows silently, `ipw()` would error: the
+  propensity score model would see all 1752 rows and the outcome model only
+  the 1047 complete ones
+
+## Complete-case analysis
+
+- Complete-case analysis is an analytic choice, and here we have to make it
+  explicitly
+
+. . .
+
+The effect is recoverable here, but the mean of malaria risk is not: the
+complete cases average 42.6 against the full-data 39.7
+
+## Regression imputation
+
+- The analysis variables predict malaria risk well, so we can use them to fill
+  in the values we failed to measure
+- Fit a model for malaria risk on the complete cases, then plug its prediction
+  in wherever the value is missing
+
+## Regression imputation
+
+- When fitting imputation models, include every variable that appears in your
+  later models, in the same form it takes there
+
+## Regression imputation
+
+```{r}
+imputation_model <- lm(
+  malaria_risk ~ net + income + health + temperature,
+  data = net_data_mar
+)
+
+net_data_imputed <- imputation_model |>
+  augment(newdata = net_data_mar) |>
+  mutate(malaria_risk = coalesce(malaria_risk, .fitted))
+```
+
+. . .
+
+`coalesce()` keeps the observed value where we have one and uses the model's
+prediction where we do not
+
+## The imputed estimate
+
+```{r}
+#| output-location: fragment
+
+mar_regression <- fit_ipw_net(net_data_imputed) |>
+  tidy(conf.int = TRUE)
+
+mar_regression
+```
+
+. . .
+
+-12.5 (95% CI -13.1, -11.8): very close to the benchmark
+
+## Standard errors after imputation
+
+- Each of the 705 missing values got a single predicted value, and the outcome
+  model then treated it like real data
+
+## Standard errors after imputation
+
+- The standard error is 0.34, *narrower* than the 0.44 we had with no missing
+  data at all
+- Imputed values cannot make us more certain than measured ones
+
+## Standard errors after imputation
+
+- If you use this approach, include the fitting of the imputation model in
+  your bootstrap so the standard errors reflect its uncertainty
+
+. . .
+
+Deterministic imputation understates uncertainty
+
+## {.center background-color="#23373B"}
+
+### **Multiple imputation**
+
+## Single imputation is inefficient
+
+- Regression imputation relies on a single imputed value for each missing
+  observation
+- Done correctly, with the imputation model inside the bootstrap, this plug-in
+  approach is generally inefficient: we end up with wide confidence intervals,
+  reflecting the fact that we relied on a single imputed value
+
+## Single imputation is inefficient
+
+Multiple imputation instead draws predicted values from a distribution,
+capturing the uncertainty inherent in the missing data
+
+## Many completed datasets
+
+- We generate several completed datasets whose imputed values differ from draw
+  to draw
+- The values we observed are identical in every dataset; the values we imputed
+  vary
+- The variation between datasets is the uncertainty from the imputation
+
+## Two rules for causal imputation models
+
+1. The imputation model must include *every variable* in the outcome model and
+   the propensity score model: the confounders, the exposure, and the outcome
+   itself
+
+## Two rules for causal imputation models
+
+2. Mirror the same functional forms you will use downstream: if a variable
+   gets a spline or an interaction later, it needs one in the imputation model
+   too
+
+## A typical causal analysis
+
+1. Impute multiple completed datasets with a model that includes the outcome
+   and all covariates
+2. Estimate the treatment effect within each dataset: propensity score model,
+   weights, weighted outcome model
+
+## A typical causal analysis
+
+3. Pool the estimates with Rubin's rules to get one effect and valid standard
+   errors
+
+. . .
+
+Rule of thumb: the number of imputations should roughly match the percentage
+of incomplete cases
+
+## The missingness pattern
+
+`plot_pattern()` shows which variables are missing and in what combinations:
+here, one block of 705 rows missing malaria risk
+
+```{r}
+#| output-location: slide
+
+library(ggmice)
+plot_pattern(net_data_mar)
+```
+
+## Interactions in the imputation model
+
+- In the malaria data, the effect of net use on malaria risk varies with
+  income
+- An imputation model with only main effects would fill in values from an
+  effect that is too weak, and the pooled estimate would inherit that bias
+
+## Interactions in the imputation model
+
+- Rule 2 again: the marginal effect averages over that heterogeneity, so the
+  imputation model has to represent it
+
+## Build the imputation frame
+
+```{r}
+net_data_to_impute <- net_data_mar |>
+  mutate(
+    net_income = as.numeric(net) * income,
+    net_health = as.numeric(net) * health,
+    net_temperature = as.numeric(net) * temperature
+  )
+```
+
+. . .
+
+The product columns are complete, so `mice()` never imputes them; they serve
+as predictors in the imputation model for malaria risk
+
+## Impute with mice()
+
+```{r}
+library(mice)
+imp <- mice(
+  net_data_to_impute,
+  m = 40,
+  method = "pmm",
+  seed = 20260814,
+  print = FALSE
+)
+```
+
+## Impute with mice()
+
+- Predictive mean matching fills each missing value with an observed value
+  borrowed from a case whose prediction is close
+- About 40% of the cases are incomplete, so the rule of thumb says about 40
+  imputations; we use `m = 40`
+
+## Observed versus imputed
+
+The imputed values should be plausible, and their distribution should reflect
+the mechanism
+
+```{r}
+#| output-location: slide
+
+ggmice(imp, aes(x = malaria_risk, group = .imp)) +
+  geom_density()
+```
+
+## Reading the densities
+
+- The observed values (blue) center higher than the imputed values (red)
+- That is what the mechanism implies: net users are missing malaria risk more
+  often, and net users have lower risk
+
+## Reading the densities
+
+- The imputation model can see this because net use is one of its predictors
+
+## Forty completed datasets
+
+```{r}
+#| output-location: fragment
+
+# mice masks tidyr::complete(), so name the package explicitly
+completed <- mice::complete(imp, action = "all")
+
+length(completed)
+```
+
+. . .
+
+Each element is the whole dataset with the missing malaria risk values filled in
+
+## Fit within each imputation
+
+```{r}
+fits <- completed |>
+  map(\(.df) {
+    ps <- glm(
+      net ~ income + health + temperature,
+      family = binomial(),
+      data = .df
+    )
+    w <- wt_ate(fitted(ps), .df$net, exposure_type = "binary")
+    om <- lm(malaria_risk ~ net, data = .df, weights = w)
+    ipw(ps, om)
+  })
+```
+
+## Fit within each imputation
+
+`map()` runs the pipeline once per completed dataset: forty propensity score
+models, forty sets of weights, forty outcome models, forty `ipw()` results
+
+## Refit the propensity model every time
+
+- The whole analysis is rebuilt inside each imputation, including the
+  propensity score model
+- Averaging the propensity scores across imputations and weighting with one
+  averaged set hides the propensity model's estimation uncertainty from the
+  pooling step
+
+## Refit the propensity model every time
+
+- Here only the outcome is imputed, so each refit returns the same model; when
+  confounders or the exposure have missingness, the refits differ, and that
+  variation belongs in the pooled standard error
+
+. . .
+
+The propensity score model is part of the analysis, so it belongs inside the
+imputation loop
+
+## Rubin's rules
+
+```{r}
+#| output-location: fragment
+
+estimates <- fits |>
+  map(tidy) |>
+  list_rbind()
+
+estimates |>
+  summarize(
+    pooled = mean(estimate),
+    within_var = mean(std.error^2),
+    between_var = var(estimate),
+    pooled_se = sqrt(within_var + (1 + 1 / n()) * between_var)
+  )
+```
+
+. . .
+
+The pooled estimate is the average across imputations; its variance is the
+average within-imputation variance plus the between-imputation variance,
+inflated by `1 + 1/m`
+
+## Pooling with `pool_ipw()`
+
+```{r}
+#| output-location: fragment
+
+mar_mi <- pool_ipw(fits) |>
+  tidy(conf.int = TRUE)
+
+mar_mi
+```
+
+. . .
+
+-12.1 (95% CI -13.0, -11.1): the interval covers the benchmark, and the
+standard error accounts for the imputation
+
+## {.center background-color="#23373B"}
+
+### **What imputation cannot fix**
+
+## Missingness from the value itself
+
+```{r}
+p_missing <- plogis(-0.5 + 3 * as.numeric(scale(net_data$malaria_risk)))
+set.seed(789)
+missing_mnar <- rbinom(n, 1, p_missing) == 1
+
+net_data_mnar <- net_data |>
+  select(net, income, health, temperature, malaria_risk) |>
+  mutate(malaria_risk = if_else(missing_mnar, NA_real_, malaria_risk))
+```
+
+. . .
+
+This is structure 3: the worse the malaria risk, the less likely we measured
+it, and about 41% of the values are gone
+
+## Complete-case analysis
+
+```{r}
+#| output-location: fragment
+
+mnar_complete_case <- fit_ipw_net(drop_na(net_data_mnar)) |>
+  tidy(conf.int = TRUE)
+
+mnar_complete_case
+```
+
+. . .
+
+-9.4 (95% CI -9.9, -8.9): far from the benchmark, with an interval that
+excludes it entirely
+
+## The same analysis
+
+```{r}
+imp_mnar <- net_data_mnar |>
+  mutate(
+    net_income = as.numeric(net) * income,
+    net_health = as.numeric(net) * health,
+    net_temperature = as.numeric(net) * temperature
+  ) |>
+  mice(m = 40, method = "pmm", seed = 20260814, print = FALSE)
+```
+
+. . .
+
+Same frame, same method, same number of imputations, same seed
+
+## The same analysis
+
+```{r}
+fits_mnar <- with(imp_mnar, {
+  ps <- glm(net ~ income + health + temperature, family = binomial())
+  w <- wt_ate(fitted(ps), net, exposure_type = "binary")
+  om <- lm(malaria_risk ~ net, weights = w)
+  ipw(ps, om)
+})
+```
+
+## The same analysis
+
+```{r}
+#| output-location: fragment
+
+mnar_mi <- pool_ipw(fits_mnar) |>
+  tidy(conf.int = TRUE)
+
+mnar_mi
+```
+
+. . .
+
+-10.7 (95% CI -11.3, -10.0): closer to the benchmark than the complete cases,
+but the interval still excludes it
+
+## Why imputation cannot help
+
+- When missingness depends on the missing values themselves, conditioning on
+  the indicator opens a backdoor path that nothing observed can close
+- The imputation model only sees the observed values, and under this mechanism
+  they are a truncated sample
+
+## Why imputation cannot help
+
+- Multiple imputation moves the estimate toward the benchmark, but it does not
+  reach it
+
+. . .
+
+The DAG said as much: there is no way to close the path
+
+## What to do instead
+
+- Sensitivity analyses let you probe what you cannot verify; the tools from
+  the tipping point module apply to missingness as well
+- When missingness is designed into a study as censoring, weight for it
+  directly with inverse probability of censoring weights, covered in the
+  selection bias module
+
+## Comparing the estimates
+
+```{r}
+#| echo: false
+
+benchmark_result <- fit_ipw_net(net_data) |>
+  tidy(conf.int = TRUE)
+
+mar_label <- "Missing from net use and income (observed)"
+mnar_label <- "Missing from malaria risk itself (unobserved)"
+
+remedy_results <- bind_rows(
+  benchmark_result |>
+    mutate(analysis = "Full data", mechanism = "No missingness"),
+  mar_complete_case |>
+    mutate(analysis = "Complete case", mechanism = mar_label),
+  mar_regression |>
+    mutate(analysis = "Regression imputation", mechanism = mar_label),
+  mar_mi |>
+    mutate(analysis = "Multiple imputation", mechanism = mar_label),
+  mnar_complete_case |>
+    mutate(analysis = "Complete case", mechanism = mnar_label),
+  mnar_mi |>
+    mutate(analysis = "Multiple imputation", mechanism = mnar_label)
+)
+
+remedy_results |>
+  mutate(
+    analysis = fct_rev(fct_inorder(analysis)),
+    mechanism = fct_inorder(mechanism)
+  ) |>
+  ggplot(aes(estimate, analysis, color = mechanism)) +
+  geom_vline(
+    xintercept = benchmark_result$estimate,
+    linetype = "dashed",
+    color = "grey60"
+  ) +
+  geom_point() +
+  geom_segment(aes(x = conf.low, xend = conf.high, yend = analysis)) +
+  facet_wrap(~mechanism, ncol = 1, scales = "free_y") +
+  labs(x = "IPW effect of net use on malaria risk", y = NULL) +
+  theme(legend.position = "none") +
+  ggokabeito::scale_color_okabe_ito()
+```
+
+## Comparing the estimates
+
+- Under a recoverable structure, every remedy sits near the benchmark, and
+  multiple imputation reflects the added uncertainty in its standard error
+- Under missingness driven by the values themselves, neither estimate is
+  trustworthy: both miss the benchmark, and neither interval includes it
+
+## Comparing the estimates
+
+- The data look much the same under both mechanisms; only the structure tells
+  them apart
+
+## *Your Turn*
+
+### Work through Your Turns 1-3 in `15-bonus-missingness-exercises.qmd`
+
+`r countdown::countdown(minutes = 20)`
