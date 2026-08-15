@@ -205,10 +205,9 @@ The stabilized weights made the temperature correlation worse rather than better
 ## Stretch goal: Balancing weights
 
 Balancing weights skip the exposure model and optimize the correlations directly.
-
-1. `balance()` cannot read `park_close` as a time, so convert it to hours first.
-2. Fit covariate balancing propensity score weights with `bw_cbps()`. These 85 days need a tighter convergence tolerance than the default to reach exact balance.
-3. Compare the balance of the two sets of weights.
+Here we fit covariate balancing propensity score weights with `bw_cbps()` and compare the balance of the two sets of weights.
+Two details make this chunk run: `balance()` cannot read `park_close` as a time, so we convert it to hours first, and these 85 days need a tighter convergence tolerance than the default to reach exact balance.
+Run it and compare the results to the stabilized weights above.
 
 ```{r}
 wait_times_bal <- wait_times_swts |>

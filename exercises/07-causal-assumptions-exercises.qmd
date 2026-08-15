@@ -158,7 +158,7 @@ check_port(nhefs, qsmk, all_of(confounders), gamma = 3) |>
   select(description, n, prevalence)
 ```
 
-- Both subgroups sit just under the 5% threshold. Would you call either one a violation?
+- Both subgroups fall under the 5% threshold. Would you call either one a violation?
 - The default search and the wider one disagree. Which would you report, and why?
 - Neither result tells you whether a violation is structural. What would?
 

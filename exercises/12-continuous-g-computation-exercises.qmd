@@ -270,7 +270,7 @@ edp <- check_edp(
     park_ticket_season
   ),
   values = c(___, ___),
-  exposure_type = "continuous"
+  exposure_type = ___
 )
 
 edp |>
