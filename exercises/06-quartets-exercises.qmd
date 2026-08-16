@@ -14,7 +14,7 @@ causal_quartet <- causal_quartet |>
   mutate(dataset = as.integer(factor(dataset)))
 ```
 
-## Your turn 1
+## Your Turn 1
 
 `causal_quartet` has all four datasets stacked on top of one another, with the names of their data generating mechanisms hidden.
 
@@ -33,7 +33,7 @@ For each of the 4 datasets, fit a linear model to examine the relationship betwe
 ```{r}
 ```
 
-## Your turn 2
+## Your Turn 2
 
 For each of the following 4 datasets, fit a linear model examining the relationship between `outcome_followup` and `exposure_baseline` adjusting for `covariate_baseline`: 
 

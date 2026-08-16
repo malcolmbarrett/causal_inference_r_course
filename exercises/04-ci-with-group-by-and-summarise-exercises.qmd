@@ -34,7 +34,7 @@ sim <- tibble(
 ```{r}
 sim |>
   group_by(______, ______) |>
-  summarise(avg_y = mean(______), .groups = "drop") |>
+  summarize(avg_y = mean(______), .groups = "drop") |>
   # pivot the data so we can get the difference
   # between the exposure groups
   pivot_wider(
@@ -43,7 +43,7 @@ sim |>
     names_prefix = "x_"
   ) |>
   reframe(estimate = x_1 - x_0) |>
-  summarise(estimate = mean(estimate)) # note, we would need to weight this if the confounder groups were not equal sized
+  summarize(estimate = mean(estimate)) # note, we would need to weight this if the confounder groups were not equal sized
 ```
 
 ## Your Turn 2
@@ -74,14 +74,14 @@ sim2 <- tibble(
 ```{r}
 sim2 |>
   group_by(_____, _____, _____) |>
-  summarise(avg_y = mean(_____), .groups = "drop") |>
+  summarize(avg_y = mean(_____), .groups = "drop") |>
   pivot_wider(
     names_from = exposure,
     values_from = avg_y,
     names_prefix = "x_"
   ) |>
   reframe(estimate = x_1 - x_0) |>
-  summarise(estimate = mean(estimate))
+  summarize(estimate = mean(estimate))
 ```
 
 ## Your Turn 3
@@ -89,6 +89,7 @@ sim2 |>
 Run the following code to generate `sim3`
 
 ```{r}
+set.seed(1)
 n <- 10000
 sim3 <- tibble(
   confounder = rnorm(n),
@@ -107,14 +108,14 @@ sim3 <- tibble(
 sim3 |>
   mutate(confounder_q = _____(_____, 5)) |>
   group_by(_____, _____) |>
-  summarise(avg_y = mean(_____), .groups = "drop") |>
+  summarize(avg_y = mean(_____), .groups = "drop") |>
   pivot_wider(
     names_from = exposure,
     values_from = avg_y,
     names_prefix = "x_"
   ) |>
   reframe(estimate = x_1 - x_0) |>
-  summarise(estimate = mean(estimate))
+  summarize(estimate = mean(estimate))
 ```
 
 ## Stretch goal
@@ -126,17 +127,17 @@ sim3 |>
 sim3 |>
   mutate(confounder_q = ntile(confounder, _____)) |>
   group_by(confounder_q, exposure) |>
-  summarise(avg_y = mean(outcome), .groups = "drop") |>
+  summarize(avg_y = mean(outcome), .groups = "drop") |>
   pivot_wider(
     names_from = exposure,
     values_from = avg_y,
     names_prefix = "x_"
   ) |>
   reframe(estimate = x_1 - x_0) |>
-  summarise(estimate = mean(estimate))
+  summarize(estimate = mean(estimate))
 ```
 
-# Take aways
+# Takeaways
 
 - In simple cases, grouping by confounding variables can get us the right answer without a statistical model. This approach is called stratification, and it is non-parametric: we aren't using a statistical model to restrict the form of the variables
 - With many confounders, especially continuous ones, we quickly run into the curse of dimensionality: too few observations within combinations of confounder levels
