@@ -748,12 +748,6 @@ autoplot(eta_sweep, type = "sweep") +
   theme_minimal(base_size = 20)
 ```
 
-. . .
-
-Capping weights the data did not need only adds bias here
-
 ## More info {background-color="#23373B"}
 
 ### [Causal Inference in R](https://www.r-causal.org/chapters/13-g-comp): g-computation for continuous exposures
-
-### https://github.com/LucyMcGowan/writing-positivity-continous-ps

@@ -330,7 +330,7 @@ Malcolm Barrett
 <h3 id="fit-a-model-using-lm-with-wait_minutes_posted_avg-as-the-outcome-and-the-confounders-identified-in-the-dag.">Fit a model using <code>lm()</code> with <code>wait_minutes_posted_avg</code> as the outcome and the confounders identified in the DAG.</h3>
 <h3 id="use-augment-to-add-model-predictions-to-the-data-frame">Use <code>augment()</code> to add model predictions to the data frame</h3>
 <h3 id="in-wt_ate-calculate-the-weights-using-.fitted-and-wait_minutes_posted_avg">In <code>wt_ate()</code>, calculate the weights using <code>.fitted</code> and <code>wait_minutes_posted_avg</code></h3>
-<p><countdown-timer class="countdown" id="timer_7fa49c2c" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_6526f91f" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-1-1" class="slide level2">
 <h2><em>Your Turn 1</em></h2>
@@ -401,7 +401,7 @@ Malcolm Barrett
 <section id="your-turn-2" class="slide level2">
 <h2><em>Your Turn 2</em></h2>
 <h3 id="re-fit-the-above-using-stabilized-weights">Re-fit the above using stabilized weights</h3>
-<p><countdown-timer class="countdown" id="timer_a5916b32" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_27a35fb4" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-2-1" class="slide level2">
 <h2><em>Your Turn 2</em></h2>
@@ -575,7 +575,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <h2><em>Your Turn 3</em></h2>
 <h3 id="estimate-the-relationship-between-posted-wait-times-and-actual-wait-times-using-the-stabilized-weights-we-just-created-saving-the-model-to-an-object">Estimate the relationship between posted wait times and actual wait times using the stabilized weights we just created, saving the model to an object</h3>
 <h3 id="use-ipw-to-estimate-the-effect-with-standard-errors-that-account-for-the-weights-then-as_conditional-to-switch-readings">Use <code>ipw()</code> to estimate the effect with standard errors that account for the weights, then <code>as_conditional()</code> to switch readings</h3>
-<p><countdown-timer class="countdown" id="timer_f79eaaa0" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_104b96b8" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 </section>
 <section id="your-turn-3-1" class="slide level2">
 <h2><em>Your Turn 3</em></h2>
@@ -927,9 +927,6 @@ ETA.Bias: 0.001 (MC SE 0.001)</code></pre>
 <span id="cb48-15"><a href=""></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">20</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
-<div class="fragment">
-<p>Capping weights the data did not need only adds bias here</p>
-</div>
 </section>
 <section id="sweeping-the-weight-cap-output" class="slide level2 output-location-slide"><h2>Sweeping the weight cap</h2><div class="cell output-location-slide" data-layout-align="center">
 <div class="cell-output-display">
@@ -942,7 +939,6 @@ ETA.Bias: 0.001 (MC SE 0.001)</code></pre>
 </div></section><section id="more-info" class="slide level2" data-background-color="#23373B">
 <h2>More info</h2>
 <h3 id="causal-inference-in-r-g-computation-for-continuous-exposures"><a href="https://www.r-causal.org/chapters/13-g-comp">Causal Inference in R</a>: g-computation for continuous exposures</h3>
-<h3 id="httpsgithub.comlucymcgowanwriting-positivity-continous-ps">https://github.com/LucyMcGowan/writing-positivity-continous-ps</h3>
 
 </section>
     </div>
