@@ -129,7 +129,8 @@ nhefs_wts <- nhefs_model |>
 
 ```{r}
 nhefs_wts |>
-  select(seqn, smkintensity82_71, .fitted, wts)
+  select(seqn, smkintensity82_71, .fitted, wts) |>
+  head(6)
 ```
 
 ## Do *posted* wait times at 8 am affect *actual* wait times at 9 am?
@@ -443,7 +444,7 @@ nhefs_ipw_model |>
   select(term, estimate)
 ```
 
-### The estimate is the weight gain in kg for a 10-cigarette decrease
+### Weight gain in kg per 10 fewer cigarettes
 
 ## Estimate the effect with `ipw()`
 
