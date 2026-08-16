@@ -1,5 +1,5 @@
 ---
-title: "Continuous exposures with propensity scores"
+title: "Bonus: Continuous exposures with propensity scores"
 author: "Malcolm Barrett"
 institute: "Stanford University"
 format: "kakashi-revealjs"
@@ -41,11 +41,11 @@ set.seed(1000)
 
 ## Propensity score weighting {background-color="#23373B"}
 
-1. Fit a propensity model predicting exposure `x`, `x + z` where z is all covariates
+1. Fit a propensity model for `x ~ z`, where z is all covariates
 2. Calculate weights
 3. Fit an outcome model estimating the effect of `x` on `y` weighted by the propensity score
 
-## Continous exposures {background-color="#23373B"}
+## Continuous exposures {background-color="#23373B"}
 
 1. Use a model like `lm(x ~ z)` for the propensity score model.
 2. Use `wt_ate()` with `.fitted`; transforms using `dnorm()` to get on probability-like scale.
@@ -83,6 +83,12 @@ model |>
     exposure_type = "continuous"
   ))
 ```
+
+## The NHEFS study
+
+- NHEFS, the National Health and Nutrition Examination Survey Epidemiologic Follow-up Study, is a longitudinal, observational study
+- Participants were surveyed and examined starting in 1971 and followed up through 1982
+- Here we ask how the change in smoking intensity between the two visits affected weight gain
 
 ## Does change in smoking intensity (`smkintensity82_71`) affect weight gain among lighter smokers?
 
@@ -122,7 +128,8 @@ nhefs_wts <- nhefs_model |>
 ## 2. Calculate the weights with `wt_ate()`
 
 ```{r}
-nhefs_wts
+nhefs_wts |>
+  select(seqn, smkintensity82_71, .fitted, wts)
 ```
 
 ## Do *posted* wait times at 8 am affect *actual* wait times at 9 am?
@@ -380,7 +387,7 @@ balance_metrics <- check_balance(
 )
 ```
 
-### These are the continuous confounders; the categorical ones need dummy coding first
+### We focus on the continuous confounders here; `check_balance()` expands categorical ones into indicator terms itself
 
 ### As in `wt_ate()`, `exposure_type` tells `check_balance()` the exposure is continuous
 
@@ -427,13 +434,16 @@ nhefs_ipw_model <- lm(
 ---
 
 ```{r}
-#| code-line-numbers: "|4"
+#| code-line-numbers: "|4-5"
 
 nhefs_ipw_model |>
   tidy() |>
   filter(term == "smkintensity82_71") |>
-  mutate(estimate = estimate * -10)
+  mutate(estimate = estimate * -10) |>
+  select(term, estimate)
 ```
+
+### The estimate is the weight gain in kg for a 10-cigarette decrease
 
 ## Estimate the effect with `ipw()`
 
@@ -469,7 +479,8 @@ ipw_model <- lm(
 ipw_model |>
   tidy() |>
   filter(term == "wait_minutes_posted_avg") |>
-  mutate(estimate = estimate * 10)
+  mutate(estimate = estimate * 10) |>
+  select(term, estimate)
 ```
 
 ## *Your Turn 3*
@@ -535,7 +546,7 @@ balance_comparison <- check_balance(
 ## Comparing balance {.small}
 
 ```{r}
-# `group_level` is the exposure name on every row here
+# `group_level` repeats the exposure name or is empty, so drop it
 balance_comparison |>
   select(-group_level)
 ```

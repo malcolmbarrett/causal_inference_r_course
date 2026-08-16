@@ -59,7 +59,7 @@ ggdag_adjust(
 ## Let's prove it!
 
 ```{r}
-set.seed(1234)
+set.seed(8)
 collider_data <- collider_triangle() |>
   simulate_data(-0.6)
 ```
