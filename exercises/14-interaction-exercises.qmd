@@ -94,10 +94,24 @@ emm_model_add <- lm(
   data = seven_dwarfs
 )
 
+# ATE: average over every day
+avg_comparisons(
+  emm_model_add,
+  variables = "park_extra_magic_morning"
+)
+
+# ATT: average over the days that had an Extra Magic Morning
 avg_comparisons(
   emm_model_add,
   variables = "park_extra_magic_morning",
-  by = "park_ticket_season"
+  newdata = filter(seven_dwarfs, park_extra_magic_morning == 1)
+)
+
+# ATC: average over the days that did not
+avg_comparisons(
+  emm_model_add,
+  variables = "park_extra_magic_morning",
+  newdata = filter(seven_dwarfs, park_extra_magic_morning == 0)
 )
 ```
 
@@ -155,7 +169,7 @@ seven_dwarfs |>
   count(park_ticket_season, park_extra_magic_morning)
 ```
 
-Only 7 of the 83 value-season days had an Extra Magic Morning. That cell is too thin to support a weighted mean of its own, which is the positivity problem from the causal assumptions module: we cannot learn what would happen under a combination we almost never see. Collapse ticket season into peak and not peak, and cross the exposure with that instead.
+Only 7 of the 83 value-season days had an Extra Magic Morning. That cell is too thin to support a weighted mean of its own, which is the positivity problem from the causal assumptions module: we cannot learn what would happen under a combination we almost never see. Collapse ticket season into peak and not peak, cross the exposure with that instead, and count the crossed exposure.
 
 ```{r}
 seven_dwarfs <- seven_dwarfs |>
@@ -204,11 +218,11 @@ The next four are the simple effects. An Extra Magic Morning does essentially no
 
 The last row is the interaction: about 20 minutes, with an interval from about 10 to 30. The two policies together do considerably more than the sum of their separate effects.
 
-Notice which covariates the propensity score model uses. Add `park_close` to it and one December day in peak season falls in a cell the model gives a probability of about 0.0004, so its weight climbs above 2,000. With close time in the model, almost no day that closes as early as this one is a peak-season day with an Extra Magic Morning, so this single day must stand in for that entire corner of the covariate space. Positivity is harder to satisfy for a joint intervention than for a single exposure, because every cell of the crossing needs support, and here the problem shows up in the weights rather than in an empty cell. Leaving close time out is a trade: we gain positivity at a loss of exchangability.
+Notice which covariates the propensity score model uses. Add `park_close` to it and one December day in peak season falls in a cell the model gives a probability of about 0.0004, so its weight climbs above 2,000. With close time in the model, almost no day that closes as early as this one is a peak-season day with an Extra Magic Morning, so this single day must stand in for that entire corner of the covariate space. Positivity is harder to satisfy for a joint intervention than for a single exposure, because every cell of the crossing needs support, and here the problem shows up in the weights rather than in an empty cell. Leaving close time out is a trade: we gain positivity at a loss of exchangeability.
 
 ### Stretch goal: an interaction node in a DAG
 
-Conventional DAGs do not show interaction: the arrows say which variables affect the outcome, not how they combine. One proposal adds an explicit interaction node. Draw the joint question you just estimated: `emm` is the Extra Magic Morning, `season` is the ticket season, `temp` is the historic high temperature that confounds both, and `wait` is the posted wait time. Complete the DAG so that `emm` and `season` each point into their interaction node, and that node points into `wait`.
+Conventional DAGs do not show interaction: the arrows say which variables affect the outcome, not how they combine. One proposal adds an explicit interaction node. Draw the joint question you just estimated: `emm` is the Extra Magic Morning, `season` is the ticket season, `temp` is the historic high temperature that confounds both, and `wait` is the posted wait time. Complete the DAG so that `emm` and `season` each point into their interaction node, `emmxseason`, and that node points into `wait`.
 
 ```{r}
 library(ggdag)
@@ -226,7 +240,7 @@ dagify(
   theme_dag()
 ```
 
-# Take aways
+# Takeaways
 
 - An interaction between the exposure and a covariate is what lets the ATE, the ATT, and the ATC differ; without one, all three are the same number
 - `avg_comparisons()` targets an estimand with `newdata` and reports subgroup effects with `by`

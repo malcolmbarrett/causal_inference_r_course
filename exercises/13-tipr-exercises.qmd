@@ -1,5 +1,5 @@
 ---
-title: "Tipping Point Sensitivity Analyses"
+title: "Sensitivity Analyses for Unmeasured Confounding"
 format: html
 ---
 
@@ -15,9 +15,9 @@ seven_dwarfs <- seven_dwarfs_train_2018 |>
   filter(wait_hour == 9)
 ```
 
-We are interested in examining the relationship between whether there were "Extra Magic Hours" in the morning (the **exposure**) and the average wait time for the Seven Dwarfs Mine Train the same day between 9am and 10am (the **outcome**).
+We are interested in examining the relationship between whether there were "Extra Magic Hours" in the morning (the **exposure**) and the average posted wait time for the Seven Dwarfs Mine Train the same day between 9 AM and 10 AM in 2018 (the **outcome**).
 
-## Your turn 1
+## Your Turn 1
 
 If the DAG for this question is right, some relationships in the data should be null.
 
@@ -47,6 +47,8 @@ ____(emm_wait_dag) |>
 Test those implied nulls against the data. `type = "cis.loess"` calculates the residuals with non-linear models, and the results should be around 0 if the DAG is right.
 
 ```{r}
+set.seed(1234)
+
 ____(
   emm_wait_dag,
   data = seven_dwarfs |>
@@ -64,7 +66,7 @@ ____(
 
 Which relationships should be null, and do they hold in the data? For any that do not, consider the two explanations: a missing arrow between the two variables, or chance. Adding arrows is reasonable, but be cautious about overfitting the DAG to the data, and report your original DAG as well if you change it.
 
-## Your turn 2
+## Your Turn 2
 
 Use the `tip_coef()` function to conduct a sensitivity analysis for the estimate you calculated in `exercises/11-outcome-model-exercises.qmd`. Use the lower bound of the confidence interval for the effect and `0.1` for the exposure-confounder effect.
 

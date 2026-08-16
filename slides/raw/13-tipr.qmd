@@ -115,7 +115,7 @@ dgm_labels <- c(
 
 ## Recall: Propensity scores {background-color="#23373B"}
 
-Rosenbaum and Rubin showed in observational studies, conditioning on **propensity scores** can lead to unbiased estimates of the exposure effect
+Rosenbaum and Rubin showed that in observational studies, conditioning on **propensity scores** can lead to unbiased estimates of the exposure effect
 
 ::: nonincremental
 1. **There are no unmeasured confounders**
@@ -411,16 +411,16 @@ test_conditional_independence(
 
 ::: nonincremental
 - Eligibility is decided by a sharp cutoff: more than four in the household and income under 700
-- The test fits a smooth curve, which cannot follow a sharp cutoff exactly, so a little correlation leaks through at the boundary
+- The test conditions on income with a linear model, which cannot represent a sharp cutoff, so a little correlation leaks through at the boundary
 :::
 
-Both intervals barely exclude zero, which is what we would expect from chance
+Both household intervals barely exclude zero, which is what we would expect from chance
 
 ## {.center background-color="#23373B"}
 
 ### **These tests cannot prove a DAG right or wrong; they tell us where the data disagrees with our assumptions**
 
-## *Your turn 1*
+## *Your Turn 1*
 
 ```{r}
 #| eval: true
@@ -431,7 +431,7 @@ countdown::countdown(minutes = 8)
 
 ### Ask the Extra Magic Morning DAG which relationships should be null, then test those implied nulls against the data.
 
-## *Your turn 1*
+## *Your Turn 1*
 
 ```{r}
 #| eval: true
@@ -449,7 +449,7 @@ emm_wait_dag <- dagify(
 )
 ```
 
-## *Your turn 1*
+## *Your Turn 1*
 
 ```{r}
 #| eval: true
@@ -459,7 +459,7 @@ query_conditional_independence(emm_wait_dag) |>
   unnest(conditioned_on)
 ```
 
-## *Your turn 1* {.small}
+## *Your Turn 1* {.small}
 
 ```{r}
 #| eval: true
@@ -492,7 +492,7 @@ test_conditional_independence(
 ## Why might we see a relationship?
 
 ::: nonincremental
-- Park close time and ticket season both track the weather, so a missing arrow is a reasonable explanation
+- Park close time and ticket season are both set by expected crowds, so a missing arrow or a missing common cause is a reasonable explanation
 - Chance is another, though we have data for every day of 2018
 :::
 
@@ -759,7 +759,7 @@ tip_hr_with_binary(
   select(confounder_outcome_effect)
 ```
 
-# “If heavy alcohol consumption differed between groups, with *4%* prevalence among metformin users and *6%* among sulfonylureas users, it would need to have an association with lung cancer incidence of *3.27 to tip this analysis* at the 5% level, rendering it inconclusive. This effect is larger than the understood association between lung cancer and alcohol consumption.” {.tiny}
+# “If heavy alcohol consumption differed between groups, with *4%* prevalence among metformin users and *6%* among sulfonylurea users, it would need to have an association with lung cancer incidence of *3.27 to tip this analysis* at the 5% level, rendering it inconclusive. This effect is larger than the understood association between lung cancer and alcohol consumption.” {.tiny}
 
 ## When nothing is known: `e_value()`
 
@@ -771,7 +771,7 @@ tip_hr_with_binary(
 e_value(0.96)
 ```
 
-## *Your turn 2*
+## *Your Turn 2*
 
 ```{r}
 #| eval: true

@@ -84,10 +84,10 @@ across levels of a covariate
 
 ## Interaction or separate models?
 
-- An equivalent representation is to fit separate models within strata of `z`,
-  which lets the treatment coefficient differ across groups
+- A related approach is to fit separate models within strata of `z`, which lets
+  every coefficient differ across groups
 - The interaction model is often preferred because it estimates those
-  subgroup-specific effects within a single framework, using all the data
+  subgroup-specific effects in one model, sharing terms like `l` across strata
 
 ## {.center background-color="#23373B"}
 
