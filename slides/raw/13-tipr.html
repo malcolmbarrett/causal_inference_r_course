@@ -214,7 +214,7 @@ Lucy D’Agostino McGowan
 </section>
 <section id="recall-propensity-scores" class="slide level2" data-background-color="#23373B">
 <h2>Recall: Propensity scores</h2>
-<p>Rosenbaum and Rubin showed in observational studies, conditioning on <strong>propensity scores</strong> can lead to unbiased estimates of the exposure effect</p>
+<p>Rosenbaum and Rubin showed that in observational studies, conditioning on <strong>propensity scores</strong> can lead to unbiased estimates of the exposure effect</p>
 <ol type="1">
 <li><strong>There are no unmeasured confounders</strong></li>
 <li>Every subject has a nonzero probability of receiving either exposure</li>
@@ -529,25 +529,25 @@ Lucy D’Agostino McGowan
 <h2>Why eligibility disagrees</h2>
 <ul>
 <li>Eligibility is decided by a sharp cutoff: more than four in the household and income under 700</li>
-<li>The test fits a smooth curve, which cannot follow a sharp cutoff exactly, so a little correlation leaks through at the boundary</li>
+<li>The test conditions on income with a linear model, which cannot represent a sharp cutoff, so a little correlation leaks through at the boundary</li>
 </ul>
-<p>Both intervals barely exclude zero, which is what we would expect from chance</p>
+<p>Both household intervals barely exclude zero, which is what we would expect from chance</p>
 </section>
 <section id="section-1" class="slide level2 center" data-background-color="#23373B">
 <h2></h2>
 <h3 id="these-tests-cannot-prove-a-dag-right-or-wrong-they-tell-us-where-the-data-disagrees-with-our-assumptions"><strong>These tests cannot prove a DAG right or wrong; they tell us where the data disagrees with our assumptions</strong></h3>
 </section>
 <section id="your-turn-1" class="slide level2">
-<h2><em>Your turn 1</em></h2>
+<h2><em>Your Turn 1</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_f404ceb3" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_14358424" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 <h3 id="ask-the-extra-magic-morning-dag-which-relationships-should-be-null-then-test-those-implied-nulls-against-the-data.">Ask the Extra Magic Morning DAG which relationships should be null, then test those implied nulls against the data.</h3>
 </section>
 <section id="your-turn-1-1" class="slide level2">
-<h2><em>Your turn 1</em></h2>
+<h2><em>Your Turn 1</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a>emm_wait_dag <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
 <span id="cb13-2"><a href=""></a>  wait_minutes_posted_avg <span class="sc">~</span> park_extra_magic_morning <span class="sc">+</span></span>
@@ -563,14 +563,14 @@ Lucy D’Agostino McGowan
 </div>
 </section>
 <section id="your-turn-1-2" class="slide level2">
-<h2><em>Your turn 1</em></h2>
+<h2><em>Your Turn 1</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a><span class="fu">query_conditional_independence</span>(emm_wait_dag) <span class="sc">|&gt;</span></span>
 <span id="cb14-2"><a href=""></a>  <span class="fu">unnest</span>(conditioned_on)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 </section>
-<section id="your-turn-1-2-output" class="slide level2 output-location-slide"><h2><em>Your turn 1</em></h2><div class="cell output-location-slide" data-layout-align="center">
+<section id="your-turn-1-2-output" class="slide level2 output-location-slide"><h2><em>Your Turn 1</em></h2><div class="cell output-location-slide" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 5
   set   a              b     conditioning_set conditioned_on
@@ -580,7 +580,7 @@ Lucy D’Agostino McGowan
 3 3     park_temperat… park… &lt;NA&gt;             &lt;NA&gt;          </code></pre>
 </div>
 </div></section><section id="your-turn-1-3" class="slide level2 small">
-<h2><em>Your turn 1</em></h2>
+<h2><em>Your Turn 1</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
 <span id="cb16-2"><a href=""></a></span>
@@ -599,7 +599,7 @@ Lucy D’Agostino McGowan
 </div>
 
 </section>
-<section id="your-turn-1-3-output" class="slide level2 small output-location-slide"><h2><em>Your turn 1</em></h2><div class="cell output-location-slide" data-layout-align="center">
+<section id="your-turn-1-3-output" class="slide level2 small output-location-slide"><h2><em>Your Turn 1</em></h2><div class="cell output-location-slide" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -617,7 +617,7 @@ Lucy D’Agostino McGowan
 <section id="why-might-we-see-a-relationship" class="slide level2">
 <h2>Why might we see a relationship?</h2>
 <ul>
-<li>Park close time and ticket season both track the weather, so a missing arrow is a reasonable explanation</li>
+<li>Park close time and ticket season are both set by expected crowds, so a missing arrow or a missing common cause is a reasonable explanation</li>
 <li>Chance is another, though we have data for every day of 2018</li>
 </ul>
 </section></section>
@@ -966,8 +966,8 @@ Lucy D’Agostino McGowan
 </div>
 </div></section></section>
 <section>
-<section id="if-heavy-alcohol-consumption-differed-between-groups-with-4-prevalence-among-metformin-users-and-6-among-sulfonylureas-users-it-would-need-to-have-an-association-with-lung-cancer-incidence-of-3.27-to-tip-this-analysis-at-the-5-level-rendering-it-inconclusive.-this-effect-is-larger-than-the-understood-association-between-lung-cancer-and-alcohol-consumption." class="title-slide slide level1 tiny center">
-<h1>“If heavy alcohol consumption differed between groups, with <em>4%</em> prevalence among metformin users and <em>6%</em> among sulfonylureas users, it would need to have an association with lung cancer incidence of <em>3.27 to tip this analysis</em> at the 5% level, rendering it inconclusive. This effect is larger than the understood association between lung cancer and alcohol consumption.”</h1>
+<section id="if-heavy-alcohol-consumption-differed-between-groups-with-4-prevalence-among-metformin-users-and-6-among-sulfonylurea-users-it-would-need-to-have-an-association-with-lung-cancer-incidence-of-3.27-to-tip-this-analysis-at-the-5-level-rendering-it-inconclusive.-this-effect-is-larger-than-the-understood-association-between-lung-cancer-and-alcohol-consumption." class="title-slide slide level1 tiny center">
+<h1>“If heavy alcohol consumption differed between groups, with <em>4%</em> prevalence among metformin users and <em>6%</em> among sulfonylurea users, it would need to have an association with lung cancer incidence of <em>3.27 to tip this analysis</em> at the 5% level, rendering it inconclusive. This effect is larger than the understood association between lung cancer and alcohol consumption.”</h1>
 
 </section>
 <section id="when-nothing-is-known-e_value" class="slide level2">
@@ -982,10 +982,10 @@ Lucy D’Agostino McGowan
 </div>
 </section>
 <section id="your-turn-2" class="slide level2">
-<h2><em>Your turn 2</em></h2>
+<h2><em>Your Turn 2</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_1828e622" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_0351f527" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 <h3 id="use-the-tip_coef-function-to-conduct-a-sensitivity-analysis-for-the-estimate-you-calculated-in-exercises11-outcome-model-exercises.qmd.-use-the-lower-bound-of-the-confidence-interval-for-the-effect-and-0.1-for-the-exposure-confounder-effect.">Use the <code>tip_coef()</code> function to conduct a sensitivity analysis for the estimate you calculated in <code>exercises/11-outcome-model-exercises.qmd</code>. Use the lower bound of the confidence interval for the effect and <code>0.1</code> for the exposure-confounder effect.</h3>

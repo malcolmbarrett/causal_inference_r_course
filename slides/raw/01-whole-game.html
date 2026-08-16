@@ -263,7 +263,7 @@ Malcolm Barrett
 <img data-src="01-whole-game_files/figure-revealjs/unnamed-chunk-2-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="do-net-users-have-lower-malaria-risk-1" class="slide level2">
 <h2>Do net users have lower malaria risk?</h2>
-<div class="cell" data-layout-align="center" data-highlight-output="[4,5]">
+<div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="co"># ~16 points lower risk for net users vs. non-users</span></span>
 <span id="cb3-2"><a href=""></a>net_data <span class="sc">|&gt;</span></span>
 <span id="cb3-3"><a href=""></a>  <span class="fu">group_by</span>(net) <span class="sc">|&gt;</span></span>
@@ -313,15 +313,15 @@ Malcolm Barrett
 <span id="cb5-3"><a href=""></a>  <span class="at">data =</span> net_data</span>
 <span id="cb5-4"><a href=""></a>) <span class="sc">|&gt;</span></span>
 <span id="cb5-5"><a href=""></a>  <span class="fu">tidy</span>(<span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-6"><a href=""></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"netTRUE"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-6"><a href=""></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"netTRUE"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-7"><a href=""></a>  <span class="fu">select</span>(term, estimate, <span class="fu">starts_with</span>(<span class="st">"conf"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell fragment" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 7
-  term    estimate std.error statistic   p.value conf.low
-  &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-1 netTRUE    -12.0     0.314     -38.2 2.69e-232    -12.6
-# ℹ 1 more variable: conf.high &lt;dbl&gt;</code></pre>
+<pre><code># A tibble: 1 × 4
+  term    estimate conf.low conf.high
+  &lt;chr&gt;      &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 netTRUE    -12.0    -12.6     -11.4</code></pre>
 </div>
 </div>
 </section>
@@ -399,13 +399,13 @@ Malcolm Barrett
 <section id="estimate-causal-effect-with-ipw-1" class="slide level2">
 <h2>Estimate causal effect with IPW</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href=""></a>ipw_estimate</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href=""></a>ipw_estimate <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href=""></a>  <span class="fu">select</span>(term, estimate, <span class="fu">starts_with</span>(<span class="st">"conf"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 7
-  term    estimate std.error statistic  p.value conf.low
-  &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
-1 netTRUE    -12.5     0.624     -20.1 5.50e-81    -13.8
-# ℹ 1 more variable: conf.high &lt;dbl&gt;</code></pre>
+<pre><code># A tibble: 1 × 4
+  term    estimate conf.low conf.high
+  &lt;chr&gt;      &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 netTRUE    -12.5    -13.8     -11.3</code></pre>
 </div>
 </div>
 </section>
@@ -430,14 +430,13 @@ Malcolm Barrett
 <section id="lets-fix-our-confidence-intervals-with-robust-ses-1" class="slide level2">
 <h2>Let’s fix our confidence intervals with robust SEs!</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a><span class="fu">as_tibble</span>(ipw_estimate_robust)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a><span class="fu">as_tibble</span>(ipw_estimate_robust) <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href=""></a>  <span class="fu">select</span>(term, estimate, <span class="fu">starts_with</span>(<span class="st">"conf"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 9
-  term    estimate std.error statistic  p.value conf.low
-  &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
-1 netTRUE    -12.5     0.757     -16.6 2.36e-57    -14.0
-# ℹ 3 more variables: conf.high &lt;dbl&gt;, df &lt;dbl&gt;,
-#   outcome &lt;chr&gt;</code></pre>
+<pre><code># A tibble: 1 × 4
+  term    estimate conf.low conf.high
+  &lt;chr&gt;      &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 netTRUE    -12.5    -14.0     -11.1</code></pre>
 </div>
 </div>
 </section>
@@ -525,13 +524,13 @@ Malcolm Barrett
 <section id="lets-fix-our-confidence-intervals-with-ipw-1" class="slide level2 small">
 <h2>Let’s fix our confidence intervals with ipw()!</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href=""></a><span class="fu">tidy</span>(ipw_fit, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href=""></a><span class="fu">tidy</span>(ipw_fit, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb21-2"><a href=""></a>  <span class="fu">select</span>(term, estimate, <span class="fu">starts_with</span>(<span class="st">"conf"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 7
-  term  estimate std.error statistic p.value conf.low
-  &lt;chr&gt;    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
-1 diff     -12.5     0.437     -28.7       0    -13.4
-# ℹ 1 more variable: conf.high &lt;dbl&gt;</code></pre>
+<pre><code># A tibble: 1 × 4
+  term  estimate conf.low conf.high
+  &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 diff     -12.5    -13.4     -11.7</code></pre>
 </div>
 </div>
 </section>
@@ -651,13 +650,13 @@ Malcolm Barrett
 <section id="re-estimate-the-effect-with-the-confounder-measured-2" class="slide level2">
 <h2>Re-estimate the effect with the confounder measured</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href=""></a><span class="fu">tidy</span>(ipw_fit_full, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href=""></a><span class="fu">tidy</span>(ipw_fit_full, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb29-2"><a href=""></a>  <span class="fu">select</span>(term, estimate, <span class="fu">starts_with</span>(<span class="st">"conf"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 7
-  term  estimate std.error statistic p.value conf.low
-  &lt;chr&gt;    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
-1 diff     -10.2     0.469     -21.8       0    -11.2
-# ℹ 1 more variable: conf.high &lt;dbl&gt;</code></pre>
+<pre><code># A tibble: 1 × 4
+  term  estimate conf.low conf.high
+  &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 diff     -10.2    -11.2     -9.32</code></pre>
 </div>
 </div>
 </section>
@@ -676,7 +675,7 @@ Malcolm Barrett
 <section id="resources" class="slide level2" data-background-color="#23373B">
 <h2>Resources</h2>
 <h3 id="causal-inference-in-r-our-book-where-this-example-comes-from.-free-online."><a href="https://www.r-causal.org/">Causal Inference in R</a>: Our book, where this example comes from. Free online.</h3>
-<h3 id="causal-inference-comprehensive-text-on-causal-inference.-free-online."><a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/">Causal Inference</a>: Comprehensive text on causal inference. Free online.</h3>
+<h3 id="causal-inference-comprehensive-text-on-causal-inference.-free-online."><a href="https://miguelhernan.org/whatifbook">Causal Inference</a>: Comprehensive text on causal inference. Free online.</h3>
 <h3 id="bootstrap-confidence-intervals-with-rsample"><a href="https://rsample.tidymodels.org/articles/Applications/Intervals.html">Bootstrap confidence intervals with {rsample}</a></h3>
 <h3 id="r-causal-our-github-org-with-r-packages-and-examples"><a href="https://github.com/r-causal">R-causal</a>: Our GitHub org with R packages and examples</h3>
 

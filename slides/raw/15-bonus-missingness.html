@@ -411,7 +411,7 @@ Malcolm Barrett
 <span id="cb3-2"><a href=""></a>  <span class="sc">-</span><span class="fl">0.8</span> <span class="sc">+</span> <span class="fl">1.4</span> <span class="sc">*</span> net_data<span class="sc">$</span>net <span class="sc">+</span> <span class="fl">0.3</span> <span class="sc">*</span> <span class="fu">as.numeric</span>(<span class="fu">scale</span>(net_data<span class="sc">$</span>income))</span>
 <span id="cb3-3"><a href=""></a>)</span>
 <span id="cb3-4"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">88</span>)</span>
-<span id="cb3-5"><a href=""></a>missing_mar <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, p_missing) <span class="sc">==</span> <span class="dv">1</span></span>
+<span id="cb3-5"><a href=""></a>missing_mar <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="fu">nrow</span>(net_data), <span class="dv">1</span>, p_missing) <span class="sc">==</span> <span class="dv">1</span></span>
 <span id="cb3-6"><a href=""></a></span>
 <span id="cb3-7"><a href=""></a>net_data_mar <span class="ot">&lt;-</span> net_data <span class="sc">|&gt;</span></span>
 <span id="cb3-8"><a href=""></a>  <span class="fu">select</span>(net, income, health, temperature, malaria_risk) <span class="sc">|&gt;</span></span>
@@ -423,6 +423,7 @@ Malcolm Barrett
 </section>
 <section id="the-ipw-pipeline" class="slide level2">
 <h2>The IPW pipeline</h2>
+<!-- keep identical to the hidden fit_ipw_net() definition in the five-structures section -->
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a>fit_ipw_net <span class="ot">&lt;-</span> <span class="cf">function</span>(.data) {</span>
 <span id="cb4-2"><a href=""></a>  propensity_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
@@ -807,7 +808,7 @@ Malcolm Barrett
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href=""></a>p_missing <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">0.5</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> <span class="fu">as.numeric</span>(<span class="fu">scale</span>(net_data<span class="sc">$</span>malaria_risk)))</span>
 <span id="cb21-2"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">789</span>)</span>
-<span id="cb21-3"><a href=""></a>missing_mnar <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, p_missing) <span class="sc">==</span> <span class="dv">1</span></span>
+<span id="cb21-3"><a href=""></a>missing_mnar <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="fu">nrow</span>(net_data), <span class="dv">1</span>, p_missing) <span class="sc">==</span> <span class="dv">1</span></span>
 <span id="cb21-4"><a href=""></a></span>
 <span id="cb21-5"><a href=""></a>net_data_mnar <span class="ot">&lt;-</span> net_data <span class="sc">|&gt;</span></span>
 <span id="cb21-6"><a href=""></a>  <span class="fu">select</span>(net, income, health, temperature, malaria_risk) <span class="sc">|&gt;</span></span>
@@ -856,12 +857,17 @@ Malcolm Barrett
 <section id="the-same-analysis-1" class="slide level2">
 <h2>The same analysis</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href=""></a>fits_mnar <span class="ot">&lt;-</span> <span class="fu">with</span>(imp_mnar, {</span>
-<span id="cb25-2"><a href=""></a>  ps <span class="ot">&lt;-</span> <span class="fu">glm</span>(net <span class="sc">~</span> income <span class="sc">+</span> health <span class="sc">+</span> temperature, <span class="at">family =</span> <span class="fu">binomial</span>())</span>
-<span id="cb25-3"><a href=""></a>  w <span class="ot">&lt;-</span> <span class="fu">wt_ate</span>(<span class="fu">fitted</span>(ps), net, <span class="at">exposure_type =</span> <span class="st">"binary"</span>)</span>
-<span id="cb25-4"><a href=""></a>  om <span class="ot">&lt;-</span> <span class="fu">lm</span>(malaria_risk <span class="sc">~</span> net, <span class="at">weights =</span> w)</span>
-<span id="cb25-5"><a href=""></a>  <span class="fu">ipw</span>(ps, om)</span>
-<span id="cb25-6"><a href=""></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href=""></a>fits_mnar <span class="ot">&lt;-</span> mice<span class="sc">::</span><span class="fu">complete</span>(imp_mnar, <span class="at">action =</span> <span class="st">"all"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb25-2"><a href=""></a>  <span class="fu">map</span>(\(.df) {</span>
+<span id="cb25-3"><a href=""></a>    ps <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb25-4"><a href=""></a>      net <span class="sc">~</span> income <span class="sc">+</span> health <span class="sc">+</span> temperature,</span>
+<span id="cb25-5"><a href=""></a>      <span class="at">family =</span> <span class="fu">binomial</span>(),</span>
+<span id="cb25-6"><a href=""></a>      <span class="at">data =</span> .df</span>
+<span id="cb25-7"><a href=""></a>    )</span>
+<span id="cb25-8"><a href=""></a>    w <span class="ot">&lt;-</span> <span class="fu">wt_ate</span>(<span class="fu">fitted</span>(ps), .df<span class="sc">$</span>net, <span class="at">exposure_type =</span> <span class="st">"binary"</span>)</span>
+<span id="cb25-9"><a href=""></a>    om <span class="ot">&lt;-</span> <span class="fu">lm</span>(malaria_risk <span class="sc">~</span> net, <span class="at">data =</span> .df, <span class="at">weights =</span> w)</span>
+<span id="cb25-10"><a href=""></a>    <span class="fu">ipw</span>(ps, om)</span>
+<span id="cb25-11"><a href=""></a>  })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="the-same-analysis-2" class="slide level2">
@@ -904,7 +910,7 @@ Malcolm Barrett
 <section id="what-to-do-instead" class="slide level2">
 <h2>What to do instead</h2>
 <ul>
-<li class="fragment">Sensitivity analyses let you probe what you cannot verify; the tools from the tipping point module apply to missingness as well</li>
+<li class="fragment">Sensitivity analyses let you probe what you cannot verify; the tools from the sensitivity analysis module apply to missingness as well</li>
 <li class="fragment">When missingness is designed into a study as censoring, weight for it directly with inverse probability of censoring weights, covered in the selection bias module</li>
 </ul>
 </section>
@@ -928,7 +934,7 @@ Malcolm Barrett
 <section id="your-turn" class="slide level2">
 <h2><em>Your Turn</em></h2>
 <h3 id="work-through-your-turns-1-3-in-15-bonus-missingness-exercises.qmd">Work through Your Turns 1-3 in <code>15-bonus-missingness-exercises.qmd</code></h3>
-<p><countdown-timer class="countdown" id="timer_ee095eda" minutes="20" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_99408bdd" minutes="20" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 
 </section>
     </div>

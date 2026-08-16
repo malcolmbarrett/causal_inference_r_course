@@ -3555,14 +3555,13 @@ Malcolm Barrett
 <span id="cb10-8"><a href=""></a>  <span class="at">variables =</span> <span class="st">"a"</span>,</span>
 <span id="cb10-9"><a href=""></a>  <span class="at">wts =</span> <span class="fu">ps_tilt</span>(greek_ps, <span class="st">"ato"</span>)</span>
 <span id="cb10-10"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
-<pre><code>
-  Estimate Std. Error         z Pr(&gt;|z|)    S  2.5 % 97.5 %
- -1.31e-17       0.24 -5.44e-17        1 -0.0 -0.471  0.471
-
-Term: a
-Type: response
-Comparison: 1 - 0</code></pre>
+<pre><code># A tibble: 1 × 4
+  estimate std.error conf.low conf.high
+     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1        0      0.24    -0.47      0.47</code></pre>
 </div>
 </div>
 </section>
@@ -3632,6 +3631,14 @@ In opposite-group hull: 784 of 1000</code></pre>
 <li class="fragment">Continuous exposure weights are unstable under positivity violations</li>
 <li class="fragment">G-computation avoids the weights, but predicts into the same sparse regions</li>
 <li class="fragment">We recommend it here, provided we can get the functional form right</li>
+</ul>
+</section>
+<section id="the-nhefs-study" class="slide level2">
+<h2>The NHEFS study</h2>
+<ul>
+<li class="fragment">NHEFS, the National Health and Nutrition Examination Survey Epidemiologic Follow-up Study, is a longitudinal, observational study</li>
+<li class="fragment">Participants were surveyed and examined starting in 1971 and followed up through 1982</li>
+<li class="fragment">Here we ask how the change in smoking intensity between the two visits affected weight gain</li>
 </ul>
 </section>
 <section id="does-change-in-smoking-intensity-smkintensity82_71-affect-weight-gain-among-lighter-smokers" class="slide level2">
@@ -3759,15 +3766,15 @@ Type: response</code></pre>
 <section id="the-causal-dose-response-function" class="slide level2">
 <h2>The causal dose-response function</h2>
 
-<img data-src="12-continuous-g-comp_files/figure-revealjs/unnamed-chunk-28-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="12-continuous-g-comp_files/figure-revealjs/unnamed-chunk-29-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="do-posted-wait-times-at-8-am-affect-actual-wait-times-at-9-am" class="slide level2">
 <h2>Do <em>posted</em> wait times at 8 am affect <em>actual</em> wait times at 9 am?</h2>
 
-<img data-src="12-continuous-g-comp_files/figure-revealjs/unnamed-chunk-29-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<img data-src="12-continuous-g-comp_files/figure-revealjs/unnamed-chunk-30-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="your-turn" class="slide level2">
 <h2><em>Your Turn</em></h2>
 <h3 id="work-through-your-turns-1-4-in-12-continuous-g-computation-exercises.qmd">Work through Your Turns 1-4 in <code>12-continuous-g-computation-exercises.qmd</code></h3>
-<p><countdown-timer class="countdown" id="timer_6201a8ef" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<p><countdown-timer class="countdown" id="timer_7709daf3" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
 
 </section>
     </div>

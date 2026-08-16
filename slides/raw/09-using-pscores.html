@@ -602,7 +602,7 @@ Evenly matchable
 <h2><em>Your Turn 1</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_518be9d2" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_527c77d7" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 <h3 id="using-the-propensity-scores-you-created-in-the-previous-exercise-create-a-matched-data-set-using-the-atm-method-with-a-caliper-of-0.2.">Using the propensity scores you created in the previous exercise, create a “matched” data set using the ATM method with a caliper of 0.2.</h3>
@@ -640,7 +640,7 @@ Evenly matchable
 <p><span class="math display">\[\Large w_i = \frac{h(p_i)Z_i}{p_i} + \frac{h(p_i)(1-Z_i)}{1 - p_i}\]</span></p>
 <p>The tilting function reshapes the population we are targeting</p>
 <div class="fragment">
-<p>The tilting function is <span class="math inline">\(h(p_i) = 1\)</span>: the population is unchanged and the weights are unbounded</p>
+<p>For the ATE, the tilting function is <span class="math inline">\(h(p_i) = 1\)</span>: the population is unchanged and the weights are unbounded</p>
 </div>
 </section>
 <section id="ate-tilting-function" class="slide level2">
@@ -916,11 +916,11 @@ Evenly matchable
 <h2><em>Your Turn 2</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_115f36f4" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_77adf432" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 <h3 id="using-the-propensity-scores-you-created-in-the-previous-exercise-add-the-ate-weights-to-your-data-frame">Using the propensity scores you created in the previous exercise, add the ATE weights to your data frame</h3>
-<h3 id="stretch-using-the-same-propensity-scores-create-atm-weights"><em>Stretch</em>: Using the same propensity scores, create ATM weights</h3>
+<h3 id="stretch-using-the-same-propensity-scores-create-atm-weights-plot-the-weighted-distributions-and-look-for-low-support-regions-with-check_port"><em>Stretch</em>: Using the same propensity scores, create ATM weights, plot the weighted distributions, and look for low-support regions with <code>check_port()</code></h3>
 
 </section>
     </div>
