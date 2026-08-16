@@ -1,6 +1,6 @@
 
 
-<!-- README.md is hand-edited to mirror README.qmd -->
+<!-- README.md is generated from README.qmd. Please edit that file and re-render -->
 
 ## Causal Inference in R Workshop
 
