@@ -26,6 +26,7 @@ library(glue)
 library(halfmoon)
 library(hms)
 library(patchwork)
+library(positively)
 library(touringplans)
 
 theme_set(
@@ -848,6 +849,46 @@ ggplot(
 
 We can collect more data, use a statistical model to extrapolate, add
 eligibility criteria, or change the estimand
+
+## Finding positivity violations
+
+- We planted the violations in these examples, so we knew where to look
+- In real data, we have to search the covariates for regions where an exposure
+  level is rare or absent
+
+## A data set with two violations {.small}
+
+- `region` `b` with `x2` above 1 is never exposed
+- Exposure depends steeply on `x1`, so its tails are nearly deterministic
+
+```{r}
+pos_violations
+```
+
+## Positivity regression trees
+
+```{r}
+port <- check_port(pos_violations, exposure, c(x1, x2, region))
+port
+```
+
+## Low-support subgroups
+
+```{r}
+#| output-location: fragment
+
+port |>
+  tidy() |>
+  filter(low_support) |>
+  select(description, exposure_level, n, prevalence)
+```
+
+## Structural or stochastic?
+
+- The tree locates the region; only background knowledge decides which kind of
+  violation it is
+- The search sees the covariates you give it, so it cannot find a violation
+  defined by a variable you left out
 
 ## Consistency
 

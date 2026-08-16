@@ -602,7 +602,7 @@ Evenly matchable
 <h2><em>Your Turn 1</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_a8b6ef3c" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_518be9d2" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 <h3 id="using-the-propensity-scores-you-created-in-the-previous-exercise-create-a-matched-data-set-using-the-atm-method-with-a-caliper-of-0.2.">Using the propensity scores you created in the previous exercise, create a “matched” data set using the ATM method with a caliper of 0.2.</h3>
@@ -840,11 +840,83 @@ Evenly matchable
 <li class="fragment">You can think of the resulting estimand as another type of overlap population</li>
 </ul>
 </section>
+<section id="assessing-positivity" class="slide level2">
+<h2>Assessing positivity</h2>
+<ul>
+<li class="fragment">Trimming and truncation respond to extreme propensity scores without saying where they came from</li>
+<li class="fragment"><strong>positively</strong> searches the covariates for the region responsible</li>
+</ul>
+</section>
+<section id="propensity-scores-with-a-violation" class="slide level2">
+<h2>Propensity scores with a violation</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href=""></a>pos_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb23-2"><a href=""></a>  exposure <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> region,</span>
+<span id="cb23-3"><a href=""></a>  <span class="at">family =</span> <span class="fu">binomial</span>(),</span>
+<span id="cb23-4"><a href=""></a>  <span class="at">data =</span> pos_violations</span>
+<span id="cb23-5"><a href=""></a>)</span>
+<span id="cb23-6"><a href=""></a></span>
+<span id="cb23-7"><a href=""></a>pos_df <span class="ot">&lt;-</span> pos_model <span class="sc">|&gt;</span></span>
+<span id="cb23-8"><a href=""></a>  <span class="fu">augment</span>(<span class="at">type.predict =</span> <span class="st">"response"</span>, <span class="at">data =</span> pos_violations) <span class="sc">|&gt;</span></span>
+<span id="cb23-9"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">w_ate =</span> <span class="fu">wt_ate</span>(.fitted, exposure))</span>
+<span id="cb23-10"><a href=""></a></span>
+<span id="cb23-11"><a href=""></a>pos_df <span class="sc">|&gt;</span></span>
+<span id="cb23-12"><a href=""></a>  <span class="fu">summarize</span>(<span class="at">min =</span> <span class="fu">min</span>(.fitted), <span class="at">max =</span> <span class="fu">max</span>(.fitted), <span class="at">max_wt =</span> <span class="fu">max</span>(w_ate))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+       min   max max_wt
+     &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+1 0.000107 1.000   473.</code></pre>
+</div>
+</div>
+</section>
+<section id="which-units-did-trimming-drop" class="slide level2">
+<h2>Which units did trimming drop?</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href=""></a>pos_df <span class="sc">|&gt;</span></span>
+<span id="cb25-2"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">trimmed =</span> <span class="fu">is_unit_trimmed</span>(<span class="fu">ps_trim</span>(.fitted, <span class="at">method =</span> <span class="st">"adaptive"</span>))) <span class="sc">|&gt;</span></span>
+<span id="cb25-3"><a href=""></a>  <span class="fu">group_by</span>(<span class="at">structural =</span> region <span class="sc">==</span> <span class="st">"b"</span> <span class="sc">&amp;</span> x2 <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb25-4"><a href=""></a>  <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>(), <span class="at">trimmed =</span> <span class="fu">sum</span>(trimmed))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 3
+  structural     n trimmed
+  &lt;lgl&gt;      &lt;int&gt;   &lt;int&gt;
+1 FALSE        924     396
+2 TRUE          76      38</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>Trimming dropped half of the 76 units that can never be exposed, and 396 units that can</p>
+</div>
+</section>
+<section id="locating-the-region-directly" class="slide level2">
+<h2>Locating the region directly</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href=""></a><span class="fu">check_port</span>(pos_violations, exposure, <span class="fu">c</span>(x1, x2, region)) <span class="sc">|&gt;</span></span>
+<span id="cb27-2"><a href=""></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span></span>
+<span id="cb27-3"><a href=""></a>  <span class="fu">filter</span>(low_support) <span class="sc">|&gt;</span></span>
+<span id="cb27-4"><a href=""></a>  <span class="fu">select</span>(description, n, prevalence)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell fragment" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  description               n prevalence
+  &lt;chr&gt;                 &lt;int&gt;      &lt;dbl&gt;
+1 x1&lt;-0.5027              305     0.0459
+2 x1&gt;=0.9626 &amp; x1&lt;1.154    53     0.962 
+3 x2&gt;=1.063 &amp; region=b     69     0     </code></pre>
+</div>
+</div>
+</section>
 <section id="your-turn-2" class="slide level2">
 <h2><em>Your Turn 2</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_8c3ae748" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_115f36f4" minutes="6" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 <h3 id="using-the-propensity-scores-you-created-in-the-previous-exercise-add-the-ate-weights-to-your-data-frame">Using the propensity scores you created in the previous exercise, add the ATE weights to your data frame</h3>

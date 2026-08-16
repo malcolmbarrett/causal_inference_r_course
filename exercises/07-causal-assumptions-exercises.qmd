@@ -3,7 +3,7 @@ title: "Causal Assumptions"
 format: html
 ---
 
-This exercise is a discussion, so there is no code to run.
+This exercise is mostly a discussion, with one short check to fill in and run.
 We'll work through the causal assumptions for a question presented in *Causal Inference: What if?*: does quitting smoking make you gain weight?
 
 Causal modeling has a special place in the history of smoking research: the studies that demonstrated that smoking causes lung cancer were observational.
@@ -38,9 +38,12 @@ This DAG encodes one set of answers to those questions.
 #| label: setup
 #| include: false
 
+library(dplyr)
 library(ggplot2)
 library(ggdag)
 library(ggokabeito)
+library(causaldata)
+library(positively)
 ```
 
 ```{r}
@@ -120,6 +123,51 @@ Positivity requires that every participant has a non-zero probability of quittin
 - Is there anyone in this study who could never have quit, or who was certain to quit?
 - Are there combinations of the confounders you just listed where quitting is impossible or guaranteed?
 - Would such a violation be structural or stochastic, and what would you do about each?
+
+Positivity is the one assumption here we can also look for in the data.
+`check_port()` searches the covariates for subgroups where one exposure level is rare or absent.
+
+1. Give `check_port()` the exposure, `qsmk`, and the confounders. The `confounders` vector below matches the DAG above.
+2. Keep only the subgroups the search flags: filter the tidied results to the rows where `low_support` is `TRUE`.
+
+```{r}
+nhefs <- nhefs_complete |>
+  filter(censored == 0)
+
+confounders <- c(
+  "sex",
+  "race",
+  "age",
+  "education",
+  "smokeintensity",
+  "smokeyrs",
+  "exercise",
+  "active",
+  "wt71"
+)
+
+check_port(nhefs, ___, all_of(___)) |>
+  tidy() |>
+  filter(___)
+```
+
+The default search reports nothing.
+`gamma` sets how many covariates may jointly define a subgroup.
+
+3. Widen the search to subgroups defined by up to three covariates.
+
+```{r}
+check_port(nhefs, qsmk, all_of(confounders), gamma = ___) |>
+  tidy() |>
+  filter(low_support) |>
+  select(description, n, prevalence)
+```
+
+Now discuss what you found:
+
+- Both subgroups fall under the 5% threshold. Would you call either one a violation?
+- The default search and the wider one disagree. Which would you report, and why?
+- Neither result tells you whether a violation is structural. What would?
 
 ### Consistency
 

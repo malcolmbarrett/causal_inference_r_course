@@ -11,7 +11,9 @@ format: "kakashi-revealjs"
 
 options(
   tibble.max_extra_cols = 6,
-  tibble.width = 60
+  tibble.width = 60,
+  # a cli rule at the default 80 characters clips on the rendered slides
+  cli.width = 76
 )
 
 library(tidyverse)
@@ -21,6 +23,8 @@ library(touringplans)
 library(propensity)
 library(marginaleffects)
 library(halfmoon)
+library(positively)
+library(balancing)
 
 set.seed(1000)
 ```
@@ -330,6 +334,34 @@ wait_times_swts <- post_time_model |>
   )
 ```
 
+## Assessing positivity {background-color="#23373B"}
+
+1. A continuous exposure has no groups to compare
+2. Instead, we ask how much data supports each value we intend to set
+3. `check_edp()` reports that as an effective number of observations
+
+## Effective data points
+
+```{r}
+edp <- check_edp(
+  nhefs_swts,
+  smkintensity82_71,
+  c(age, wt71, smokeintensity, smokeyrs),
+  values = c(-20, 0, 20),
+  exposure_type = "continuous"
+)
+
+edp |>
+  tidy() |>
+  group_by(value) |>
+  summarize(edp = round(mean(edp), 1))
+```
+
+## Effective data points
+
+- Setting everyone to a 20 cigarette increase is supported by about 6 effective observations out of 1162
+- The dose-response function is weakest where the effective sample is smallest
+
 ## Checking balance {background-color="#23373B"}
 
 1. Weighting should break the association between the confounders and the exposure
@@ -463,6 +495,82 @@ as_conditional(ipw_fit) |>
 
 ### The slope matches the marginal reading here because the outcome model is linear in the exposure with an identity link
 
+## Balancing weights {background-color="#23373B"}
+
+1. The stabilized weights leave small correlations behind
+2. Balancing weights optimize those correlations directly
+3. As with `wt_ate()`, we declare the exposure type
+
+## Entropy balancing with `balance()`
+
+```{r}
+#| output-location: slide
+
+entropy_fit <- balance(
+  nhefs_swts,
+  .exposure = smkintensity82_71,
+  .covariates = c(age, wt71, smokeintensity, smokeyrs),
+  method = bw_entropy(),
+  exposure_type = "continuous"
+)
+
+entropy_fit
+```
+
+## Comparing balance
+
+```{r}
+nhefs_swts <- nhefs_swts |>
+  mutate(w_bal = weights(entropy_fit))
+
+balance_comparison <- check_balance(
+  nhefs_swts,
+  .vars = c(age, smokeintensity, smokeyrs, wt71),
+  .exposure = smkintensity82_71,
+  .weights = c(swts, w_bal),
+  exposure_type = "continuous"
+)
+```
+
+## Comparing balance {.small}
+
+```{r}
+# `group_level` is the exposure name on every row here
+balance_comparison |>
+  select(-group_level)
+```
+
+## Comparing balance
+
+```{r}
+#| echo: false
+#| fig-width: 9
+
+plot_balance(balance_comparison) +
+  scale_x_continuous(n.breaks = 3) +
+  ggokabeito::scale_color_okabe_ito() +
+  theme_minimal(base_size = 16) +
+  theme(legend.position = "bottom")
+```
+
+## Estimating with balancing weights
+
+```{r}
+balancing_outcome_model <- lm(
+  wt82_71 ~ smkintensity82_71,
+  weights = w_bal,
+  data = nhefs_swts
+)
+
+balancing_ipw_fit <- ipw(entropy_fit, balancing_outcome_model)
+```
+
+## Estimating with balancing weights {.small}
+
+```{r}
+balancing_ipw_fit
+```
+
 ## Causal dose-response functions {background-color="#23373B"}
 
 1. Calculate the stabilized weights
@@ -532,11 +640,117 @@ ggplot(dose_response, aes(smkintensity82_71, estimate)) +
   )
 ```
 
+## Dose-response with balancing weights
+
+```{r}
+#| echo: false
+
+balancing_msm <- lm(
+  wt82_71 ~ splines::ns(smkintensity82_71, df = 3),
+  weights = w_bal,
+  data = nhefs_swts
+)
+
+dose_response_bal <- ipw(entropy_fit, balancing_msm) |>
+  as_conditional() |>
+  set_modeldata(nhefs_swts) |>
+  avg_predictions(
+    variables = list(smkintensity82_71 = -25:25)
+  )
+
+ggplot(dose_response_bal, aes(smkintensity82_71, estimate)) +
+  geom_ribbon(
+    aes(ymin = conf.low, ymax = conf.high),
+    fill = "#E69F0095"
+  ) +
+  geom_line(linewidth = 1, color = "#E69F00") +
+  theme_minimal(base_size = 20) +
+  labs(
+    x = "Change in smoking intensity",
+    y = "Weight gain (kg)"
+  )
+```
+
 ## Diagnosing issues {background-color="#23373B"}
 
 1. Extreme weights even after stabilization
 2. Bootstrap: non-normal distribution
 3. Bootstrap: estimate different from original model
+4. ETA bias: simulate the estimator under the fitted models
+
+## ETA bias
+
+- Treat the fitted exposure and outcome models as the truth and simulate the estimator
+- The bias that survives comes from positivity and sparsity alone, not model misspecification
+- A red flag for the fitted mechanism, not a bias correction
+
+## `check_eta_bias()`
+
+- The diagnostic refits both models on each bootstrap draw, so it takes the confounders and the exposure model's formula
+
+```{r}
+confounders <- c(
+  "sex",
+  "race",
+  "age",
+  "education",
+  "smokeintensity",
+  "smokeyrs",
+  "exercise",
+  "active",
+  "wt71"
+)
+```
+
+## `check_eta_bias()`
+
+```{r}
+set.seed(1000)
+eta_ipw <- check_eta_bias(
+  nhefs_light_smokers,
+  smkintensity82_71,
+  wt82_71,
+  all_of(confounders),
+  estimator = "ipw",
+  exposure_formula = formula(nhefs_model),
+  exposure_type = "continuous"
+)
+```
+
+## `check_eta_bias()`
+
+```{r}
+eta_ipw
+```
+
+### The bias positivity contributes is one hundredth of the effect here
+
+## Sweeping the weight cap
+
+```{r}
+#| output-location: slide
+#| fig-width: 8
+
+set.seed(1000)
+eta_sweep <- check_eta_bias(
+  nhefs_light_smokers,
+  smkintensity82_71,
+  wt82_71,
+  all_of(confounders),
+  estimator = "ipw",
+  exposure_formula = formula(nhefs_model),
+  truncation_grid = c(0, 0.01, 0.05, 0.1),
+  exposure_type = "continuous"
+)
+
+autoplot(eta_sweep, type = "sweep") +
+  labs(title = NULL) +
+  theme_minimal(base_size = 20)
+```
+
+. . .
+
+Capping weights the data did not need only adds bias here
 
 ## More info {background-color="#23373B"}
 
