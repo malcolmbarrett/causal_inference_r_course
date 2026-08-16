@@ -499,7 +499,7 @@ p_missing <- plogis(
   -0.8 + 1.4 * net_data$net + 0.3 * as.numeric(scale(net_data$income))
 )
 set.seed(88)
-missing_mar <- rbinom(n, 1, p_missing) == 1
+missing_mar <- rbinom(nrow(net_data), 1, p_missing) == 1
 
 net_data_mar <- net_data |>
   select(net, income, health, temperature, malaria_risk) |>
@@ -513,6 +513,8 @@ households: about 40% of the values are missing, for reasons we can see in
 the data
 
 ## The IPW pipeline
+
+<!-- keep identical to the hidden fit_ipw_net() definition in the five-structures section -->
 
 ```{r}
 fit_ipw_net <- function(.data) {
@@ -874,7 +876,7 @@ standard error accounts for the imputation
 ```{r}
 p_missing <- plogis(-0.5 + 3 * as.numeric(scale(net_data$malaria_risk)))
 set.seed(789)
-missing_mnar <- rbinom(n, 1, p_missing) == 1
+missing_mnar <- rbinom(nrow(net_data), 1, p_missing) == 1
 
 net_data_mnar <- net_data |>
   select(net, income, health, temperature, malaria_risk) |>
@@ -921,12 +923,17 @@ Same frame, same method, same number of imputations, same seed
 ## The same analysis
 
 ```{r}
-fits_mnar <- with(imp_mnar, {
-  ps <- glm(net ~ income + health + temperature, family = binomial())
-  w <- wt_ate(fitted(ps), net, exposure_type = "binary")
-  om <- lm(malaria_risk ~ net, weights = w)
-  ipw(ps, om)
-})
+fits_mnar <- mice::complete(imp_mnar, action = "all") |>
+  map(\(.df) {
+    ps <- glm(
+      net ~ income + health + temperature,
+      family = binomial(),
+      data = .df
+    )
+    w <- wt_ate(fitted(ps), .df$net, exposure_type = "binary")
+    om <- lm(malaria_risk ~ net, data = .df, weights = w)
+    ipw(ps, om)
+  })
 ```
 
 ## The same analysis
@@ -964,7 +971,7 @@ The DAG said as much: there is no way to close the path
 ## What to do instead
 
 - Sensitivity analyses let you probe what you cannot verify; the tools from
-  the tipping point module apply to missingness as well
+  the sensitivity analysis module apply to missingness as well
 - When missingness is designed into a study as censoring, weight for it
   directly with inverse probability of censoring weights, covered in the
   selection bias module

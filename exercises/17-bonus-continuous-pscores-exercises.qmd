@@ -1,5 +1,5 @@
 ---
-title: "Propensity scores for continuous exposures"
+title: "Bonus: Continuous exposures with propensity scores"
 format: html
 ---
 
@@ -17,7 +17,7 @@ library(positively)
 
 For this set of exercises, we'll use propensity scores for continuous exposures.
 
-In the touringplans data set, we have information about the posted waiting times for rides. We also have a limited amount of data on the observed, actual times. The question that we will consider is this: Do posted wait times (`wait_minutes_posted_avg`) for the Seven Dwarves Mine Train at 8 am affect actual wait times (`wait_minutes_actual_avg`) at 9 am? Here's our DAG:
+In the touringplans data set, we have information about the posted waiting times for rides. We also have a limited amount of data on the observed, actual times. The question that we will consider is this: Do posted wait times (`wait_minutes_posted_avg`) for the Seven Dwarfs Mine Train at 8 am affect actual wait times (`wait_minutes_actual_avg`) at 9 am? Here's our DAG:
 
 ```{r}
 #| echo: false
@@ -91,7 +91,7 @@ dagify(
   )
 ```
 
-First, let's wrangle our data to address our question: do posted wait times at 8 affect actual weight times at 9? We'll join the baseline data (all covariates and posted wait time at 8) with the outcome (average actual time). We also have a lot of missingness for `wait_minutes_actual_avg`, so we'll drop unobserved values for now.
+First, let's wrangle our data to address our question: do posted wait times at 8 affect actual wait times at 9? We'll join the baseline data (all covariates and posted wait time at 8) with the outcome (average actual time). We also have a lot of missingness for `wait_minutes_actual_avg`, so we'll drop unobserved values for now.
 
 You don't need to update any code here, so just run this.
 
@@ -109,7 +109,7 @@ wait_times <- eight |>
   drop_na(wait_minutes_actual_avg)
 ```
 
-# Your Turn 1
+## Your Turn 1
 
 First, let's calculate the propensity score model, which will be the denominator in our stabilized weights (more to come on that soon). We'll fit a model using `lm()` for `wait_minutes_posted_avg` with our covariates, then use the fitted predictions of `wait_minutes_posted_avg` (`.fitted`) to calculate the density using `dnorm()`.
 
@@ -134,7 +134,7 @@ wait_times_wts <- post_time_model |>
   )
 ```
 
-# Your Turn 2
+## Your Turn 2
 
 As with the example in the slides, we have a lot of extreme values for our weights
 
@@ -187,7 +187,7 @@ Here, the mean is somewhat above 1. Propensity score weights for continuous expo
 Weighting should break the association between the confounders and the exposure. For a continuous exposure, we check correlations and energy rather than standardized mean differences.
 
 1. Give `check_balance()` the weights you just created.
-2. `wait_minutes_posted_avg` has enough repeated values to read as categorical, so declare the exposure type, as you did in `wt_ate()`.
+2. `wait_minutes_posted_avg` is a continuous exposure, so declare the exposure type explicitly, as you did in `wt_ate()`.
 
 ```{r}
 balance_metrics <- check_balance(
@@ -257,7 +257,7 @@ The IPW bias is most of the size of the effect itself, while g-computation's is 
 ## Stretch goal: Balancing weights
 
 Balancing weights skip the exposure model and optimize the correlations directly.
-Two details are already handled for you: `balance()` cannot read `park_close` as a time, so we convert it to hours first, and these 85 days need a tighter convergence tolerance than the default to reach exact balance.
+Two details are already handled for you: `balance()` cannot read `park_close` as a time, so we convert it to hours first, and these 85 days need a tighter convergence tolerance than the default to drive the correlations to zero.
 
 1. Fit covariate balancing propensity score weights: give `balance()` the exposure and declare the exposure type.
 2. Add the weights to the data frame with `weights()`.
@@ -292,9 +292,11 @@ check_balance(
 )
 ```
 
+The balancing weights drive both correlations to zero, which is exactly what they optimize. The energy row is the caution: it improves enormously on the stabilized weights but remains above the unweighted value, because the moment conditions constrain means and correlations, not the full joint distribution that energy measures.
+
 Continuous covariate balancing propensity score weights do not solve smooth estimating equations, so `ipw()` has no analytic standard error for them. Bootstrap the whole fit if you need an interval.
 
-# Your Turn 3
+## Your Turn 3
 
 Now, let's fit the outcome model!
 
@@ -306,7 +308,8 @@ ipw_model <- lm(___ ~ ___, weights = ___, data = wait_times_swts)
 ipw_model |>
   tidy() |>
   filter(term == "wait_minutes_posted_avg") |>
-  mutate(estimate = estimate * 10)
+  mutate(estimate = estimate * 10) |>
+  select(term, estimate)
 ```
 
 2. Supply the propensity score model and the outcome model to `ipw()`, which uses a sandwich estimator that also accounts for the uncertainty in the propensity score model.
@@ -356,10 +359,10 @@ boot_estimate
 
 ---
 
-# Take aways
+# Takeaways
 
 - We can calculate propensity scores for continuous exposures. `wt_ate()` uses `dnorm()` to use the normal density to transform predictions to a propensity-like scale, estimating the standard deviation from the model predictions with the pooled residual standard deviation. We can also use other approaches like quantile binning of the exposure, calculating probability-based propensity scores using categorical regression models. 
-- Continuous exposures are prone to mispecification and usually need to be stabilized. A simple stabilization is to invert the propensity score by stabilization weights using an intercept-only model such as `lm(exposure ~ 1)`. `wt_ate()` can do this for you automatically with `stabilize = TRUE`. This also applies to other types of exposures.
+- Continuous exposures are prone to misspecification and usually need to be stabilized. A simple stabilization multiplies the inverted propensity score density by the marginal density of the exposure, the fit from an intercept-only model such as `lm(exposure ~ 1)`. `wt_ate()` does this for you with `stabilize = TRUE`. This also applies to other types of exposures.
 - Stabilization is useful for any type of exposure where the weights are unbounded. Bounded weights like the ATO do not have this problem, one of their many benefits.
 - Using propensity scores for continuous exposures in outcome models is identical to using them with binary exposures.
 - Because propensity scores for continuous exposures are prone to positivity violation, check balance, and check the bootstrap distribution of your estimate for skew and to see if the mean estimate is different from your regression model.

@@ -1,5 +1,5 @@
 ---
-title: "Causal Modeling in R: Whole Game"
+title: "Causal Modeling in R: Whole Game (NHEFS)"
 author: "Malcolm Barrett"
 institute: "Stanford University"
 format: "kakashi-revealjs"

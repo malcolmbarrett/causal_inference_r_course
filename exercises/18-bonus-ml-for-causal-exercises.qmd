@@ -1,5 +1,5 @@
 ---
-title: "Machine Learning for Causal Inference"
+title: "Bonus: Machine Learning for Causal Inference"
 format: html
 ---
 
@@ -25,7 +25,7 @@ Historically, guests who stayed in a Walt Disney World resort hotel were able to
 These extra hours could be in the morning or evening.
 The Seven Dwarfs Mine Train is a ride at Walt Disney World's Magic Kingdom. Typically, each day Magic Kingdom may or may not be selected to have these "Extra Magic Hours".
 
-We are interested in examining the relationship between whether there were "Extra Magic Hours" in the morning and the average wait time for the Seven Dwarfs Mine Train the same day between 9am and 10am.
+We are interested in examining the relationship between whether there were "Extra Magic Hours" in the morning and the average posted wait time for the Seven Dwarfs Mine Train the same day between 9 AM and 10 AM in 2018.
 
 Below is a proposed DAG for this question.
 
@@ -101,8 +101,9 @@ Before using machine learning methods, let's review how we implement IPW and G-c
 In IPW, we first fit a propensity score model to estimate the probability of treatment given confounders. The goal is to create a pseudo-population where treatment assignment is independent of confounders. We then calculate weights based on these propensity scores and fit a weighted outcome model to estimate the average treatment effect (ATE).
 
 The algorithm is:
+
 1. Fit a propensity score model to estimate the probability of treatment given confounders.
-2. Calculate weights: for treated units, (for the ATE, it is `1 / propensity score` for the treated units, and `1 / (1 - propensity score)` for the control units; `propensity::wt_ate()` will calculate this for you.
+2. Calculate the weights: for the ATE, `1 / propensity score` for treated units and `1 / (1 - propensity score)` for control units; `propensity::wt_ate()` will calculate this for you.
 3. Fit a weighted outcome model using the calculated weights. This model only includes the treatment variable and no confounders, as the weights adjust for confounding.
 
 ```{r}
@@ -146,6 +147,7 @@ tidy(ipw_model)
 In G-computation, we fit an outcome model that includes the exposure and confounders. We then create two counterfactual datasets: one where everyone is treated and one where everyone is control. We use the fitted outcome model to predict outcomes under each scenario and calculate the ATE as the average difference in predicted outcomes.
 
 The algorithm is:
+
 1. Fit an outcome model with the exposure and confounders.
 2. Clone the dataset to create two scenarios: one where everyone is treated and one where everyone is control.
 3. Predict outcomes under each scenario using the fitted outcome model.
@@ -165,15 +167,15 @@ tidy(outcome_model)
 
 # Step 2: Clone datasets with different exposure values
 # Create datasets where everyone is treated vs everyone is control
-data_all_treated <- seven_dwarfs |>
+seven_dwarfs_all_treated <- seven_dwarfs |>
   mutate(park_extra_magic_morning = 1)
 
-data_all_control <- seven_dwarfs |>
+seven_dwarfs_all_control <- seven_dwarfs |>
   mutate(park_extra_magic_morning = 0)
 
 # Step 3: Predict outcomes under each scenario
-pred_treated <- predict(outcome_model, newdata = data_all_treated)
-pred_control <- predict(outcome_model, newdata = data_all_control)
+pred_treated <- predict(outcome_model, newdata = seven_dwarfs_all_treated)
+pred_control <- predict(outcome_model, newdata = seven_dwarfs_all_control)
 
 # Step 4: Calculate average treatment effect
 # For proper inference, we need bootstrapping.
@@ -184,7 +186,7 @@ ate_gcomp
 
 ## Your Turn 1
 
-1. First, create a character vector `sl_library` that specifies the following algorithms: "SL.glm", "SL.ranger", "SL.gam". Then, Fit a SuperLearner for the exposure model using the `SuperLearner` package. The predictors for this model should be the confounders identified in the DAG: `park_ticket_season`, `park_close`, and `park_temperature_high`. The outcome is `park_extra_magic_morning`.
+1. First, create a character vector `sl_library` that specifies the following algorithms: "SL.glm", "SL.ranger", "SL.gam". Then, fit a SuperLearner for the exposure model using the `SuperLearner` package. The predictors for this model should be the confounders identified in the DAG: `park_ticket_season`, `park_close`, and `park_temperature_high`. The outcome is `park_extra_magic_morning`.
 2. Fit a SuperLearner for the outcome model using the `SuperLearner` package. The predictors for this model should be the confounders plus the exposure: `park_extra_magic_morning`, `park_ticket_season`, `park_close`, and `park_temperature_high`. The outcome is `wait_minutes_posted_avg`.
 3. Inspect the fitted SuperLearner objects.
 
@@ -226,11 +228,11 @@ outcome_sl
 6. Check RMSE with the `yardstick` package for the outcome model. For this, we need a data frame with the true outcome values and predicted outcomes to use with `rmse()`.
 
 ```{r}
-propensity_scores <- predict(______, type = "response")$pred[, 1]
-propensity_scores
+propensity_scores <- predict(______)$pred[, 1]
+head(propensity_scores)
 
 outcome_preds <- predict(______)$pred[, 1]
-outcome_preds
+head(outcome_preds)
 
 exposure_results <- tibble(
   truth = factor(seven_dwarfs$______),
@@ -289,7 +291,6 @@ outcome_sl_extended
 # IPW with SuperLearner propensity scores
 # Step 1: Use predicted propensity scores from SuperLearner
 # Already done!
-propensity_scores
 
 # Step 2: Calculate ATE weights using wt_ate()
 ate_weights <- wt_ate(
@@ -396,10 +397,10 @@ initial_pred_observed <- ifelse(
 )
 ```
 
-5. Create the "clever covariate" using the propensity scores from the fitted SuperLearner model. This will be used in the TMLE targeting step. For treated units, it should be `1 /propensity_scores`, and for control units, it should be `-1 / (1 - propensity_scores)`.
+5. Create the "clever covariate" using the propensity scores from the fitted SuperLearner model. This will be used in the TMLE targeting step. For treated units, it should be `1 / propensity_scores`, and for control units, it should be `-1 / (1 - propensity_scores)`.
 
 ```{r}
-# Step 2: Create the "clever covariate": this is the key to TMLE
+# Step 4: Create the "clever covariate": this is the key to TMLE
 # It weights observations based on their propensity scores to achieve balance
 # For treated units: 1 / propensity_scores
 # For control units: -1 / (1 - propensity_scores)
@@ -416,7 +417,7 @@ clever_covariate <- ifelse(
 7. Get the fluctuation parameter `epsilon` from the model coefficients; this is the coefficient for the clever covariate.
 
 ```{r}
-# Step 3: The targeting step - a small parametric fluctuation of initial estimates
+# Step 5: The targeting step - a small parametric fluctuation of initial estimates
 # We're not re-fitting from scratch; we're making a targeted adjustment
 # The offset keeps our initial predictions on the logit scale
 # No intercept because we're adjusting around the initial predictions, not estimating a new model
@@ -440,7 +441,7 @@ epsilon
    - For control units, we add `epsilon * (-1 / (1 - propensity_scores))`.
 
 ```{r}
-# Step 4: Update our predictions using the fluctuation parameter
+# Step 6: Update our predictions using the fluctuation parameter
 # This update ensures our estimate solves the efficient influence function equation
 # which helps us estimate: 1) unbiased estimate of ATE, 2) valid standard errors
 # We adjust the initial predictions (on the logit scale) by adding epsilon * clever_covariate
@@ -496,12 +497,12 @@ ggplot(targeting_data, aes(x = __________, y = __________)) +
 
 ## Your Turn 4
 
-1. Let's compare the mean difference in **initial** predictions between treated and control units, and the mean difference in **targeted** predictions between treated and control units. The first calculation is identical to the g-computation ATE estimate. The second calculation is the TMLE estimate. Remember to transform back to the original scale!
+1. Let's compare the mean difference in **initial** predictions between treated and control units, and the mean difference in **targeted** predictions between treated and control units. The first calculation is a g-computation estimate using the bounded outcome model, so it will differ slightly from your estimate in Your Turn 2. The second calculation is the TMLE estimate. Remember to transform back to the original scale!
 
 ```{r}
 # Compare: initial estimate (good prediction, possibly biased for causal effect)
 # vs targeted estimate (adjusted to be unbiased for the causal parameter)
-# the g-computation ATE is the mean difference in initial predictions
+# the mean difference in initial predictions is a g-computation estimate from the bounded outcome model
 # Transform back to original scale by multiplying by (max_y - min_y)
 initial_ate <- mean(__________ - __________) * (max_y - min_y)
 initial_ate
@@ -573,7 +574,7 @@ summary(tmle_result)
 
 ---
 
-# Take aways
+# Takeaways
 
 - Machine learning methods can improve causal inference by reducing bias and variance in treatment effect estimates.
 - SuperLearner provides a flexible framework for combining multiple machine learning algorithms.

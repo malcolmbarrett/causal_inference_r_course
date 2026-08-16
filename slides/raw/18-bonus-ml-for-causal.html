@@ -10,7 +10,7 @@
   <meta name="generator" content="quarto-1.9.36">
 
   <meta name="author" content="Malcolm Barrett">
-  <title>Machine Learning for Causal Inference</title>
+  <title>Bonus: Machine Learning for Causal Inference</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -198,7 +198,7 @@
     <div class="slides">
 
 <section id="title-slide" data-background-color="#23373B" data-color="#EDEEF" class="quarto-title-block center">
-  <h1 class="title">Machine Learning for Causal Inference</h1>
+  <h1 class="title">Bonus: Machine Learning for Causal Inference</h1>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -263,7 +263,7 @@ Malcolm Barrett
 <ol type="1">
 <li class="fragment">Fit a model for <code>y ~ x + z</code> where z is all confounders</li>
 <li class="fragment">Create a duplicate of your data set for each level of <code>x</code></li>
-<li class="fragment">Set the value of x to a single value for each cloned data set (e.g <code>x = 1</code> for one, <code>x = 0</code> for the other)</li>
+<li class="fragment">Set the value of x to a single value for each cloned data set (e.g.&nbsp;<code>x = 1</code> for one, <code>x = 0</code> for the other)</li>
 </ol>
 </section>
 <section id="g-computation-1" class="slide level2" data-background-color="#23373B">
@@ -399,17 +399,17 @@ SL.gam_All    28.05101 0.353561</code></pre>
 <h2><em>Your Turn 1</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_f09efc4d" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_f89747ae" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
-<h3 id="first-create-a-character-vector-sl_library-that-specifies-the-following-algorithms-sl.glm-sl.ranger-sl.gam.-then-fit-a-superlearner-for-the-exposure-model-using-the-superlearner-package.-the-predictors-for-this-model-should-be-the-confounders-identified-in-the-dag-park_ticket_season-park_close-and-park_temperature_high.-the-outcome-is-park_extra_magic_morning.">First, create a character vector <code>sl_library</code> that specifies the following algorithms: “SL.glm”, “SL.ranger”, “SL.gam”. Then, Fit a SuperLearner for the exposure model using the <code>SuperLearner</code> package. The predictors for this model should be the confounders identified in the DAG: <code>park_ticket_season</code>, <code>park_close</code>, and <code>park_temperature_high</code>. The outcome is <code>park_extra_magic_morning</code>.</h3>
+<h3 id="first-create-a-character-vector-sl_library-that-specifies-the-following-algorithms-sl.glm-sl.ranger-sl.gam.-then-fit-a-superlearner-for-the-exposure-model-using-the-superlearner-package.-the-predictors-for-this-model-should-be-the-confounders-identified-in-the-dag-park_ticket_season-park_close-and-park_temperature_high.-the-outcome-is-park_extra_magic_morning.">First, create a character vector <code>sl_library</code> that specifies the following algorithms: “SL.glm”, “SL.ranger”, “SL.gam”. Then, fit a SuperLearner for the exposure model using the <code>SuperLearner</code> package. The predictors for this model should be the confounders identified in the DAG: <code>park_ticket_season</code>, <code>park_close</code>, and <code>park_temperature_high</code>. The outcome is <code>park_extra_magic_morning</code>.</h3>
 <h3 id="fit-a-superlearner-for-the-outcome-model-using-the-superlearner-package.-the-predictors-for-this-model-should-be-the-confounders-plus-the-exposure-park_extra_magic_morning-park_ticket_season-park_close-and-park_temperature_high.-the-outcome-is-wait_minutes_posted_avg.">Fit a SuperLearner for the outcome model using the <code>SuperLearner</code> package. The predictors for this model should be the confounders plus the exposure: <code>park_extra_magic_morning</code>, <code>park_ticket_season</code>, <code>park_close</code>, and <code>park_temperature_high</code>. The outcome is <code>wait_minutes_posted_avg</code>.</h3>
-<h3 id="inspect-the-fitted-superlearner-objects.">Inspect the fitted SuperLearner objects.</h3>
+<h3 id="inspect-the-fitted-superlearner-objects-then-check-the-exposure-models-auc-and-the-outcome-models-rmse-with-yardstick.">Inspect the fitted SuperLearner objects, then check the exposure model’s AUC and the outcome model’s RMSE with yardstick.</h3>
 </section>
 <section id="ipw-with-superlearner" class="slide level2">
 <h2>IPW with SuperLearner</h2>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" data-code-line-numbers="|1|3|5-9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a>propensity_scores <span class="ot">&lt;-</span> <span class="fu">predict</span>(propensity_sl, <span class="at">type =</span> <span class="st">"response"</span>)<span class="sc">$</span>pred[, <span class="dv">1</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" data-code-line-numbers="|1|3|5-9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a>propensity_scores <span class="ot">&lt;-</span> <span class="fu">predict</span>(propensity_sl)<span class="sc">$</span>pred[, <span class="dv">1</span>]</span>
 <span id="cb7-2"><a href=""></a></span>
 <span id="cb7-3"><a href=""></a>ate_weights <span class="ot">&lt;-</span> <span class="fu">wt_ate</span>(propensity_scores, net_data<span class="sc">$</span>net)</span>
 <span id="cb7-4"><a href=""></a></span>
@@ -465,7 +465,7 @@ SL.gam_All    28.05101 0.353561</code></pre>
 <h2><em>Your Turn 2</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_dfba554d" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_84460c3b" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 <h3 id="implement-the-ipw-algorithm-using-the-superlearner-propensity-scores">Implement the IPW algorithm using the SuperLearner propensity scores</h3>
@@ -480,11 +480,11 @@ SL.gam_All    28.05101 0.353561</code></pre>
 <h2>Targeted Learning</h2>
 <ul>
 <li class="fragment">TMLE is a flexible, efficient method for estimating causal effects based in semi-parametric theory</li>
-<li class="fragment">TMLE solves three problems: doubly robustness, targeted estimation, and valid statistical inference</li>
+<li class="fragment">TMLE solves three problems: double robustness, targeted estimation, and valid statistical inference</li>
 </ul>
 </section>
-<section id="targeted-learning-doubly-robustness" class="slide level2 small">
-<h2>Targeted Learning: doubly robustness</h2>
+<section id="targeted-learning-double-robustness" class="slide level2 small">
+<h2>Targeted Learning: double robustness</h2>
 <ul>
 <li class="fragment">In <strong>IPW</strong> and <strong>G-computation</strong>, we estimate the propensity score and outcome model separately. If either model is misspecified, the estimate will be biased.</li>
 <li class="fragment">In <strong>TMLE</strong>, we combine the two models in a way that is doubly robust: if either the propensity score or outcome model is correctly specified, the estimate will be consistent.</li>
@@ -502,6 +502,7 @@ SL.gam_All    28.05101 0.353561</code></pre>
 <ul>
 <li class="fragment">In <strong>IPW</strong> and <strong>G-computation</strong>, we cannot easily get valid confidence intervals with ML. Bootstrapping is often used, but it can be computationally intensive and not always valid.</li>
 <li class="fragment">In <strong>TMLE</strong>, we can use the influence curve to get valid confidence intervals. The influence curve is a way to estimate the variance of the TMLE estimate, even when using complex ML algorithms.</li>
+<li class="fragment">With learners this flexible, that also relies on cross-validating the initial fits (CV-TMLE). <code>tmle()</code> cross-validates the outcome model by default; the version we build by hand does not.</li>
 </ul>
 </section>
 <section id="the-tmle-algorithm" class="slide level2" data-background-color="#23373B">
@@ -616,7 +617,7 @@ SL.gam_All    28.05101 0.353561</code></pre>
 <h2><em>Your Turn 3</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_ddf0f530" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_1073f1ce" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 <h3 id="calculate-initial-predictions-for-treatedcontrol-scenarios">Calculate initial predictions for treated/control scenarios</h3>
@@ -712,7 +713,7 @@ SL.gam_All    28.05101 0.353561</code></pre>
 <h2><em>Your Turn 4</em></h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_ccd358c8" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_37b1ddc5" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 <h3 id="calculate-the-tmle-ate-and-compare-to-the-initial-g-computation-estimate">Calculate the TMLE ATE and compare to the initial (g-computation) estimate</h3>
@@ -724,7 +725,7 @@ SL.gam_All    28.05101 0.353561</code></pre>
 <li class="fragment">ML improves flexibility for confounding functional form, not identification</li>
 <li class="fragment">Still need DAGs and causal assumptions</li>
 <li class="fragment">TMLE is statistically efficient, updates predictions to target the causal effect</li>
-<li class="fragment">Valid inference even with complex ML</li>
+<li class="fragment">Valid inference even with complex ML, provided the initial fits are cross-validated</li>
 </ul>
 </section>
 <section id="resources" class="slide level2" data-background-color="#23373B">

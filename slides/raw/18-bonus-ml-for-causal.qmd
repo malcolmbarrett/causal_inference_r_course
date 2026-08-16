@@ -1,5 +1,5 @@
 ---
-title: "Machine Learning for Causal Inference"
+title: "Bonus: Machine Learning for Causal Inference"
 author: "Malcolm Barrett"
 institute: "Stanford University"
 format: "kakashi-revealjs"
@@ -170,7 +170,7 @@ halfmoon::plot_mirror_distributions(
 
 1. Fit a model for `y ~ x + z` where z is all confounders
 2. Create a duplicate of your data set for each level of `x`
-3. Set the value of x to a single value for each cloned data set (e.g `x = 1` for one, `x = 0` for the other)
+3. Set the value of x to a single value for each cloned data set (e.g. `x = 1` for one, `x = 0` for the other)
 
 ## G-computation {background-color="#23373B"}
 
@@ -440,7 +440,6 @@ Given a set of candidate algorithms (and hyperparameters), stacked ensembles com
 
 ```{r}
 #| code-line-numbers: "|1,3,9|4-7|"
-#| cache: true
 
 sl_library <- c("SL.glm", "SL.ranger", "SL.gam")
 
@@ -467,7 +466,6 @@ propensity_sl
 
 ```{r}
 #| code-line-numbers: "|2|3-5|"
-#| cache: true
 
 outcome_sl <- SuperLearner(
   Y = net_data$malaria_risk,
@@ -495,11 +493,11 @@ outcome_sl
 countdown::countdown(minutes = 8)
 ```
 
-### First, create a character vector `sl_library` that specifies the following algorithms: "SL.glm", "SL.ranger", "SL.gam". Then, Fit a SuperLearner for the exposure model using the `SuperLearner` package. The predictors for this model should be the confounders identified in the DAG: `park_ticket_season`, `park_close`, and `park_temperature_high`. The outcome is `park_extra_magic_morning`.
+### First, create a character vector `sl_library` that specifies the following algorithms: "SL.glm", "SL.ranger", "SL.gam". Then, fit a SuperLearner for the exposure model using the `SuperLearner` package. The predictors for this model should be the confounders identified in the DAG: `park_ticket_season`, `park_close`, and `park_temperature_high`. The outcome is `park_extra_magic_morning`.
 
 ### Fit a SuperLearner for the outcome model using the `SuperLearner` package. The predictors for this model should be the confounders plus the exposure: `park_extra_magic_morning`, `park_ticket_season`, `park_close`, and `park_temperature_high`. The outcome is `wait_minutes_posted_avg`.
 
-### Inspect the fitted SuperLearner objects.
+### Inspect the fitted SuperLearner objects, then check the exposure model's AUC and the outcome model's RMSE with yardstick.
 
 ## IPW with SuperLearner
 
@@ -507,7 +505,7 @@ countdown::countdown(minutes = 8)
 #| echo: true
 #| code-line-numbers: "|1|3|5-9"
 
-propensity_scores <- predict(propensity_sl, type = "response")$pred[, 1]
+propensity_scores <- predict(propensity_sl)$pred[, 1]
 
 ate_weights <- wt_ate(propensity_scores, net_data$net)
 
@@ -571,9 +569,9 @@ countdown::countdown(minutes = 8)
 ## Targeted Learning
 
 - TMLE is a flexible, efficient method for estimating causal effects based in semi-parametric theory
-- TMLE solves three problems: doubly robustness, targeted estimation, and valid statistical inference
+- TMLE solves three problems: double robustness, targeted estimation, and valid statistical inference
 
-## Targeted Learning: doubly robustness {.small}
+## Targeted Learning: double robustness {.small}
 
 - In **IPW** and **G-computation**, we estimate the propensity score and outcome model separately. If either model is misspecified, the estimate will be biased.
 - In **TMLE**, we combine the two models in a way that is doubly robust: if either the propensity score or outcome model is correctly specified, the estimate will be consistent.
@@ -587,6 +585,7 @@ countdown::countdown(minutes = 8)
 
 - In **IPW** and **G-computation**, we cannot easily get valid confidence intervals with ML. Bootstrapping is often used, but it can be computationally intensive and not always valid.
 - In **TMLE**, we can use the influence curve to get valid confidence intervals. The influence curve is a way to estimate the variance of the TMLE estimate, even when using complex ML algorithms.
+- With learners this flexible, that also relies on cross-validating the initial fits (CV-TMLE). `tmle()` cross-validates the outcome model by default; the version we build by hand does not.
 
 ## The TMLE Algorithm {background-color="#23373B"}
 
@@ -604,8 +603,6 @@ countdown::countdown(minutes = 8)
 
 ```{r}
 #| echo: true
-#| cache: true
-#| cache-lazy: false
 
 # For TMLE with continuous outcomes, fit SuperLearner on bounded Y
 min_y <- min(net_data$malaria_risk)
@@ -801,9 +798,6 @@ tibble(
 ## Using the tmle Package
 
 ```{r}
-#| cache: true
-#| cache-lazy: false
-
 library(tmle)
 
 tmle_result <- tmle(
@@ -841,7 +835,7 @@ countdown::countdown(minutes = 5)
 - ML improves flexibility for confounding functional form, not identification
 - Still need DAGs and causal assumptions
 - TMLE is statistically efficient, updates predictions to target the causal effect
-- Valid inference even with complex ML
+- Valid inference even with complex ML, provided the initial fits are cross-validated
 
 ## Resources {background-color="#23373B"}
 

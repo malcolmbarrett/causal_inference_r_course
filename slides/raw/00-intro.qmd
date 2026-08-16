@@ -46,7 +46,7 @@ img.rounded-circle {
 ::::::: {.small}
 <img src="img/mb.jpg" class="rounded-circle" />
 <br />
-&nbsp;&nbsp;&nbsp; [https://www.malco.io/](https://www.malco.io/)
+&nbsp;&nbsp;&nbsp; [https://malco.io/](https://malco.io/)
 :::::::
 :::::
 
@@ -137,7 +137,7 @@ Haber et al., *American Journal of Epidemiology*, 2022
 ## Tools that make other assumptions {background-color="#23373B"}
 
 ::: {.small}
-- **Instrumental variables**: a variable affects the treatment but does not directly affect the outcome except through the treatment
+- **Instrumental variables**: a variable affects the treatment but does not affect the outcome except through the treatment
 - **Regression discontinuity**: a cutoff determines who gets the treatment, and individuals just above or below it are comparable
 - **Difference-in-differences**: the treated and untreated groups would have followed the same trend without the treatment
 - **Synthetic controls**: a weighted combination of untreated units approximates the treated unit's outcome without the treatment
@@ -147,8 +147,8 @@ Haber et al., *American Journal of Epidemiology*, 2022
 
 ### [Causal Inference in R](https://www.r-causal.org/): Our book! Free online.
 
-### [Causal Inference](https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/): Comprehensive text on causal inference. Free online.
+### [Causal Inference](https://miguelhernan.org/whatifbook): Comprehensive text on causal inference. Free online.
 
 ### [The Book of Why](http://bayes.cs.ucla.edu/WHY/): Detailed, friendly intro to DAGs and causal inference.
 
-### [Mastering 'Metrics](http://www.masteringmetrics.com/): Friendly introduction to IV-based methods
+### [Mastering 'Metrics](http://www.masteringmetrics.com/): Friendly introduction to IV-based methods.

@@ -1,6 +1,6 @@
 
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- README.md is generated from README.qmd. Please edit that file and re-render -->
 
 ## Causal Inference in R Workshop
 
@@ -12,32 +12,32 @@
   Game](https://causal-inference-r-workshop.netlify.app/01-whole-game.html)
 - [03 When Standard Methods
   Succeed](https://causal-inference-r-workshop.netlify.app/03-when-standard-methods-succeed.html)
-- [04 Causal Inference with `group_by` and
-  `summarise`](https://causal-inference-r-workshop.netlify.app/04-causal-inference-with-group-by-and-summarise.html)
+- [04 Causal Inference with `group_by()` and
+  `summarize()`](https://causal-inference-r-workshop.netlify.app/04-causal-inference-with-group-by-and-summarise.html)
 - [05 Causal
   Diagrams](https://causal-inference-r-workshop.netlify.app/05-dags.html)
 - [06 Causal Inference is Not Just a Statistics
   Problem](https://causal-inference-r-workshop.netlify.app/06-quartets.html)
 - [07 Causal
   Assumptions](https://causal-inference-r-workshop.netlify.app/07-causal-assumptions.html)
-- [08 Introduction to Propensity
+- [08 Propensity
   Scores](https://causal-inference-r-workshop.netlify.app/08-pscores.html)
 - [09 Using Propensity
   Scores](https://causal-inference-r-workshop.netlify.app/09-using-pscores.html)
-- [10 Checking Propensity
-  Scores](https://causal-inference-r-workshop.netlify.app/10-pscore-diagnostics.html)
+- [10 Propensity Score
+  Diagnostics](https://causal-inference-r-workshop.netlify.app/10-pscore-diagnostics.html)
 - [11 Fitting the outcome
   model](https://causal-inference-r-workshop.netlify.app/11-outcome-model.html)
 - [12 Continuous Exposures and
   G-Computation](https://causal-inference-r-workshop.netlify.app/12-continuous-g-comp.html)
-- [13 Tipping Point Sensitivity
-  Analyses](https://causal-inference-r-workshop.netlify.app/13-tipr.html)
+- [13 Sensitivity Analyses for Unmeasured
+  Confounding](https://causal-inference-r-workshop.netlify.app/13-tipr.html)
 - [14 Interaction and Heterogeneous Treatment
   Effects](https://causal-inference-r-workshop.netlify.app/14-interaction.html)
 - [15 Bonus: Missing
   Data](https://causal-inference-r-workshop.netlify.app/15-bonus-missingness.html)
-- [16 Bonus: Selection
-  Bias](https://causal-inference-r-workshop.netlify.app/16-bonus-selection-bias.html)
+- [16 Bonus: Colliders, selection bias, and loss to
+  follow-up](https://causal-inference-r-workshop.netlify.app/16-bonus-selection-bias.html)
 - [17 Bonus: Continuous Exposures with Propensity
   Scores](https://causal-inference-r-workshop.netlify.app/17-bonus-continuous-pscores.html)
 - [18 Bonus: Machine Learning for Causal

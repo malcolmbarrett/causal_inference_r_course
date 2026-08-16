@@ -115,7 +115,6 @@ fit_ipw(bootstrapped_net_data$splits[[1]])
 ## 2. Use {rsample} to bootstrap our causal effect
 
 ```{r}
-#| cache: true
 #| output-location: slide
 #| code-line-numbers: "|2"
 
@@ -190,7 +189,7 @@ When the model's assumptions hold, the bread and meat combine to give the usual 
 
 . . .
 
-When they do not, as with IPW weights, the sandwich form still gives a consistent variance estimate
+When they do not, as with IPW weights, the sandwich form still gives a consistent estimate of the weighted model's variance, though not yet of the whole two-step procedure's
 
 . . .
 
@@ -220,7 +219,7 @@ sandwich(ipw_model)
 
 . . .
 
-For the treatment coefficient, the sandwich variance is about 1.5 times the model-based one, so the model-based SE understates the uncertainty; for the intercept, it is smaller
+For the treatment coefficient, the sandwich variance is about 1.5 times the model-based one; for the intercept, it is smaller. The two estimators disagree because the model-based variance treats the weights as fixed
 
 ## Robust standard errors
 
@@ -316,11 +315,11 @@ bind_rows(
 
 `r countdown::countdown(minutes = 10)`
 
-### Create a function called `fit_ipw` that fits the propensity score model and the weighted outcome model for the effect between `park_extra_magic_morning` and `wait_minutes_posted_avg`
+### Create a function called `fit_ipw` that fits the propensity score model and the weighted outcome model for the effect of `park_extra_magic_morning` on `wait_minutes_posted_avg`
 
-### Using the `bootstraps()` and `int_t()` functions to estimate the final effect.
+### Use `bootstraps()` and `int_t()` to estimate the final effect
 
-### Fitting both models on the full data and using `ipw()` to compare the two intervals, then `as_conditional()` to switch readings.
+### Fit both models on the full data, use `ipw()` to compare the two intervals, then switch readings with `as_conditional()`
 
 ## Binary outcomes
 

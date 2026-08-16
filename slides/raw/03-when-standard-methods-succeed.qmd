@@ -106,7 +106,7 @@ plot_estimates <- function(data) {
 ## Even in these cases, using the methods you will learn here can help! {.small background-color="#23373B"}
 
 1. Adjusting for baseline covariates can make an estimate *more efficient*
-1. Propensity score weighting *always improves precision* over no adjustment and is *equivalent to direct adjustment*
+1. Propensity score weighting *always improves precision* over no adjustment and is *equivalent in precision to direct adjustment*
 1. Sometimes we are *more comfortable with the functional form of the propensity score* (predicting exposure) than the outcome model
 
 ::: {.small}
@@ -182,7 +182,7 @@ plot_estimates(d)
 
 ## Conditional vs. marginal effects
 
-- The outcome model gives a **conditional** effect: *holding the other variables constant*
+- Direct adjustment gives a **conditional** effect: *holding the other variables constant*
 - Weighting gives a **marginal** effect: *averaged over the population*
 - With a continuous outcome, a linear effect, and no interactions, the two are identical
 

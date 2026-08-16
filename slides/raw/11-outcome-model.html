@@ -389,7 +389,7 @@ Malcolm Barrett
 <p>When the model’s assumptions hold, the bread and meat combine to give the usual model-based variance</p>
 </div>
 <div class="fragment">
-<p>When they do not, as with IPW weights, the sandwich form still gives a consistent variance estimate</p>
+<p>When they do not, as with IPW weights, the sandwich form still gives a consistent estimate of the weighted model’s variance, though not yet of the whole two-step procedure’s</p>
 </div>
 <div class="fragment">
 <p>That is why these are called “robust” standard errors</p>
@@ -426,7 +426,7 @@ netTRUE       -0.157519  0.5720561</code></pre>
 </div>
 </div>
 <div class="fragment">
-<p>For the treatment coefficient, the sandwich variance is about 1.5 times the model-based one, so the model-based SE understates the uncertainty; for the intercept, it is smaller</p>
+<p>For the treatment coefficient, the sandwich variance is about 1.5 times the model-based one; for the intercept, it is smaller. The two estimators disagree because the model-based variance treats the weights as fixed</p>
 </div>
 </section>
 <section id="robust-standard-errors-3" class="slide level2">
@@ -550,10 +550,10 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </section>
 <section id="your-turn" class="slide level2">
 <h2><em>Your Turn</em></h2>
-<p><countdown-timer class="countdown" id="timer_a4743967" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
-<h3 id="create-a-function-called-fit_ipw-that-fits-the-propensity-score-model-and-the-weighted-outcome-model-for-the-effect-between-park_extra_magic_morning-and-wait_minutes_posted_avg">Create a function called <code>fit_ipw</code> that fits the propensity score model and the weighted outcome model for the effect between <code>park_extra_magic_morning</code> and <code>wait_minutes_posted_avg</code></h3>
-<h3 id="using-the-bootstraps-and-int_t-functions-to-estimate-the-final-effect.">Using the <code>bootstraps()</code> and <code>int_t()</code> functions to estimate the final effect.</h3>
-<h3 id="fitting-both-models-on-the-full-data-and-using-ipw-to-compare-the-two-intervals-then-as_conditional-to-switch-readings.">Fitting both models on the full data and using <code>ipw()</code> to compare the two intervals, then <code>as_conditional()</code> to switch readings.</h3>
+<p><countdown-timer class="countdown" id="timer_2f7b7195" minutes="10" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer></p>
+<h3 id="create-a-function-called-fit_ipw-that-fits-the-propensity-score-model-and-the-weighted-outcome-model-for-the-effect-of-park_extra_magic_morning-on-wait_minutes_posted_avg">Create a function called <code>fit_ipw</code> that fits the propensity score model and the weighted outcome model for the effect of <code>park_extra_magic_morning</code> on <code>wait_minutes_posted_avg</code></h3>
+<h3 id="use-bootstraps-and-int_t-to-estimate-the-final-effect">Use <code>bootstraps()</code> and <code>int_t()</code> to estimate the final effect</h3>
+<h3 id="fit-both-models-on-the-full-data-use-ipw-to-compare-the-two-intervals-then-switch-readings-with-as_conditional">Fit both models on the full data, use <code>ipw()</code> to compare the two intervals, then switch readings with <code>as_conditional()</code></h3>
 </section>
 <section id="binary-outcomes" class="slide level2">
 <h2>Binary outcomes</h2>

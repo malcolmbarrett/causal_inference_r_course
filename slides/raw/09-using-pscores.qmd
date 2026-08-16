@@ -460,7 +460,7 @@ $$\Large w_i = \frac{h(p_i)Z_i}{p_i} + \frac{h(p_i)(1-Z_i)}{1 - p_i}$$
 The tilting function reshapes the population we are targeting
 
 ::: {.fragment}
-The tilting function is $h(p_i) = 1$: the population is unchanged and the weights are unbounded
+For the ATE, the tilting function is $h(p_i) = 1$: the population is unchanged and the weights are unbounded
 
 :::
 
@@ -800,4 +800,4 @@ countdown::countdown(minutes = 6)
 
 ### Using the propensity scores you created in the previous exercise, add the ATE weights to your data frame
 
-### *Stretch*: Using the same propensity scores, create ATM weights
+### *Stretch*: Using the same propensity scores, create ATM weights, plot the weighted distributions, and look for low-support regions with `check_port()`

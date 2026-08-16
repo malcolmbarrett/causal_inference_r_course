@@ -1,5 +1,5 @@
 ---
-title: "Causal Inference with `group_by` and `summarise`"
+title: "Causal Inference with `group_by()` and `summarize()`"
 author: "Lucy D'Agostino McGowan"
 institute: "Wake Forest University"
 format: "kakashi-revealjs"
@@ -104,7 +104,7 @@ lm(outcome ~ exposure, data = sim)
 
 sim |>
   group_by(exposure) |>
-  summarise(avg_y = mean(outcome))
+  summarize(avg_y = mean(outcome))
 ```
 
 ## Simulation
@@ -112,13 +112,13 @@ sim |>
 ```{r}
 sim |>
   group_by(exposure) |>
-  summarise(avg_y = mean(outcome)) |>
+  summarize(avg_y = mean(outcome)) |>
   pivot_wider(
     names_from = exposure,
     values_from = avg_y,
     names_prefix = "x_"
   ) |>
-  summarise(estimate = x_1 - x_0)
+  summarize(estimate = x_1 - x_0)
 ```
 
 ## *Your Turn 1* (`04-ci-with-group-by-and-summarise-exercises.qmd`)
@@ -137,7 +137,7 @@ sim |>
 
 sim |>
   group_by(confounder, exposure) |>
-  summarise(avg_y = mean(outcome), .groups = "drop")
+  summarize(avg_y = mean(outcome), .groups = "drop")
 ```
 
 ## *Your Turn 1*
@@ -148,7 +148,7 @@ sim |>
 
 sim |>
   group_by(confounder, exposure) |>
-  summarise(avg_y = mean(outcome), .groups = "drop") |>
+  summarize(avg_y = mean(outcome), .groups = "drop") |>
   pivot_wider(
     names_from = exposure,
     values_from = avg_y,
@@ -157,7 +157,7 @@ sim |>
   reframe(estimate = x_1 - x_0) |>
   # note: we would need to weight this
   # if the confounder groups were not equal sized
-  summarise(estimate = mean(estimate))
+  summarize(estimate = mean(estimate))
 ```
 
 . . .
@@ -214,14 +214,14 @@ lm(outcome ~ exposure, data = sim2)
 
 sim2 |>
   group_by(confounder_1, confounder_2, exposure) |>
-  summarise(avg_y = mean(outcome), .groups = "drop") |>
+  summarize(avg_y = mean(outcome), .groups = "drop") |>
   pivot_wider(
     names_from = exposure,
     values_from = avg_y,
     names_prefix = "x_"
   ) |>
   reframe(estimate = x_1 - x_0) |>
-  summarise(estimate = mean(estimate))
+  summarize(estimate = mean(estimate))
 ```
 
 ## Simulation
@@ -262,14 +262,14 @@ lm(outcome ~ exposure, data = big_sim2)
 
 big_sim2 |>
   group_by(confounder_1, confounder_2, exposure) |>
-  summarise(avg_y = mean(outcome), .groups = "drop") |>
+  summarize(avg_y = mean(outcome), .groups = "drop") |>
   pivot_wider(
     names_from = exposure,
     values_from = avg_y,
     names_prefix = "x_"
   ) |>
   reframe(estimate = x_1 - x_0) |>
-  summarise(estimate = mean(estimate))
+  summarize(estimate = mean(estimate))
 ```
 
 ## Continuous confounder? {.center background-color="#23373B"}
@@ -277,9 +277,10 @@ big_sim2 |>
 ## Simulation
 
 ```{r}
-#| code-line-numbers: "|3"
+#| code-line-numbers: "|4"
 #| output-location: slide
 
+set.seed(1)
 n <- 10000
 sim3 <- tibble(
   confounder = rnorm(n),
@@ -319,14 +320,14 @@ lm(outcome ~ exposure, data = sim3)
 sim3 |>
   mutate(confounder_q = ntile(confounder, 5)) |>
   group_by(confounder_q, exposure) |>
-  summarise(avg_y = mean(outcome), .groups = "drop") |>
+  summarize(avg_y = mean(outcome), .groups = "drop") |>
   pivot_wider(
     names_from = exposure,
     values_from = avg_y,
     names_prefix = "x_"
   ) |>
   reframe(estimate = x_1 - x_0) |>
-  summarise(estimate = mean(estimate))
+  summarize(estimate = mean(estimate))
 ```
 
 ## How many bins?
@@ -336,14 +337,14 @@ bin_estimate <- function(bins) {
   sim3 |>
     mutate(confounder_q = ntile(confounder, bins)) |>
     group_by(confounder_q, exposure) |>
-    summarise(avg_y = mean(outcome), .groups = "drop") |>
+    summarize(avg_y = mean(outcome), .groups = "drop") |>
     pivot_wider(
       names_from = exposure,
       values_from = avg_y,
       names_prefix = "x_"
     ) |>
     reframe(estimate = x_1 - x_0) |>
-    summarise(bins = bins, estimate = mean(estimate))
+    summarize(bins = bins, estimate = mean(estimate))
 }
 ```
 

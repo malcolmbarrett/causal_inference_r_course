@@ -19,7 +19,7 @@ Some quit smoking between the two visits and some did not, and we can compare ho
 Nothing about that comparison is causal on its own.
 The three assumptions below are what would license reading it as the effect of quitting smoking on weight gain.
 
-## Your turn
+## Your Turn
 
 Discuss each assumption with your neighbors.
 For each one, decide how plausible it is for this question and what you would do if you thought it was violated.
@@ -157,10 +157,11 @@ The default search reports nothing.
 3. Widen the search to subgroups defined by up to three covariates.
 
 ```{r}
+# the wider search grows many more trees and takes several seconds
 check_port(nhefs, qsmk, all_of(confounders), gamma = ___) |>
   tidy() |>
   filter(low_support) |>
-  select(description, n, prevalence)
+  select(description, exposure_level, n, prevalence)
 ```
 
 Now discuss what you found:

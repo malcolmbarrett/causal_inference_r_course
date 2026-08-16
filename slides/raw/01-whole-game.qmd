@@ -13,7 +13,9 @@ format: "kakashi-revealjs"
 
 options(
   tibble.max_extra_cols = 6,
-  tibble.width = 60
+  tibble.width = 60,
+  tipr.verbose = FALSE,
+  propensity.quiet = TRUE
 )
 library(tidyverse)
 library(broom)
@@ -75,8 +77,6 @@ net_data |>
 ## Do net users have lower malaria risk?
 
 ```{r}
-#| highlight-output: [4, 5]
-
 # ~16 points lower risk for net users vs. non-users
 net_data |>
   group_by(net) |>
@@ -301,7 +301,8 @@ lm(
   data = net_data
 ) |>
   tidy(conf.int = TRUE) |>
-  filter(term == "netTRUE")
+  filter(term == "netTRUE") |>
+  select(term, estimate, starts_with("conf"))
 ```
 
 ## {.center background-color="#23373B"}
@@ -452,7 +453,8 @@ ipw_estimate <- ipw_model |>
 ## Estimate causal effect with IPW
 
 ```{r}
-ipw_estimate
+ipw_estimate |>
+  select(term, estimate, starts_with("conf"))
 ```
 
 ## Let's fix our confidence intervals with robust SEs!
@@ -478,7 +480,8 @@ ipw_estimate_robust <- ipw_model_robust |>
 ## Let's fix our confidence intervals with robust SEs!
 
 ```{r}
-as_tibble(ipw_estimate_robust)
+as_tibble(ipw_estimate_robust) |>
+  select(term, estimate, starts_with("conf"))
 ```
 
 ## Let's fix our confidence intervals with the bootstrap!
@@ -566,7 +569,8 @@ ipw_fit <- ipw(propensity_model, ipw_model)
 ## Let's fix our confidence intervals with ipw()! {.small}
 
 ```{r}
-tidy(ipw_fit, conf.int = TRUE)
+tidy(ipw_fit, conf.int = TRUE) |>
+  select(term, estimate, starts_with("conf"))
 ```
 
 ## {.center}
@@ -773,7 +777,8 @@ ipw_fit_full <- ipw(propensity_model_full, ipw_model_full)
 ## Re-estimate the effect with the confounder measured
 
 ```{r}
-tidy(ipw_fit_full, conf.int = TRUE)
+tidy(ipw_fit_full, conf.int = TRUE) |>
+  select(term, estimate, starts_with("conf"))
 ```
 
 ## {.center background-color="#23373B"}
@@ -792,7 +797,7 @@ tidy(ipw_fit_full, conf.int = TRUE)
 
 ### [Causal Inference in R](https://www.r-causal.org/): Our book, where this example comes from. Free online.
 
-### [Causal Inference](https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/): Comprehensive text on causal inference. Free online.
+### [Causal Inference](https://miguelhernan.org/whatifbook): Comprehensive text on causal inference. Free online.
 
 ### [Bootstrap confidence intervals with {rsample}](https://rsample.tidymodels.org/articles/Applications/Intervals.html)
 

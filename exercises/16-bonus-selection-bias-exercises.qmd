@@ -1,5 +1,5 @@
 ---
-title: "Bonus: Selection bias and correcting for loss to follow-up"
+title: "Bonus: Colliders, selection bias, and loss to follow-up"
 format: html
 ---
 
@@ -13,11 +13,11 @@ library(causaldata)
 library(rsample)
 ```
 
-In this example, we'll consider loss to follow-up in the NHEFS study. We'll use the binary exposure we used earlier in the workshop: does quitting smoking (`qsmk`) increase weight (`wt82_71`)? This time, however, we'll adjust for loss to followup (people who dropped out of the study between observation periods) using inverse probability of censoring weights.
+In this example, we'll consider loss to follow-up in the NHEFS study. We'll use the question whose assumptions we examined in the causal assumptions exercise: does quitting smoking (`qsmk`) increase weight (`wt82_71`)? This time, however, we'll adjust for loss to follow-up (people who dropped out of the study between observation periods) using inverse probability of censoring weights.
 
-# Your Turn 1
+## Your Turn 1
 
-1. Take a look at how many participants were lost to follow up in `nhefs`, called `censored` in this data set. You don't need to change anything in this code.
+1. Take a look at how many participants were lost to follow-up in `nhefs`, called `censored` in this data set. You don't need to change anything in this code.
 
 ```{r}
 nhefs_censored <- nhefs |>
@@ -63,7 +63,7 @@ cens_model <- ___(
 )
 ```
 
-# Your Turn 2
+## Your Turn 2
 
 1. Use the logistic model you just fit to create inverse probability of censoring weights
 2. Calculate the weights with `wt_cens()`. It takes the propensity score first, `.fitted`, and the censoring indicator second, `censored`
@@ -101,7 +101,7 @@ outcome_model <- lm(
 )
 ```
 
-# Your Turn 3
+## Your Turn 3
 
 1. Create the cloned data sets, called `kept_smoking` and `quit_smoking`, where one dataset has `qsmk` set to 1 (quit smoking) and the other has it set to 0 (kept smoking).
 2. Use the outcome model, `outcome_model`, to make predictions for `kept_smoking` and `quit_smoking`
@@ -126,7 +126,7 @@ bind_cols(predicted_kept_smoking, predicted_quit_smoking) |>
   )
 ```
 
-## Stretch goal: Boostrapped intervals
+## Stretch goal: Bootstrapped intervals
 
 Finish early? Try bootstrapping the G-computation model with censoring weights
 
@@ -139,13 +139,14 @@ fit_gcomp_cens <- function(.split, ...) {
 
   # fit the censoring model. remember to model using `.df` instead of `nhefs_censored`
 
-  # calculate the inverse probability of censoring weights. remember to predict `.df` instead of `nhefs_censored`
+  # add the censoring weights to `.df`: augment `.df` with the censoring model you
+  # just fit, then mutate `cens_wts` with `wt_cens()`. no join here: every resample
+  # needs its own weights, estimated on its own rows
 
-  #  join all the weights data from above to .df
+  # fit outcome model. remember to model using the weighted data you just made from
+  # `.df`, weighted by `cens_wts`, instead of `nhefs_censored_wts` or `nhefs_censored`
 
-  # fit outcome model. remember to model using `nhefs_censored_wts` instead of `nhefs_censored` or `.df`
-
-  # clone datasets. remember to clone `.df` instead of `nhefs_censored`
+  # clone datasets. remember to clone the weighted data instead of `nhefs_censored`
 
   # predict change in weight for each cloned dataset
 
@@ -171,7 +172,7 @@ boot_estimate_cens
 
 ---
 
-# Take aways
+# Takeaways
 
 - If loss to follow-up is potentially related to your study question, inverse probability of censoring weights can help mitigate the bias.
 - You can use them in many types of models. If you're also using propensity score weights, simply multiply the weights together, then include the result as the weights for your outcome model.

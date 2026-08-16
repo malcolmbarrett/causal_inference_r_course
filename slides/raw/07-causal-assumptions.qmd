@@ -23,11 +23,7 @@ library(gt)
 library(ggdag)
 library(ggokabeito)
 library(glue)
-library(halfmoon)
-library(hms)
-library(patchwork)
 library(positively)
-library(touringplans)
 
 theme_set(
   theme_minimal(base_size = 14) +
@@ -419,7 +415,7 @@ mix_up <- function(flavor) {
   if_else(flavor == "chocolate", "vanilla", "chocolate")
 }
 
-data_observed <- data_observed |>
+data_observed_mixed_up <- data_observed |>
   mutate(
     exposure = mix_up(exposure),
     observed_outcome = case_when(
@@ -428,7 +424,7 @@ data_observed <- data_observed |>
     )
   )
 
-data_observed |>
+data_observed_mixed_up |>
   group_by(exposure) |>
   summarise(avg_outcome = mean(observed_outcome))
 ```
@@ -847,8 +843,9 @@ ggplot(
 
 . . .
 
-We can collect more data, use a statistical model to extrapolate, add
-eligibility criteria, or change the estimand
+For stochastic violations, we can collect more data or use a statistical model
+to extrapolate; for structural ones, we can add eligibility criteria or change
+the estimand
 
 ## Finding positivity violations
 
@@ -913,24 +910,13 @@ It seems almost silly when you say it. What else would it be?
 Everyone has a third potential outcome, `y_spoiled_chocolate`, which is 0
 
 ```{r}
-#| include: false
-
-data <- tibble(
-  id = 1:10,
-  y_spoiled_chocolate = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-  y_chocolate = c(4, 4, 6, 5, 6, 5, 6, 7, 5, 6),
-  y_vanilla = c(1, 3, 4, 5, 5, 6, 8, 6, 3, 5)
-) |>
-  mutate(causal_effect = y_chocolate - y_vanilla)
-```
-
-```{r}
-#| code-line-numbers: "|4-8|14-15|18-20"
+#| code-line-numbers: "|5-9|15-16|19-21"
 #| output-location: fragment
 
 set.seed(11)
 data_observed_poorly_defined <- data |>
   mutate(
+    y_spoiled_chocolate = 0,
     exposure_unobserved = case_when(
       rbinom(n(), 1, 0.25) == 1 ~ "chocolate (spoiled)",
       rbinom(n(), 1, 0.25) == 1 ~ "chocolate",
@@ -1284,7 +1270,7 @@ it is meaningful
 ```{r}
 #| code-line-numbers: "|8-9"
 
-data <- tibble(
+data_partners <- tibble(
   id = 1:10,
   partner_id = c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5),
   y_chocolate_chocolate = c(4, 4, 6, 5, 6, 5, 6, 7, 5, 6),
@@ -1303,7 +1289,7 @@ data <- tibble(
 #| output-location: fragment
 
 set.seed(37)
-data_observed_interf <- data |>
+data_observed_interf <- data_partners |>
   mutate(
     exposure = if_else(rbinom(n(), 1, 0.5) == 1, "chocolate", "vanilla"),
     exposure_partner = if_else(
@@ -1359,7 +1345,7 @@ partners <- tibble(
   exposure = if_else(rbinom(5, 1, 0.5) == 1, "chocolate", "vanilla")
 )
 
-partners_observed <- data |>
+partners_observed <- data_partners |>
   left_join(partners, by = "partner_id") |>
   mutate(
     exposure_partner = exposure,
@@ -1508,5 +1494,7 @@ smk_wt_dag |>
 ### Open `07-causal-assumptions-exercises.qmd`
 
 ### Discuss with your neighbors: what do exchangeability, positivity, and consistency require for the question, does quitting smoking cause weight gain?
+
+### Fill in and run the positivity check with `check_port()`
 
 `r countdown::countdown(minutes = 10)`

@@ -273,6 +273,7 @@ Without an exposure-covariate interaction, the three coincide: the model assumes
 The ATO and ATM populations are not subsets of the rows, so weight the average by the tilting function instead
 
 ```{r}
+#| eval: false
 #| code-line-numbers: "|3-4,9"
 
 library(propensity)
@@ -285,6 +286,24 @@ avg_comparisons(
   variables = "a",
   wts = ps_tilt(greek_ps, "ato")
 )
+```
+
+```{r}
+#| echo: false
+
+library(propensity)
+
+greek_ps <- glm(a ~ l, data = greek_data, family = binomial()) |>
+  predict(type = "response")
+
+avg_comparisons(
+  greek_model,
+  variables = "a",
+  wts = ps_tilt(greek_ps, "ato")
+) |>
+  tidy() |>
+  select(estimate, std.error, conf.low, conf.high) |>
+  mutate(across(everything(), \(x) round(x, digits = 2)))
 ```
 
 ## Predicting where there are no data
@@ -331,6 +350,12 @@ Nearly a third of the unexposed group falls outside the covariate hull of the ex
 - Continuous exposure weights are unstable under positivity violations
 - G-computation avoids the weights, but predicts into the same sparse regions
 - We recommend it here, provided we can get the functional form right
+
+## The NHEFS study
+
+- NHEFS, the National Health and Nutrition Examination Survey Epidemiologic Follow-up Study, is a longitudinal, observational study
+- Participants were surveyed and examined starting in 1971 and followed up through 1982
+- Here we ask how the change in smoking intensity between the two visits affected weight gain
 
 ## Does change in smoking intensity (`smkintensity82_71`) affect weight gain among lighter smokers?
 
