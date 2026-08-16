@@ -3,6 +3,7 @@ project:
   title: "causal_inference_r_workshop"
   render:
     - "slides/raw/*.qmd"
+    - "!slides/raw/nhefs-whole-game.qmd"
   
 profile:
   default: dev
