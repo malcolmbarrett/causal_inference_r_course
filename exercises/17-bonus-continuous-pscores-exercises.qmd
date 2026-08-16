@@ -203,6 +203,57 @@ balance_metrics
 
 The stabilized weights made the temperature correlation worse rather than better, and the energy distance is far larger than it was unweighted. Together with the mean above 1, that is a weight model in trouble.
 
+## Stretch goal: ETA bias
+
+The balance check said the stabilized weights are in trouble. `check_eta_bias()` measures the cost: it treats the fitted exposure and outcome models as the truth, simulates the estimator against them, and reports the bias that positivity and sparsity alone produce. Its IPW estimator weights by the same stabilized density ratio as `wt_ate()` with `stabilize = TRUE`, so this diagnoses the analysis you just ran. It cannot read `park_close` as a time, so we convert it to hours first.
+
+1. Diagnose the IPW estimator: give `check_eta_bias()` the outcome column and the estimator.
+
+```{r}
+wait_times_eta <- wait_times_swts |>
+  mutate(park_close_hours = as.numeric(park_close) / 3600)
+
+set.seed(1000)
+eta_ipw <- check_eta_bias(
+  wait_times_eta,
+  wait_minutes_posted_avg,
+  ___,
+  c(
+    park_close_hours,
+    park_extra_magic_morning,
+    park_temperature_high,
+    park_ticket_season
+  ),
+  estimator = ___,
+  exposure_type = "continuous"
+)
+
+eta_ipw
+```
+
+2. Run the same diagnostic for g-computation and compare.
+
+```{r}
+set.seed(1000)
+eta_gcomp <- check_eta_bias(
+  wait_times_eta,
+  wait_minutes_posted_avg,
+  ___,
+  c(
+    park_close_hours,
+    park_extra_magic_morning,
+    park_temperature_high,
+    park_ticket_season
+  ),
+  estimator = ___,
+  exposure_type = "continuous"
+)
+
+eta_gcomp
+```
+
+The IPW bias is most of the size of the effect itself, while g-computation's is noise around zero. Positivity is breaking the weights here, not the outcome model, which is the same verdict the balance check gave.
+
 ## Stretch goal: Balancing weights
 
 Balancing weights skip the exposure model and optimize the correlations directly.
@@ -242,54 +293,6 @@ check_balance(
 ```
 
 Continuous covariate balancing propensity score weights do not solve smooth estimating equations, so `ipw()` has no analytic standard error for them. Bootstrap the whole fit if you need an interval.
-
-## Stretch goal: ETA bias
-
-The balance check said the weights are in trouble. `check_eta_bias()` measures the cost: it treats the fitted exposure and outcome models as the truth, simulates the estimator against them, and reports the bias that positivity and sparsity alone produce. This uses the `wait_times_bal` data from the previous stretch goal.
-
-1. Diagnose the IPW estimator: give `check_eta_bias()` the outcome column and the estimator.
-
-```{r}
-set.seed(1000)
-eta_ipw <- check_eta_bias(
-  wait_times_bal,
-  wait_minutes_posted_avg,
-  ___,
-  c(
-    park_close_hours,
-    park_extra_magic_morning,
-    park_temperature_high,
-    park_ticket_season
-  ),
-  estimator = ___,
-  exposure_type = "continuous"
-)
-
-eta_ipw
-```
-
-2. Run the same diagnostic for g-computation and compare.
-
-```{r}
-set.seed(1000)
-eta_gcomp <- check_eta_bias(
-  wait_times_bal,
-  wait_minutes_posted_avg,
-  ___,
-  c(
-    park_close_hours,
-    park_extra_magic_morning,
-    park_temperature_high,
-    park_ticket_season
-  ),
-  estimator = ___,
-  exposure_type = "continuous"
-)
-
-eta_gcomp
-```
-
-The IPW bias is most of the size of the effect itself, while g-computation's is noise around zero. Positivity is breaking the weights here, not the outcome model, which is the same verdict the balance check gave.
 
 # Your Turn 3
 
