@@ -11,7 +11,9 @@ format: "kakashi-revealjs"
 
 options(
   tibble.max_extra_cols = 6,
-  tibble.width = 60
+  tibble.width = 60,
+  # a cli rule at the default 80 characters clips on the rendered slides
+  cli.width = 76
 )
 
 library(tidyverse)
@@ -674,6 +676,81 @@ ggplot(dose_response_bal, aes(smkintensity82_71, estimate)) +
 1. Extreme weights even after stabilization
 2. Bootstrap: non-normal distribution
 3. Bootstrap: estimate different from original model
+4. ETA bias: simulate the estimator under the fitted models
+
+## ETA bias
+
+- Treat the fitted exposure and outcome models as the truth and simulate the estimator
+- The bias that survives comes from positivity and sparsity alone, not model misspecification
+- A red flag for the fitted mechanism, not a bias correction
+
+## `check_eta_bias()`
+
+- The diagnostic refits both models on each bootstrap draw, so it takes the confounders and the exposure model's formula
+
+```{r}
+confounders <- c(
+  "sex",
+  "race",
+  "age",
+  "education",
+  "smokeintensity",
+  "smokeyrs",
+  "exercise",
+  "active",
+  "wt71"
+)
+```
+
+## `check_eta_bias()`
+
+```{r}
+set.seed(1000)
+eta_ipw <- check_eta_bias(
+  nhefs_light_smokers,
+  smkintensity82_71,
+  wt82_71,
+  all_of(confounders),
+  estimator = "ipw",
+  exposure_formula = formula(nhefs_model),
+  exposure_type = "continuous"
+)
+```
+
+## `check_eta_bias()`
+
+```{r}
+eta_ipw
+```
+
+### The bias positivity contributes is one hundredth of the effect here
+
+## Sweeping the weight cap
+
+```{r}
+#| output-location: slide
+#| fig-width: 8
+
+set.seed(1000)
+eta_sweep <- check_eta_bias(
+  nhefs_light_smokers,
+  smkintensity82_71,
+  wt82_71,
+  all_of(confounders),
+  estimator = "ipw",
+  exposure_formula = formula(nhefs_model),
+  truncation_grid = c(0, 0.01, 0.05, 0.1),
+  exposure_type = "continuous"
+)
+
+autoplot(eta_sweep, type = "sweep") +
+  labs(title = NULL) +
+  theme_minimal(base_size = 20)
+```
+
+. . .
+
+Capping weights the data did not need only adds bias here
 
 ## More info {background-color="#23373B"}
 

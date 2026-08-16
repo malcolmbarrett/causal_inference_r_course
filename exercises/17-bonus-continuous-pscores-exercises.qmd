@@ -12,6 +12,7 @@ library(touringplans)
 library(propensity)
 library(halfmoon)
 library(balancing)
+library(positively)
 ```
 
 For this set of exercises, we'll use propensity scores for continuous exposures.
@@ -242,6 +243,54 @@ check_balance(
 
 Continuous covariate balancing propensity score weights do not solve smooth estimating equations, so `ipw()` has no analytic standard error for them. Bootstrap the whole fit if you need an interval.
 
+## Stretch goal: ETA bias
+
+The balance check said the weights are in trouble. `check_eta_bias()` measures the cost: it treats the fitted exposure and outcome models as the truth, simulates the estimator against them, and reports the bias that positivity and sparsity alone produce. This uses the `wait_times_bal` data from the previous stretch goal.
+
+1. Diagnose the IPW estimator: give `check_eta_bias()` the outcome column and the estimator.
+
+```{r}
+set.seed(1000)
+eta_ipw <- check_eta_bias(
+  wait_times_bal,
+  wait_minutes_posted_avg,
+  ___,
+  c(
+    park_close_hours,
+    park_extra_magic_morning,
+    park_temperature_high,
+    park_ticket_season
+  ),
+  estimator = ___,
+  exposure_type = "continuous"
+)
+
+eta_ipw
+```
+
+2. Run the same diagnostic for g-computation and compare.
+
+```{r}
+set.seed(1000)
+eta_gcomp <- check_eta_bias(
+  wait_times_bal,
+  wait_minutes_posted_avg,
+  ___,
+  c(
+    park_close_hours,
+    park_extra_magic_morning,
+    park_temperature_high,
+    park_ticket_season
+  ),
+  estimator = ___,
+  exposure_type = "continuous"
+)
+
+eta_gcomp
+```
+
+The IPW bias is most of the size of the effect itself, while g-computation's is noise around zero. Positivity is breaking the weights here, not the outcome model, which is the same verdict the balance check gave.
+
 # Your Turn 3
 
 Now, let's fit the outcome model!
@@ -313,3 +362,4 @@ boot_estimate
 - Because propensity scores for continuous exposures are prone to positivity violation, check balance, and check the bootstrap distribution of your estimate for skew and to see if the mean estimate is different from your regression model.
 - If these problems are present, g-computation is often the better choice, but it does not remove the violation. It moves the problem into the outcome model, which extrapolates through the same sparse regions instead of weighting them. That is an improvement only when we can get the functional form right there.
 - Balancing weights are another option. They optimize covariate balance directly rather than modeling the exposure, which sidesteps the density estimation that makes continuous propensity scores fragile.
+- `check_eta_bias()` measures the bias positivity alone creates for an estimator, holding the fitted models as the truth. It is a check on the estimator, not a correction.
