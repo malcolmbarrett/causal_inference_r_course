@@ -36,11 +36,11 @@ seven_dwarfs_prop <- propensity_model |>
 
 ## Your Turn 1 (Matching)
 
-Create at "matched" data set using the same propensity score model as above and a caliper of 0.2. 
+Create a "matched" data set using the same propensity score model as above and a caliper of 0.2.
 
 1. Provide `matchit()` the formula for the propensity score.
 2. Using the `link` and `caliper` arguments, create a caliper of 0.2 SDs on the linear logit scale.
-3. Extract the matched datasets into a new data frame called `matched_df`.
+3. Extract the matched data set into a new data frame called `matched_df`.
 
 ```{r}
 library(MatchIt)
@@ -52,6 +52,8 @@ matched_dwarfs <- matchit(
 )
 
 matched_df <- ___(matched_dwarfs)
+
+matched_df
 ```
 
 ## Your Turn 2 (Weighting)
@@ -63,7 +65,7 @@ seven_dwarfs_prop <- seven_dwarfs_prop |>
   mutate(w_ate = ___)
 ```
 
-Stretch Goal 1: 
+## Stretch goal: ATM weights
 
 Add ATM weights to the data frame, `seven_dwarfs_prop`
 
@@ -72,9 +74,9 @@ seven_dwarfs_prop <- seven_dwarfs_prop |>
   mutate(w_atm = ___)
 ```
 
-Stretch Goal 2: 
+## Stretch goal: The weighted distribution
 
-Update the code below to examine the distribution of the weighted sample. **HINT** the part that needs to be updated is the `weight` parameter in two of the `geom_mirror_histogram()` call.
+Update the code below to examine the distribution of the weighted sample. **HINT**: update the `weight` parameter in the second `geom_mirror_histogram()` call using the ATE weights you created in Your Turn 2, then try the ATM weights.
 
 ```{r}
 #| warning: false
@@ -89,7 +91,7 @@ seven_dwarfs_prop |>
     bins = 30
   ) +
   geom_mirror_histogram(
-    aes(fill = park_extra_magic_morning, weight = ______),
+    aes(fill = park_extra_magic_morning, weight = ___),
     alpha = 0.5,
     bins = 30
   ) +
@@ -100,15 +102,19 @@ seven_dwarfs_prop |>
   labs(x = "p", fill = "Extra Magic Morning")
 ```
 
-Stretch Goal 3:
+## Stretch goal: Low-support regions
 
 Weights and trimming respond to extreme propensity scores.
 `check_port()` looks for the covariate regions that produce them.
 Fill in the confounders from the propensity score model above.
 
 ```{r}
+# `park_close` is stored in seconds, which is hard to read in the cutpoints
+seven_dwarfs_hours <- seven_dwarfs |>
+  mutate(park_close = as.numeric(park_close) / 3600)
+
 port <- check_port(
-  seven_dwarfs,
+  seven_dwarfs_hours,
   park_extra_magic_morning,
   c(___, ___, ___)
 )

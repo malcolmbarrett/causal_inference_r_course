@@ -132,7 +132,7 @@ df <- propensity_model |>
 Model statistics can't tell us how well we've adjusted for confounding, but we do have expectations about how the model behaves.
 First, check that the model is well-calibrated: among the days with a predicted probability of 0.3, about 30% should have had Extra Magic Hours in the morning.
 Expect a warning about small sample sizes in some of the windows.
-Only about 60 of these 354 days had Extra Magic Hours in the morning, so the windows at the sparse end of the propensity score distribution contain very few days; the warning tells you that the confidence band is imprecise there, not that you have done something wrong.
+Only about 60 of these 354 days had Extra Magic Hours in the morning, so the windows at the upper end of the propensity score distribution (predicted probabilities above about 0.4) contain very few days; the warning tells you that the confidence band is imprecise there, not that you have done something wrong.
 
 ```{r}
 plot_model_calibration(
@@ -157,10 +157,14 @@ Values between 0.6 and 0.8 usually mean we've picked up enough signal from the c
 check_model_auc(df, .exposure = ____, .fitted = ____)
 ```
 
-Stretch Goal 1:
+## Stretch goal
 
-Examine two histograms of the propensity scores, one days with Extra Magic Morning (`park_extra_magic_morning == 1`) and one for days without it (`park_extra_magic_morning == 0`).
+Examine two histograms of the propensity scores, one for days with Extra Magic Morning (`park_extra_magic_morning == 1`) and one for days without it (`park_extra_magic_morning == 0`).
 How do these compare?
 
 ```{r}
+df |>
+  ggplot(aes(x = ___)) +
+  geom_histogram(bins = 30) +
+  facet_wrap(~___)
 ```
