@@ -16,7 +16,7 @@ library(positively)
 
 For this set of exercises, we'll use g-computation to calculate a causal effect for continuous exposures.
 
-In the touringplans data set, we have information about the posted waiting times for rides. We also have a limited amount of data on the observed, actual times. The question that we will consider is this: Do posted wait times (`wait_minutes_posted_avg`) for the Seven Dwarves Mine Train at 8 am affect actual wait times (`wait_minutes_actual_avg`) at 9 am? Here's our DAG:
+In the touringplans data set, we have information about the posted waiting times for rides. We also have a limited amount of data on the observed, actual times. The question that we will consider is this: Do posted wait times (`wait_minutes_posted_avg`) for the Seven Dwarfs Mine Train at 8 am affect actual wait times (`wait_minutes_actual_avg`) at 9 am? Here's our DAG:
 
 ```{r}
 #| echo: false
@@ -90,7 +90,7 @@ dagify(
   )
 ```
 
-First, let's wrangle our data to address our question: do posted wait times at 8 affect actual weight times at 9? We'll join the baseline data (all covariates and posted wait time at 8) with the outcome (average actual time). We also have a lot of missingness for `wait_minutes_actual_avg`, so we'll drop unobserved values for now.
+First, let's wrangle our data to address our question: do posted wait times at 8 affect actual wait times at 9? We'll join the baseline data (all covariates and posted wait time at 8) with the outcome (average actual time). We also have a lot of missingness for `wait_minutes_actual_avg`, so we'll drop unobserved values for now.
 
 You don't need to update any code here, so just run this.
 
@@ -108,7 +108,7 @@ wait_times <- eight |>
   drop_na(wait_minutes_actual_avg)
 ```
 
-# Your Turn 1
+## Your Turn 1
 
 For the parametric G-formula, we'll use a single model to fit a causal model of Posted Waiting Times (`wait_minutes_posted_avg`) on Actual Waiting Times (`wait_minutes_actual_avg`) where we  include all covariates, much as we normally fit regression models. However, instead of interpreting the coefficients, we'll calculate the estimate by predicting on cloned data sets.
 
@@ -116,7 +116,7 @@ Two additional differences in our model: we'll use a natural cubic spline on the
 
 First, let's fit the model. 
 
-1.Use `lm()` to create a model with the outcome, exposure, and confounders identified in the DAG. 
+1. Use `lm()` to create a model with the outcome, exposure, and confounders identified in the DAG. 
 2. Save the model as `standardized_model`
 
 ```{r}
@@ -126,13 +126,13 @@ _______ ___ _______(
 )
 ```
 
-# Your Turn 2
+## Your Turn 2
 
 Now that we've fit a model, we need to clone our data set. To do this, we'll simply mutate it so that in one set, all participants have `wait_minutes_posted_avg` set to 30 minutes and in another, all participants have `wait_minutes_posted_avg` set to 60 minutes. 
 
 1. Create the cloned data sets, called `thirty` and `sixty`.
 2. For both data sets, use `standardized_model` and `augment()` to get the predicted values. Use the `newdata` argument in `augment()` with the relevant cloned data set. Then, select only the fitted value. Rename `.fitted` to either `thirty_posted_minutes` or `sixty_posted_minutes` (use the pattern `select(new_name = old_name)`).
-3. Save the predicted data sets as`predicted_thirty` and `predicted_sixty`.
+3. Save the predicted data sets as `predicted_thirty` and `predicted_sixty`.
 
 ```{r}
 _______ <- wait_times |>
@@ -150,7 +150,7 @@ predicted_sixty <- standardized_model |>
   _______
 ```
 
-# Your Turn 3
+## Your Turn 3
 
 Finally, we'll get the mean differences between the values. 
 
@@ -168,7 +168,7 @@ _______ |>
 
 That's it! `difference` is our effect estimate, marginalized over the spline terms, interaction effects, and confounders.
 
-# Your Turn 4
+## Your Turn 4
 
 Now let's calculate the same estimate the short way. `avg_comparisons()` from the marginaleffects package does every step you just did by hand, and it attaches a standard error and a confidence interval calculated with the delta method.
 
@@ -257,7 +257,7 @@ The grid runs from 10 to 80 minutes because that is about the range of posted wa
 Staying inside the observed range does not mean the predictions are equally well supported across it. In Your Turn 2 you set every day's posted wait to 30 and then to 60. `check_edp()` reports the effective number of observations that support each of those interventions, given the covariates.
 
 1. Set `values` to the two exposure values you cloned to.
-2. `wait_minutes_posted_avg` has enough repeated values to read as categorical, so declare the exposure type.
+2. `wait_minutes_posted_avg` is a continuous exposure, so declare the exposure type rather than letting `check_edp()` detect it.
 
 ```{r}
 edp <- check_edp(
@@ -279,11 +279,11 @@ edp |>
   summarize(edp = round(mean(edp), 1))
 ```
 
-Both are a small fraction of the 85 days in the data, and the 60 minute clone is the smaller of the two. That is the same shortage of support the wide interval in Your Turn 4 reports.
+Both are a small fraction of the 85 days in the data, under two days of effective support each, and the 60 minute clone is the smaller of the two. That is the same shortage of support the wide interval in Your Turn 4 reports.
 
 ---
 
-# Take aways
+# Takeaways
 
 - To fit the parametric G-formula, fit a standardized model with all covariates. Then, use cloned data sets with values set to each level of the exposure you want to study. 
 - Use the model to predict the values for that level of the exposure and compute the effect estimate you want

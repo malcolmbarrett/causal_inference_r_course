@@ -1,5 +1,5 @@
 ---
-title: "Outcome Model"
+title: "Fitting the outcome model"
 format: html
 ---
 
@@ -18,7 +18,7 @@ seven_dwarfs <- seven_dwarfs_train_2018 |>
 
 We are interested in examining the relationship between whether there were "Extra Magic Hours" in the morning (the **exposure**) and the average wait time for the Seven Dwarfs Mine Train the same day between 9am and 10am (the **outcome**).
 
-## Your turn 1
+## Your Turn 1
 
 Create a function called `fit_ipw` that fits the propensity score model and incorporates the ATE weights (as calculated in the previous exercises), then uses the weights in a weighted outcome model.
 
@@ -49,6 +49,8 @@ Check out the distribution of estimates (**no need to change this code**)
 
 ```{r}
 ipw_results |>
+  # remove the original data set results
+  filter(id != "Apparent") |>
   mutate(
     estimate = map_dbl(
       boot_fits,
@@ -74,7 +76,7 @@ boot_estimate <- ____(____, ____) |>
 boot_estimate
 ```
 
-## Your turn 2
+## Your Turn 2
 
 Fit both models on the full data: the same propensity score model and weighted outcome model you wrote inside `fit_ipw()`, fit once on `seven_dwarfs` rather than on a bootstrap sample.
 
@@ -113,7 +115,9 @@ as_conditional(____) |>
 
 The `park_extra_magic_morning` coefficient matches the marginal `diff` here because the outcome model is linear in the exposure with an identity link. The marginal reading is the estimand; the conditional reading is the regression table.
 
-**Stretch goal**: Now estimate the effect using matching.
+## Stretch goal: Matching
+
+Now estimate the effect using matching.
 
 ```{r}
 library(MatchIt)
@@ -122,13 +126,18 @@ matched_dwarfs <- matchit(
   park_extra_magic_morning ~ park_ticket_season +
     park_close +
     park_temperature_high,
-  data = seven_dwarfs
+  data = seven_dwarfs,
+  method = "nearest",
+  distance = "glm",
+  estimand = "ATT"
 )
 
 matched_data <- get_matches(matched_dwarfs)
 
 matched_outcome <- lm(___ ~ ___, data = ____)
 ```
+
+This is 1:1 nearest neighbor matching on the propensity score, and it targets the ATT rather than the ATE. The matched estimate answers a different question than the weighted estimates above, so do not expect the two to agree.
 
 Bootstrapping matched data the same way is not valid: matching induces a dependence between matched pairs, and resampling rows breaks it. There are two valid routes.
 

@@ -296,7 +296,7 @@ ggplot(
   geom_love(vline_xintercept = 1)
 ```
 
-## Your turn 1
+## *Your Turn 1*
 
 `r countdown::countdown(minutes = 6)`
 
@@ -312,7 +312,10 @@ ggplot(
   net_data_wts,
   aes(x = factor(net), y = income, color = factor(net))
 ) +
-  geom_jitter(width = 0.12, height = 0, alpha = 0.15) +
+  geom_jitter(
+    position = position_jitter(width = 0.12, height = 0, seed = 25),
+    alpha = 0.15
+  ) +
   geom_boxplot(outlier.color = NA, fill = NA, width = 0.3, color = "black") +
   labs(color = "Net use", y = "Income", x = NULL)
 ```
@@ -328,7 +331,10 @@ ggplot(
   net_data_wts,
   aes(x = factor(net), y = income, color = factor(net), weight = w_ate)
 ) +
-  geom_jitter(width = 0.12, height = 0, alpha = 0.15) +
+  geom_jitter(
+    position = position_jitter(width = 0.12, height = 0, seed = 25),
+    alpha = 0.15
+  ) +
   geom_boxplot(outlier.color = NA, fill = NA, width = 0.3, color = "black") +
   labs(color = "Net use", y = "Income", x = NULL)
 ```
@@ -380,7 +386,7 @@ ggplot(net_data_wts, aes(x = income, color = factor(net))) +
   ylab("Proportion <= x")
 ```
 
-## Weighted  ECDF
+## Weighted ECDF
 
 ```{r}
 #| eval: true
@@ -748,7 +754,7 @@ ipw_fit <- ipw(entropy_fit, outcome_model)
 ipw_fit
 ```
 
-## *Your turn 2*
+## *Your Turn 2*
 
 `r countdown::countdown(minutes = 6)`
 
@@ -783,8 +789,8 @@ svy_des <- svydesign(
 
 library(gtsummary)
 tbl_svysummary(svy_des, by = x) |>
-  add_ess_header() |>
-  add_overall(last = TRUE)
+  add_overall(last = TRUE) |>
+  add_ess_header()
 ```
 
 ## {.gtsummary .tiny}
@@ -808,8 +814,8 @@ svy_des <- svydesign(
 theme_gtsummary_compact()
 
 tbl_svysummary(svy_des, by = net, include = c(income, health, temperature)) |>
-  add_ess_header() |>
-  add_overall(last = TRUE)
+  add_overall(last = TRUE) |>
+  add_ess_header()
 ```
 
 ## {.center .huge background-color="#23373B"}

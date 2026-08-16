@@ -273,6 +273,7 @@ Without an exposure-covariate interaction, the three coincide: the model assumes
 The ATO and ATM populations are not subsets of the rows, so weight the average by the tilting function instead
 
 ```{r}
+#| eval: false
 #| code-line-numbers: "|3-4,9"
 
 library(propensity)
@@ -285,6 +286,24 @@ avg_comparisons(
   variables = "a",
   wts = ps_tilt(greek_ps, "ato")
 )
+```
+
+```{r}
+#| echo: false
+
+library(propensity)
+
+greek_ps <- glm(a ~ l, data = greek_data, family = binomial()) |>
+  predict(type = "response")
+
+avg_comparisons(
+  greek_model,
+  variables = "a",
+  wts = ps_tilt(greek_ps, "ato")
+) |>
+  tidy() |>
+  select(estimate, std.error, conf.low, conf.high) |>
+  mutate(across(everything(), \(x) round(x, digits = 2)))
 ```
 
 ## Predicting where there are no data
