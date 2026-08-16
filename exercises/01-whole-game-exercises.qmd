@@ -369,10 +369,10 @@ bias and time-dependent confounding.
 
 But we have another problem to address. While we're using `lm()` to estimate our
 IPW model, it doesn't properly account for the fact that we estimated the
-weights. That means our standard error is too small, which artificially narrows
-confidence intervals and artificially shrinks p-values. There are many ways to
-address this, including robust estimators. We'll focus on the bootstrap via the
-{rsample} package, but here's one way to do it with robust standard errors:
+weights. That means our standard error is wrong, so our confidence intervals and
+p-values are not trustworthy. There are many ways to address this, including
+robust estimators. We'll focus on the bootstrap via the {rsample} package, but
+here's one way to do it with robust standard errors:
 
 ```{r}
 # also see robustbase, survey, gee, and others
@@ -650,6 +650,10 @@ The unmeasured confounder is available in `net_data_full` as
 `genetic_resistance`. Let's add it to the propensity score model and recalculate
 the IPW estimate.
 
+This time we'll use `ipw()`, which uses a sandwich estimator that also accounts
+for the uncertainty in the propensity score model. Bring your own models: fit
+the propensity score and outcome models yourself, then supply them to `ipw()`.
+
 ```{r}
 # add genetic resistance to the propensity score model
 propensity_model_full <- glm(
@@ -682,7 +686,7 @@ no confounding? How might you criticize this analysis, and what would you do
 differently? In practice we can never check our answer against the truth, so we
 need to keep probing our assumptions until we are confident they are robust.
 
-# Take aways
+# Takeaways
 
 - The broad strokes of a causal analysis are: 1) specify your causal question 2)
   make your assumptions clear 3) model and diagnose those assumptions 4) use the
